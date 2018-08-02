@@ -7,11 +7,11 @@
 > There will be more features to be added next few days
 
 ### August 1 Notes.
-✅ Login to Home Page
-❌ Content of the Home Page
-❌ Will use Firestore instead of Firebase Realtime Database
-❌ Event Page
-❌ Create Event
-❌ Scan Page
-❌ Description of Event Page
-❌ Fixing Beacons
+- ✅ Login to Home Page
+- ❌ Content of the Home Page
+- ❌ Will use Firestore instead of Firebase Realtime Database
+- ❌ Event Page
+- ❌ Create Event
+- ❌ Scan Page
+- ❌ Description of Event Page
+- ❌ Fixing Beacons
