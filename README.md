@@ -1,4 +1,5 @@
 # PAROLA
+
   ### Current Progress: 10%
   - [✅] Bluetooth Low Energy using Flutter blue
 
