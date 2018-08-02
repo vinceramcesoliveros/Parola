@@ -16,3 +16,7 @@
 - ❌ Scan Page
 - ❌ Description of Event Page
 - ❌ Fixing Beacons
+
+Example:
+**Login**: 
+![Image of Parola Login](https://github.com/ram231/Parola/blob/master/Specimen2.gif)
