@@ -1,5 +1,8 @@
 # PAROLA
 
+[![Join the chat at https://gitter.im/IT180-Parola/Lobby](https://badges.gitter.im/IT180-Parola/Lobby.svg)](https://gitter.im/IT180-Parola/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+
   ### Current Progress: 10%
   - [✅] Bluetooth Low Energy using Flutter blue
 
