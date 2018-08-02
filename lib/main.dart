@@ -88,7 +88,7 @@ class SplashScreenState extends State<SplashScreen> {
       title: 'Parola',
       // showPerformanceOverlay: true,
       debugShowCheckedModeBanner: false,
-      home: HomePage(), //loggedIn == true ? HomePage() : LoginPage(),
+      home: LoginPage(), //loggedIn == true ? HomePage() : LoginPage(),
       initialRoute: "/login",
       routes: {
         '/login': (context) => LoginPage(),
@@ -110,6 +110,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       body: PBodyPage(),
     );
   }
@@ -179,9 +180,9 @@ class _BodyPageState extends State<PBodyPage> {
                         Text("Sign in with Google"),
                       ],
                     ),
-                    onPressed: () {
-                      googleSignIn().then((FirebaseUser user) =>
-                          Navigator.of(context).pushReplacementNamed('/home'));
+                    onPressed: () async {
+                      await googleSignIn().then((FirebaseUser user) =>
+                          Navigator.of(context).pushNamed('/home'));
                     },
                   ),
                   RaisedButton(

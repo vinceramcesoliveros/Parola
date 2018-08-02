@@ -1,13 +1,11 @@
 import 'dart:async';
 
 import 'package:final_parola/main.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -25,15 +23,13 @@ class _HomePageState extends State<HomePage> {
   @override
   @override
   void initState() {
-    setState(() {
-      getNames();
-    });
+    getNames();
 
     // TODO: implement initState
     super.initState();
   }
 
-  String username = "", userid = "", useremail = "", userphotoURL = "";
+  static String username = "", userid = "", useremail = "", userphotoURL = "";
   Future<Null> getNames() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -44,11 +40,27 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  ///Extract Widgets to become readable code.
+  Widget _kUserDrawer = UserAccountsDrawerHeader(
+    accountName: Text(username),
+    accountEmail: Text(useremail),
+    currentAccountPicture: CircleAvatar(
+      backgroundImage: userphotoURL == '' ? null : NetworkImage(userphotoURL),
+    ),
+    key: Key(userid),
+  );
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onExit,
       child: Scaffold(
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: FloatingActionButton.extended(
+          icon: Icon(FontAwesomeIcons.bluetoothB),
+          onPressed: () {},
+          label: Text("Join Event"),
+          backgroundColor: Colors.red[800],
+        ),
         backgroundColor: Colors.red[400],
         appBar: AppBar(
           title: CircleAvatar(
@@ -79,15 +91,7 @@ class _HomePageState extends State<HomePage> {
           elevation: 0.0,
           child: ListView(
             children: <Widget>[
-              UserAccountsDrawerHeader(
-                accountName: Text(username),
-                accountEmail: Text(useremail),
-                currentAccountPicture: CircleAvatar(
-                  backgroundImage:
-                      userphotoURL == '' ? null : NetworkImage(userphotoURL),
-                ),
-                key: Key(userid),
-              ),
+              _kUserDrawer,
               ListTile(
                 title: Text("Exit"),
                 leading: Icon(Icons.exit_to_app),
@@ -153,3 +157,5 @@ class _HBodyPageState extends State<HBodyPage> {
     ]);
   }
 }
+
+//Add Bottom Navigation and Floating Action Button
