@@ -12,8 +12,7 @@ import 'package:flutter_blue/flutter_blue.dart';
 
 void main() {
   testWidgets("Test the Beacon plugin", (WidgetTester tester) async {
-    await tester.pumpWidget(MyApp());
-    
+    await tester.pumpWidget(SplashScreen());
     // expect()
   });
 }
