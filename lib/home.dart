@@ -1,11 +1,21 @@
-import 'dart:async';
+//If you're reading this code, please do not say that this is a spaghetti code since
+// since I'm the one who wrote this, I've been refactoring it very well especially
+// on private variable namings in dart.
+// On the side note. Don't hesitate to ask the "WTF does this do??"
+// I'm glad to hear feedbacks from you!!
 
-import 'package:final_parola/main.dart';
-import 'package:flutter/material.dart';
+import 'dart:async';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:final_parola/main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,6 +23,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final app = FirebaseApp.instance;
+  final config = FirebaseApp.configure(
+      name: 'Parola',
+      options: FirebaseOptions(
+          projectID: 'parola-2468e',
+          googleAppID: '1:818472414092:android:a9c5fa1888c6f112',
+          apiKey: 'AIzaSyC5oO96yzVWTdgDZWG44GZ7kATMq603tSA'));
 //   StreamSubscription _scanSubscription;
 
 //   Beacons.loggingEnabled = true;
@@ -23,32 +40,31 @@ class _HomePageState extends State<HomePage> {
   @override
   @override
   void initState() {
-    getNames();
-
-    // TODO: implement initState
+    _storeUser();
     super.initState();
   }
 
-  static String username = "", userid = "", useremail = "", userphotoURL = "";
-  Future<Null> getNames() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      username = prefs.getString("username") ?? "";
-      userid = prefs.getString("userid") ?? "";
-      useremail = prefs.getString("useremail") ?? "";
-      userphotoURL = prefs.getString("userphotoURL") ?? "";
-    });
+  _storeUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    final DocumentReference userRef = Firestore.instance
+        .collection("users")
+        .document(prefs.getString("userid"));
+    Map<String, String> userData = {
+      "username": prefs.getString("username") ?? '',
+      "email": prefs.getString("useremail") ?? '',
+      "photoURL": prefs.getString("userphotoURL") ?? '',
+    };
+
+    ///Equivalent to
+    ///Insert into users values (userID,email,photoURL)
+    await userRef
+        .setData(userData,
+            merge: true) // Check if the userID has duplicate data
+        .whenComplete(() => print("User added"))
+        .catchError((e) => print(e));
   }
 
-  ///Extract Widgets to become readable code.
-  Widget _kUserDrawer = UserAccountsDrawerHeader(
-    accountName: Text(username),
-    accountEmail: Text(useremail),
-    currentAccountPicture: CircleAvatar(
-      backgroundImage: userphotoURL == '' ? null : NetworkImage(userphotoURL),
-    ),
-    key: Key(userid),
-  );
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -86,21 +102,7 @@ class _HomePageState extends State<HomePage> {
             )
           ],
         ),
-        drawer: Drawer(
-          semanticLabel: "Open Settings",
-          elevation: 0.0,
-          child: ListView(
-            children: <Widget>[
-              _kUserDrawer,
-              ListTile(
-                title: Text("Exit"),
-                leading: Icon(Icons.exit_to_app),
-                onTap: () => _signOutGoogle(),
-              ),
-              AboutListTile()
-            ],
-          ),
-        ),
+        drawer: UserDrawer(),
         body: HBodyPage(),
       ),
     );
@@ -114,7 +116,7 @@ class _HomePageState extends State<HomePage> {
               content: Text("Do you want to exit Parola?"),
               actions: <Widget>[
                 RaisedButton(
-                  color: Colors.red,
+                  color: Colors.red[200],
                   child: Text("Nope"),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
@@ -122,18 +124,67 @@ class _HomePageState extends State<HomePage> {
               ],
             ));
   }
+}
 
-  Future<Null> _signOutGoogle() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await signIn.signOut();
-    await auth.signOut();
-    prefs.clear();
-    prefs.commit();
-    this.setState(() {
-      Navigator.of(context).pushNamed("/login");
-      loggedIn = false;
-    });
-    print(loggedIn);
+class UserProfile extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: FirebaseAuth.instance.currentUser().asStream(),
+      builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
+        return UserAccountsDrawerHeader(
+          accountName: Text(snapshot.data.displayName),
+          accountEmail: Text(snapshot.data.email),
+          currentAccountPicture: CircleAvatar(
+            backgroundImage: NetworkImage(snapshot.data.photoUrl),
+          ),
+          key: Key(snapshot.data.uid),
+        );
+      },
+    );
+  }
+}
+
+class UserDrawer extends StatefulWidget {
+  @override
+  UserDrawerState createState() {
+    return new UserDrawerState();
+  }
+}
+
+class UserDrawerState extends State<UserDrawer> {
+  @override
+  Widget build(BuildContext context) {
+    Future<Null> _signOutGoogle() async {
+      final FirebaseAuth _auth = FirebaseAuth.instance;
+      final GoogleSignIn _signIn = new GoogleSignIn();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await _signIn.signOut();
+      await _auth.signOut();
+      prefs.clear();
+      // prefs.commit();
+      this.setState(() {
+        Navigator.of(context).pushNamed("/login");
+        loggedIn = false;
+      });
+      print(loggedIn);
+    }
+
+    return Drawer(
+      semanticLabel: "Open Settings",
+      elevation: 0.0,
+      child: ListView(
+        children: <Widget>[
+          UserProfile(),
+          ListTile(
+            title: Text("Exit"),
+            leading: Icon(Icons.exit_to_app),
+            onTap: () => _signOutGoogle(),
+          ),
+          AboutListTile()
+        ],
+      ),
+    );
   }
 }
 
@@ -145,17 +196,36 @@ class HBodyPage extends StatefulWidget {
 class _HBodyPageState extends State<HBodyPage> {
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Center(child: Row()
-          //RaisedButton(
-          // child: Text("SignOut"),
-          // onPressed: () async {
-          //   _signOutGoogle();
-          //   Navigator.of(context).pushReplacementNamed('/login');
-          // }),
-          )
-    ]);
+    return StreamBuilder(
+        stream: Firestore.instance.collection('events').snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          return EventListView(
+            eventDocuments: snapshot.data.documents,
+          );
+        });
   }
 }
 
-//Add Bottom Navigation and Floating Action Button
+class EventListView extends StatelessWidget {
+  final List<DocumentSnapshot> eventDocuments;
+
+  const EventListView({Key key, this.eventDocuments}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: eventDocuments.length,
+      itemExtent: 60.0,
+      itemBuilder: (context, index) {
+        String eventTitle = eventDocuments[index].data['eventName'].toString();
+        String eventDate = eventDocuments[index].data['eventDate'].toString();
+        return ListTile(
+          title: Text(eventTitle),
+          subtitle: Text(eventDate),
+        );
+      },
+    );
+  }
+}
+
+//Add Bottom Navigation
