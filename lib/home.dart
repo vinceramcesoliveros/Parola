@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
 
   _storeUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    
     final DocumentReference userRef = Firestore.instance
         .collection("users")
         .document(prefs.getString("userid"));
@@ -54,11 +54,13 @@ class _HomePageState extends State<HomePage> {
       "username": prefs.getString("username") ?? '',
       "email": prefs.getString("useremail") ?? '',
       "photoURL": prefs.getString("userphotoURL") ?? '',
+      
     };
 
     ///Equivalent to
     ///Insert into users values (userID,email,photoURL)
-    await userRef
+    /// FIXME: User gets to be inserted everytime he/she logs in.
+    await userRef  
         .setData(userData,
             merge: true) // Check if the userID has duplicate data
         .whenComplete(() => print("User added"))
@@ -117,10 +119,18 @@ class _HomePageState extends State<HomePage> {
               actions: <Widget>[
                 RaisedButton(
                   color: Colors.red[200],
-                  child: Text("Nope"),
+                  child: Text(
+                    "Nope",
+                    style: TextStyle(color: Colors.white),
+                  ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
-                FlatButton(child: Text("Yes"), onPressed: () => exit(0)),
+                FlatButton(
+                    child: Text(
+                      "Yes",
+                      style: TextStyle(color: Colors.red[200]),
+                    ),
+                    onPressed: () => exit(0)),
               ],
             ));
   }

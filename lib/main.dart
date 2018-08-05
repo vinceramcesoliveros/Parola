@@ -40,8 +40,9 @@ class SplashScreenState extends State<SplashScreen> {
   ///
   ///Checkes if the [user] has signed in after closing
   ///the application
-  Future<Null> _isLoggedIn() async {
+  Future<bool> _isLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+  
     this.setState(() {
       if (prefs.getString("username") != null) {
         loggedIn = true;
@@ -50,9 +51,9 @@ class SplashScreenState extends State<SplashScreen> {
         loggedIn = false;
       }
     });
+    return loggedIn;
   }
 
-  // FIX:
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -73,9 +74,8 @@ class SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    this._isLoggedIn();
+      this._isLoggedIn();
 
-    // TODO: implement initState
     super.initState();
   }
 }
@@ -128,6 +128,7 @@ class BtnFBSignIn extends StatefulWidget {
 
 class _BtnFBSignInState extends State<BtnFBSignIn> {
   ///Facebook Sign in Authentication
+  ///TODO:
   Future<FirebaseUser> _facebookSignIn() async {
     return null;
   }
@@ -197,10 +198,8 @@ class _BtnGoogleSignInState extends State<BtnGoogleSignIn> {
         ],
       ),
       onPressed: () async {
-        await googleSignIn().then((FirebaseUser user) => Navigator
-            .of(context)
-            .pushNamed('/home')
-            );
+        await googleSignIn().then(
+            (FirebaseUser user) => Navigator.of(context).pushNamed('/home'));
       },
     );
   }
