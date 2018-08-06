@@ -1,7 +1,7 @@
 # PAROLA
 
 [![Join the chat at https://gitter.im/IT180-Parola/Lobby](https://badges.gitter.im/IT180-Parola/Lobby.svg)](https://gitter.im/IT180-Parola/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
+[![Coverage Status](https://coveralls.io/repos/github/ram231/Parola/badge.svg?branch=master)](https://coveralls.io/github/ram231/Parola?branch=master)
 
   ### Current Progress: 12%
   - [✅] Bluetooth Low Energy using Flutter blue
@@ -19,7 +19,3 @@
 - ❌ Scan Page
 - ❌ Description of Event Page
 - ❌ Fixing Beacons
-
-Example:
-**Login**: 
-![Image of Parola Login](https://github.com/ram231/Parola/blob/master/Specimen2.gif)
