@@ -19,3 +19,7 @@
 - ❌ Scan Page
 - ❌ Description of Event Page
 - ❌ Fixing Beacons
+
+### August 7 Notes
+- Re-organized the files to follow the principle of **"100 lines of code"**
+- Still struggling for Data modeling in the Cloud firestore
