@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "818472414092",
+    "firebase_url": "https://parola-2468e.firebaseio.com",
+    "project_id": "parola-2468e",
+    "storage_bucket": "parola-2468e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:818472414092:android:a9c5fa1888c6f112",
+        "android_client_info": {
+          "package_name": "com.example.finalparola"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "818472414092-tflkuhkbbrl8bdu5lboqgbvegbho5d4j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.finalparola",
+            "certificate_hash": "4004e3b6172ae4d101978d5f84b98e573ee51834"
+          }
+        },
+        {
+          "client_id": "818472414092-3ukr43ah8sg013u5dib2jkj30gt3bsp6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1e_j8BjFSWsN5WiSYnsxvHtMXmMn7jRY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "818472414092-3ukr43ah8sg013u5dib2jkj30gt3bsp6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

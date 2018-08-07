@@ -8,7 +8,12 @@
         <option name="modules">
           <set>
             <option value="$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/beacons-0.3.0/android" />
+            <option value="$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/firebase_auth-0.5.15/android" />
             <option value="$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/flutter_blue-0.3.3/android" />
+            <option value="$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/flutter_local_notifications-0.3.6/android" />
+            <option value="$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/google_sign_in-3.0.4/android" />
+            <option value="$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/shared_preferences-0.4.2/android" />
+            <option value="$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/simple_permissions-0.1.5/android" />
             <option value="$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/streams_channel-0.2.2/android" />
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
