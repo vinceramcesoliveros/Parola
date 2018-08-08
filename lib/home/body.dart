@@ -41,9 +41,7 @@ class EventListView extends StatelessWidget {
               repeat: ImageRepeat.noRepeat,
               fit: BoxFit.cover,
             ),
-            onTap: () {
-              
-            },
+            onTap: () {},
           ),
         );
       },

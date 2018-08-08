@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD:lib/events/events.dart
-=======
-<<<<<<< HEAD
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
->>>>>>> master:lib/events.dart
 
 class EventPage extends StatelessWidget {
   @override
@@ -105,16 +101,3 @@ class _EventFormState extends State<EventForm> {
     );
   }
 }
-=======
-
-
-
-class EventPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      
-    );
-  }
-}
->>>>>>> e8425145875f099ece713006bfbae761f4f05c4b
