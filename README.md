@@ -19,3 +19,11 @@
 - ❌ Scan Page
 - ❌ Description of Event Page
 - ❌ Fixing Beacons
+
+### August 7 Notes
+- Re-organized the files to follow the principle of **"100 lines of code"**
+- Still struggling for Data modeling in the Cloud firestore
+
+### August 8 Notes
+- Added Connectivity, to ensure that if a user has no internet connection, it will give a toast that it has no internet connection
+- Added Images for the Event. Still under construction. Please bear with my effort.
