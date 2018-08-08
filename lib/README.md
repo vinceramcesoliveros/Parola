@@ -10,7 +10,7 @@
 1. `Select count(users.userid) from eventAttendees`
 
 > When a user creates an event, We want to get the URL, event name, etc. 
-1. `INSERT INTO event values (eventID,BeaconUUID,Major,Minor,...)`
+2. `INSERT INTO event values (eventID,BeaconUUID,Major,Minor,...)`
 
 > 
 ## Organizations

@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class BtnFBSignIn extends StatelessWidget {
-  @override
   Future<FirebaseUser> _facebookSignIn() async {
     return null;
   }

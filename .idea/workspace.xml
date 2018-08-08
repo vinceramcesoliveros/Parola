@@ -22,6 +22,13 @@
         <entry file="file://$PROJECT_DIR$/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
+            <state relative-caret-position="1241">
+              <caret line="91" column="0" lean-forward="false" selection-start-line="91" selection-start-column="0" selection-end-line="91" selection-end-column="0" />
+              <folding>
+                <marker date="1533735081345" expanded="true" signature="3595:3596" ph="//..." />
+              </folding>
+=======
+<<<<<<< HEAD
             <state relative-caret-position="0">
               <caret line="129" column="0" lean-forward="false" selection-start-line="129" selection-start-column="0" selection-end-line="129" selection-end-column="0" />
 =======
@@ -29,6 +36,7 @@
               <caret line="100" column="0" lean-forward="false" selection-start-line="100" selection-start-column="0" selection-end-line="100" selection-end-column="0" />
 >>>>>>> e8425145875f099ece713006bfbae761f4f05c4b
               <folding />
+>>>>>>> master
             </state>
           </provider>
         </entry>
@@ -39,22 +47,24 @@
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding>
-                <marker date="1533223222121" expanded="true" signature="777:1137" ph="{...}" />
+                <marker date="1533656248656" expanded="true" signature="777:1137" ph="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AndroidManifest.xml" pinned="false" current-in-tab="false">
+      <file leaf-file-name="AndroidManifest.xml" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="714">
+            <state relative-caret-position="376">
               <caret line="42" column="0" lean-forward="false" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
+=======
       <file leaf-file-name="home.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/home.dart">
           <provider selected="true" editor-type-id="text-editor">
@@ -92,6 +102,7 @@
           </provider>
         </entry>
       </file>
+>>>>>>> master
       <file leaf-file-name="pubspec.yaml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pubspec.yaml">
           <provider selected="true" editor-type-id="text-editor">
@@ -156,10 +167,15 @@
     </navigator>
     <panes>
 <<<<<<< HEAD
+      <pane id="AndroidView" />
+      <pane id="PackagesPane" />
+=======
+<<<<<<< HEAD
       <pane id="Scope" />
       <pane id="AndroidView" />
 =======
 >>>>>>> e8425145875f099ece713006bfbae761f4f05c4b
+>>>>>>> master
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -298,7 +314,7 @@
       <pane id="Scope" />
       <pane id="AndroidView" />
       <pane id="Scratches" />
-      <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -474,7 +490,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="544">
           <caret line="32" column="1" lean-forward="false" selection-start-line="32" selection-start-column="1" selection-end-line="32" selection-end-column="1" />
-          <folding />
+          <folding>
+            <marker date="1533735081345" expanded="true" signature="3595:3596" ph="//..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -504,7 +522,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1533735081345" expanded="true" signature="3595:3596" ph="//..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -534,7 +554,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="561">
           <caret line="36" column="38" lean-forward="false" selection-start-line="36" selection-start-column="38" selection-end-line="36" selection-end-column="38" />
-          <folding />
+          <folding>
+            <marker date="1533735081345" expanded="true" signature="3595:3596" ph="//..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -564,7 +586,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="561">
           <caret line="36" column="38" lean-forward="false" selection-start-line="36" selection-start-column="38" selection-end-line="36" selection-end-column="38" />
-          <folding />
+          <folding>
+            <marker date="1533735081345" expanded="true" signature="3595:3596" ph="//..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -594,7 +618,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1533735081345" expanded="true" signature="3595:3596" ph="//..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -624,7 +650,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1533735081345" expanded="true" signature="3595:3596" ph="//..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -781,7 +809,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1533223222121" expanded="true" signature="777:1137" ph="{...}" />
+            <marker date="1533656248656" expanded="true" signature="777:1137" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -803,9 +831,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/main.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="129" column="0" lean-forward="false" selection-start-line="129" selection-start-column="0" selection-end-line="129" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="1241">
+          <caret line="91" column="0" lean-forward="false" selection-start-line="91" selection-start-column="0" selection-end-line="91" selection-end-column="0" />
+          <folding>
+            <marker date="1533735081345" expanded="true" signature="3595:3596" ph="//..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -820,6 +850,8 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="64" column="0" lean-forward="false" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
+<<<<<<< HEAD
+=======
 =======
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
@@ -842,6 +874,7 @@
         <state relative-caret-position="714">
           <caret line="42" column="0" lean-forward="false" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
           <folding />
+>>>>>>> master
         </state>
       </provider>
     </entry>
@@ -858,8 +891,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/home.dart">
+    <entry file="file://$PROJECT_DIR$/lib/home.dart" />
+    <entry file="file://$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+        <state relative-caret-position="376">
+          <caret line="42" column="0" lean-forward="false" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
+=======
         <state relative-caret-position="1020">
           <caret line="94" column="40" lean-forward="false" selection-start-line="94" selection-start-column="40" selection-end-line="94" selection-end-column="40" />
           <folding>
@@ -894,6 +932,7 @@
         <state relative-caret-position="714">
           <caret line="42" column="0" lean-forward="false" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
 >>>>>>> e8425145875f099ece713006bfbae761f4f05c4b
+>>>>>>> master
           <folding />
         </state>
       </provider>

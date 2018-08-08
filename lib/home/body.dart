@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 class HomeBodyPage extends StatelessWidget {
   @override
@@ -7,11 +8,7 @@ class HomeBodyPage extends StatelessWidget {
     return StreamBuilder(
         stream: Firestore.instance.collection('events').snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData)
-            return Center(
-                child: CircularProgressIndicator(
-              backgroundColor: Colors.red[200],
-            ));
+          if (!snapshot.hasData) return CircularProgressIndicator();
           return EventListView(
             eventDocuments: snapshot.data.documents,
           );
@@ -30,15 +27,22 @@ class EventListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: eventDocuments.length,
-      itemExtent: 60.0,
+      itemExtent: 90.0,
       itemBuilder: (context, index) {
         String eventTitle = eventDocuments[index].data['eventName'].toString();
         String eventDate = eventDocuments[index].data['eventDate'].toString();
-        return ListTile(
-          onTap: () {},
-          title: Text(eventTitle),
-          subtitle: Text(eventDate),
-          leading: Icon(Icons.event_available),
+        String eventPic = eventDocuments[index].data['eventPicURL'].toString();
+        return Card(
+          child: ListTile(
+            title: Text(eventTitle),
+            subtitle: Text(eventDate),
+            leading: Image.network(
+              eventPic,
+              repeat: ImageRepeat.noRepeat,
+              fit: BoxFit.cover,
+            ),
+            onTap: () {},
+          ),
         );
       },
     );
