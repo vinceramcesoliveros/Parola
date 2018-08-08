@@ -3,8 +3,8 @@ import 'package:final_parola/home/exit.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-
-
+///The [User Photo] will not be loaded once the connection has lost from restart.
+///Cannot implement a Circle Avatar with initial on top of it.
 class UserProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -37,6 +37,13 @@ class UserDrawer extends StatelessWidget {
               title: Text("Settings"),
               leading: Icon(Icons.settings),
               onTap: () {}),
+          ListTile(
+            title: Text("Events"),
+            leading: Icon(Icons.event_note),
+            onTap: () {
+              Navigator.pushNamed(context, '/event');
+            },
+          ),
           ExitParola(),
           AboutParola(),
         ],

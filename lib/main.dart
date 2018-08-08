@@ -3,7 +3,7 @@
 // on private variable namings in dart.
 // On the side note. Don't hesitate to ask the "WTF does this do??"
 // I'm glad to hear feedbacks from you!!
-// UPDATE: I've organized my widgets to separate dart files 
+// UPDATE: I've organized my widgets to separate dart files
 // so that you can find where and what is this
 // doing. OPEN THIS PROJECT IN AN EDITOR TO FIND THE PATH WHAT YOU ARE LOOKING FOR.
 // I did this because I want to make a rule "100 lines of code per file".
@@ -18,13 +18,13 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_blue/flutter_blue.dart';
 // import 'package:scoped_model/scoped_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:final_parola/events.dart';
-
-void main() {
-  runApp(SplashScreen());
-}
+import 'package:final_parola/events/events.dart';
 
 bool loggedIn = false;
+void main() {
+  print(loggedIn);
+  runApp(SplashScreen());
+}
 
 ///This class will save the User's
 ///information to access the homepage
@@ -43,13 +43,15 @@ class SplashScreenState extends State<SplashScreen> {
   ///the application
   Future<bool> _isLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    this.setState(() {
+      if (prefs.getString("username") != null) {
+        loggedIn = true;
+        print(prefs.getString('username'));
+      } else {
+        loggedIn = false;
+      }
+    });
 
-    if (prefs.getString("username") != null) {
-      loggedIn = true;
-      print(prefs.getString('username'));
-    } else {
-      loggedIn = false;
-    }
     return loggedIn;
   }
 
@@ -58,57 +60,34 @@ class SplashScreenState extends State<SplashScreen> {
   Color cardColor = Colors.red[600];
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onExit,
-      child: MaterialApp(
-        // showPerformanceOverlay: true,
-        // showPerformanceOverlay: true,
-        theme: ThemeData(
-          brightness: Brightness.light,
-          textTheme: TextTheme(
-              title: TextStyle(color: Colors.white),
-              display4: TextStyle(color: Colors.white)),
-          errorColor: Colors.red[100],
-          backgroundColor: Colors.red[400],
-          buttonColor: btnParola,
-          cardColor: cardColor,
-          scaffoldBackgroundColor: parolaColor,
-        ),
-        title: 'Parola',
-        // showPerformanceOverlay: true,
-        debugShowCheckedModeBanner: false,
-        home: loggedIn == true ? HomePage() : LoginPage(),
-        // initialRoute: "/login",
-        routes: {
-          '/login': (context) => LoginPage(),
-          '/home': (context) => HomePage(),
-          '/event': (context) => EventPage(),
-        },
+    return MaterialApp(
+      theme: ThemeData(
+        brightness: Brightness.light,
+        textTheme: TextTheme(
+            title: TextStyle(color: Colors.white),
+            display4: TextStyle(color: Colors.white)),
+        errorColor: Colors.red[100],
+        backgroundColor: Colors.red[400],
+        buttonColor: btnParola,
+        cardColor: cardColor,
+        scaffoldBackgroundColor: parolaColor,
       ),
+      title: 'Parola',
+      // showPerformanceOverlay: true,
+      debugShowCheckedModeBanner: false,
+      home: loggedIn == true ? HomePage() : LoginPage(),
+      // initialRoute: "/login",
+      routes: {
+        '/login': (context) => LoginPage(),
+        '/home': (context) => HomePage(),
+        '/event': (context) => EventPage(),
+      },
+      navigatorObservers: [
+        
+      ],
     );
   }
 
-  Future<bool> _onExit() async {
-    return showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: Text("Exit Parola"),
-              content: Text("Do you want to exit Parola?"),
-              actions: <Widget>[
-                RaisedButton(
-                  child: Text(
-                    "Nope",
-                  ),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                FlatButton(
-                    child: Text(
-                      "Yes",
-                    ),
-                    onPressed: () => exit(0)),
-              ],
-            ));
-  }
 
   @override
   void initState() {

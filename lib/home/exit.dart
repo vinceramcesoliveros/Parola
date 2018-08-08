@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-
-
 class ExitParola extends StatefulWidget {
   @override
   _ExitParolaState createState() => _ExitParolaState();
@@ -21,9 +19,8 @@ class _ExitParolaState extends State<ExitParola> {
     await _auth.signOut();
     prefs.clear();
     // prefs.commit();
-    Navigator
-        .of(context)
-        .pushNamedAndRemoveUntil("/login", (Route<dynamic> route) => false);
+    Navigator.of(context).pushReplacementNamed("/login");
+    // .pushNamedAndRemoveUntil("/login", ModalRoute.withName("/"));
     loggedIn = false;
 
     print(loggedIn);

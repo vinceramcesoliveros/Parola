@@ -10,11 +10,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/home/body.dart';
 import 'package:final_parola/home/profile.dart';
 import 'package:flutter/material.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:connectivity/connectivity.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -22,6 +24,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // String _connectionStatus = 'Unknown';
+  final Connectivity _connectivity = new Connectivity();
+  StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   final app = FirebaseApp.instance;
   final config = FirebaseApp.configure(
       name: 'Parola',
@@ -31,8 +37,41 @@ class _HomePageState extends State<HomePage> {
           apiKey: 'AIzaSyC5oO96yzVWTdgDZWG44GZ7kATMq603tSA'));
   @override
   void initState() {
+    initConnectivity();
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
+      setState(() {
+        // _connectionStatus = result.toString();
+      });
+    });
+
     _storeUser();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    initConnectivity();
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  Future<Null> initConnectivity() async {
+    String connectionStatus;
+    try {
+      connectionStatus = (_connectivity.checkConnectivity().toString());
+    } on PlatformException catch (e) {
+      print(e.toString());
+      connectionStatus = "Connection Lost";
+    }
+
+    await Fluttertoast.showToast(
+        msg: connectionStatus != "Connection Lost"
+            ? "Connected to Internet"
+            : "No Connection",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIos: 1);
   }
 
   _storeUser() async {
@@ -65,15 +104,6 @@ class _HomePageState extends State<HomePage> {
       onWillPop: _onExit,
       child: Scaffold(
         resizeToAvoidBottomPadding: false,
-        // bottomNavigationBar: BottomNavigationBar(
-        //   currentIndex: currentTab,
-        //   items: <BottomNavigationBarItem>[
-        //     BottomNavigationBarItem(
-        //         icon: Icon(Icons.home), title: Text("Home")),
-        //     BottomNavigationBarItem(
-        //         icon: Icon(Icons.event), title: Text("Events")),
-        //   ],
-        // ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton.extended(
           icon: Icon(FontAwesomeIcons.bluetoothB),
@@ -83,14 +113,19 @@ class _HomePageState extends State<HomePage> {
         ),
         backgroundColor: Colors.red[400],
         appBar: AppBar(
-          title: CircleAvatar(
-              child: SvgPicture.asset(
-                'assets/lighthouse.svg',
-                height: 32.0,
-                width: 32.0,
-              ),
-              maxRadius: 32.0,
-              backgroundColor: Colors.red[400]),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              CircleAvatar(
+                  child: SvgPicture.asset(
+                    'assets/lighthouse.svg',
+                    height: 32.0,
+                    width: 32.0,
+                  ),
+                  maxRadius: 32.0,
+                  backgroundColor: Colors.red[400]),
+            ],
+          ),
           elevation: 0.0,
           backgroundColor: Colors.red[400],
           centerTitle: true,
@@ -137,3 +172,12 @@ class _HomePageState extends State<HomePage> {
 }
 
 //Add Bottom Navigation
+// bottomNavigationBar: BottomNavigationBar(
+//   currentIndex: currentTab,
+//   items: <BottomNavigationBarItem>[
+//     BottomNavigationBarItem(
+//         icon: Icon(Icons.home), title: Text("Home")),
+//     BottomNavigationBarItem(
+//         icon: Icon(Icons.event), title: Text("Events")),
+//   ],
+// ),
