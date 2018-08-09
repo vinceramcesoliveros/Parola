@@ -9,7 +9,6 @@
 // I did this because I want to make a rule "100 lines of code per file".
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:final_parola/home/home.dart';
 import 'package:final_parola/login/login.dart';
@@ -19,6 +18,7 @@ import 'package:flutter/material.dart';
 // import 'package:scoped_model/scoped_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:final_parola/events/events.dart';
+import 'package:flutter_villains/villain.dart';
 
 bool loggedIn = false;
 void main() {
@@ -83,7 +83,7 @@ class SplashScreenState extends State<SplashScreen> {
         '/event': (context) => EventPage(),
       },
       navigatorObservers: [
-        
+        new VillainTransitionObserver(),
       ],
     );
   }

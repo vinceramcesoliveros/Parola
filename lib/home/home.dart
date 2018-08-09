@@ -130,15 +130,10 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.red[400],
           centerTitle: true,
           actions: <Widget>[
-            IconButton(
-              color: Colors.white,
-              splashColor: Colors.red[400],
-              icon: Icon(
-                Icons.add,
-                size: 32.0,
-              ),
-              onPressed: () => Navigator.pushNamed(context, '/event'),
-            )
+            Icon(
+              Icons.add,
+              size: 32.0,
+            ),
           ],
         ),
         drawer: UserDrawer(),
