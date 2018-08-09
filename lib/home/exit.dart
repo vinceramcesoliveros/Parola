@@ -19,8 +19,8 @@ class _ExitParolaState extends State<ExitParola> {
     await _auth.signOut();
     prefs.clear();
     // prefs.commit();
-    Navigator.of(context).pushReplacementNamed("/login");
-    // .pushNamedAndRemoveUntil("/login", ModalRoute.withName("/"));
+    // Navigator.of(context).pushReplacementNamed("/login");
+    Navigator.of(context).pushNamedAndRemoveUntil("/login", ModalRoute.withName("/"));
     loggedIn = false;
 
     print(loggedIn);
