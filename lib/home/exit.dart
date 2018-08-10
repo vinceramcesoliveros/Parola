@@ -1,9 +1,6 @@
-import 'dart:async';
-import 'package:final_parola/main.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:final_parola/model/user_model.dart';
+import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class ExitParola extends StatefulWidget {
   @override
@@ -11,27 +8,19 @@ class ExitParola extends StatefulWidget {
 }
 
 class _ExitParolaState extends State<ExitParola> {
-  Future<Null> _signOutGoogle() async {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    final GoogleSignIn _signIn = new GoogleSignIn();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await _signIn.signOut();
-    await _auth.signOut();
-    prefs.clear();
-    // prefs.commit();
-    Navigator.of(context).pushReplacementNamed("/login");
-    // .pushNamedAndRemoveUntil("/login", ModalRoute.withName("/"));
-    loggedIn = false;
-
-    print(loggedIn);
-  }
-
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text("Exit"),
-      leading: Icon(Icons.exit_to_app),
-      onTap: () => _signOutGoogle(),
+    return ScopedModelDescendant<UserModel>(
+      rebuildOnChange: false,
+      builder: (context, child, model) => ListTile(
+            title: Text("Exit"),
+            leading: Icon(Icons.exit_to_app),
+            onTap: () async {
+              model.signOutGoogle().then((e) => Navigator
+                  .of(context)
+                  .pushNamedAndRemoveUntil("/login", ModalRoute.withName("/")));
+            },
+          ),
     );
   }
 }
