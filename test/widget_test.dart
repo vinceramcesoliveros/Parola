@@ -7,7 +7,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:final_parola/main.dart';
 
-void main() {
+ main() {
   testWidgets("Test the Beacon plugin", (WidgetTester tester) async {
     await tester.pumpWidget(SplashScreen());
     // expect()
