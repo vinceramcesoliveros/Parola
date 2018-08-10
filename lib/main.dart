@@ -12,17 +12,16 @@ import 'dart:async';
 
 import 'package:final_parola/home/home.dart';
 import 'package:final_parola/login/login.dart';
+import 'package:final_parola/model/user_model.dart';
 import 'package:flutter/material.dart';
 // import 'package:beacons/beacons.dart';
 // import 'package:flutter_blue/flutter_blue.dart';
-// import 'package:scoped_model/scoped_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:scoped_model/scoped_model.dart';
 import 'package:final_parola/events/events.dart';
 import 'package:flutter_villains/villain.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-bool loggedIn = false;
 void main() {
-  print(loggedIn);
   runApp(SplashScreen());
 }
 
@@ -41,60 +40,65 @@ class SplashScreenState extends State<SplashScreen> {
   ///
   ///Checkes if the [user] has signed in after closing
   ///the application
-  Future<bool> _isLoggedIn() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    this.setState(() {
-      if (prefs.getString("username") != null) {
-        loggedIn = true;
-        print(prefs.getString('username'));
-      } else {
-        loggedIn = false;
-      }
-    });
-
-    return loggedIn;
-  }
 
   Color parolaColor = Colors.red[400];
   Color btnParola = Colors.red[200];
   Color cardColor = Colors.red[600];
+  bool isLoggedIn = false;
+  Future<bool> loggedIn() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    this.setState(() {
+      if (prefs.getString("username") != null) {
+        isLoggedIn = true;
+        print(prefs.getString('username'));
+      } else {
+        isLoggedIn = false;
+      }
+    });
+
+    return isLoggedIn;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        brightness: Brightness.light,
-        textTheme: TextTheme(
-            title: TextStyle(color: Colors.white),
-            display4: TextStyle(color: Colors.white)),
-        errorColor: Colors.red[100],
-        backgroundColor: Colors.red[400],
-        buttonColor: btnParola,
-        cardColor: cardColor,
-        scaffoldBackgroundColor: parolaColor,
+    return ScopedModel<UserModel>(
+      model: UserModel(isLoggedIn: isLoggedIn),
+      child: MaterialApp(
+        theme: ThemeData(
+          brightness: Brightness.light,
+          textTheme: TextTheme(
+              title: TextStyle(color: Colors.white),
+              display4: TextStyle(color: Colors.white)),
+          errorColor: Colors.red[100],
+          backgroundColor: Colors.red[400],
+          buttonColor: btnParola,
+          cardColor: cardColor,
+          scaffoldBackgroundColor: parolaColor,
+        ),
+        title: 'Parola',
+        // showPerformanceOverlay: true,
+        debugShowCheckedModeBanner: false,
+        home: ScopedModelDescendant<UserModel>(
+            rebuildOnChange: false,
+            builder: (context, child, model) {
+              return isLoggedIn ? HomePage() : LoginPage();
+            }),
+        // initialRoute: "/login",
+        routes: {
+          '/login': (context) => LoginPage(),
+          '/home': (context) => HomePage(),
+          '/event': (context) => EventPage(),
+        },
+        navigatorObservers: [
+          new VillainTransitionObserver(),
+        ],
       ),
-      title: 'Parola',
-      // showPerformanceOverlay: true,
-      debugShowCheckedModeBanner: false,
-      home: loggedIn == true ? HomePage() : LoginPage(),
-      // initialRoute: "/login",
-      routes: {
-        '/login': (context) => LoginPage(),
-        '/home': (context) => HomePage(),
-        '/event': (context) => EventPage(),
-      },
-      navigatorObservers: [
-        new VillainTransitionObserver(),
-      ],
     );
   }
 
-
   @override
   void initState() {
-    this.setState(() {
-      this._isLoggedIn();
-    });
-
+    this.loggedIn();
     super.initState();
   }
 }

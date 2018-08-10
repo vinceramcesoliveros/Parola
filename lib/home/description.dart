@@ -51,8 +51,9 @@ class DescListView extends StatelessWidget {
   DescListView({this.descDocuments});
   @override
   Widget build(BuildContext context) {
+    double phoneSize = MediaQuery.of(context).size.shortestSide;
     return ListView.builder(
-      itemExtent: 700.0,
+      itemExtent: 1000.0,
       itemCount: descDocuments.length,
       itemBuilder: (context, index) {
         String eventPic = descDocuments[index].data['eventPicURL'].toString();
@@ -60,11 +61,16 @@ class DescListView extends StatelessWidget {
         return Column(
           children: <Widget>[
             CachedNetworkImage(
+              height: phoneSize,
+              width: phoneSize,
               imageUrl: eventPic,
               placeholder: CircularProgressIndicator(),
             ),
             Center(
-              child: Text(eventDesc),
+              child: Text(
+                eventDesc,
+                style: Theme.of(context).textTheme.headline,
+              ),
             ),
           ],
         );

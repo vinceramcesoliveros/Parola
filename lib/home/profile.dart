@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-///The [User Photo] will not be loaded once the connection has lost from restart.
-///Cannot implement a Circle Avatar with initial on top of it.
 class UserProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -15,8 +13,9 @@ class UserProfile extends StatelessWidget {
         return UserAccountsDrawerHeader(
           accountName: Text(snapshot.data.displayName),
           accountEmail: Text(snapshot.data.email),
-          currentAccountPicture: CircleAvatar(
+          currentAccountPicture: ClipOval(
             child: CachedNetworkImage(
+              fit: BoxFit.cover,
               imageUrl: snapshot.data.photoUrl,
               placeholder: CircularProgressIndicator(),
             ),
@@ -45,6 +44,7 @@ class UserDrawer extends StatelessWidget {
             title: Text("Events"),
             leading: Icon(Icons.event_note),
             onTap: () {
+              Navigator.of(context).pop();
               Navigator.pushNamed(context, '/event');
             },
           ),

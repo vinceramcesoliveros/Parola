@@ -38,12 +38,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     initConnectivity();
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
-      setState(() {
-        // _connectionStatus = result.toString();
-      });
-    });
 
     _storeUser();
     super.initState();
@@ -60,6 +54,7 @@ class _HomePageState extends State<HomePage> {
     String connectionStatus;
     try {
       connectionStatus = (_connectivity.checkConnectivity().toString());
+      connectionStatus = "Connected";
     } on PlatformException catch (e) {
       print(e.toString());
       connectionStatus = "Connection Lost";
@@ -80,6 +75,11 @@ class _HomePageState extends State<HomePage> {
     final DocumentReference userRef = Firestore.instance
         .collection("users")
         .document(prefs.getString("userid"));
+    final query = Firestore.instance
+        .collection("users")
+        .where("userid", isEqualTo: prefs.getString("userid"))
+        .limit(1);
+
     Map<String, String> userData = {
       "username": prefs.getString("username") ?? '',
       "email": prefs.getString("useremail") ?? '',
@@ -89,11 +89,15 @@ class _HomePageState extends State<HomePage> {
     ///Equivalent to
     ///Insert into users values (userID,email,photoURL)
     /// FIXME: User gets to be inserted everytime he/she logs in.
-    await userRef
-        .setData(userData,
-            merge: true) // Check if the userID has duplicate data
-        .whenComplete(() => print("User added"))
-        .catchError((e) => print(e));
+    ///
+    print(query.getDocuments());
+    query.getDocuments().toString() != prefs.getString("userid")
+        ? await userRef
+            .setData(userData,
+                merge: true) // Check if the userID has duplicate data
+            .whenComplete(() => print("User added"))
+            .catchError((e) => print(e))
+        : print("user is already added!");
   }
 
   // Widget currentPage;

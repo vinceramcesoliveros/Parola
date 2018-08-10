@@ -37,12 +37,14 @@ class EventListView extends StatelessWidget {
         String eventTitle = eventDocuments[index].data['eventName'].toString();
         String eventDate = eventDocuments[index].data['eventDate'].toString();
         String eventPic = eventDocuments[index].data['eventPicURL'].toString();
+        double phoneSize = MediaQuery.of(context).size.shortestSide;
         return Card(
           child: GestureDetector(
             child: ListTile(
               title: Text(eventTitle),
               subtitle: Text(eventDate),
               leading: CachedNetworkImage(
+                height: phoneSize / 2,
                 imageUrl: eventPic,
                 placeholder: CircularProgressIndicator(),
               ),
