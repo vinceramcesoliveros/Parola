@@ -15,7 +15,7 @@ class BtnGoogleSignIn extends StatelessWidget {
               children: <Widget>[
                 Icon(FontAwesomeIcons.google, size: 16.0),
                 Text(" | ", style: TextStyle(fontSize: 16.0)),
-                Text("Sign in"),
+                Text("Sign in to Google"),
               ],
             ),
             onPressed: () async {

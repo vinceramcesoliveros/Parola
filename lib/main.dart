@@ -36,10 +36,10 @@ class SplashScreen extends StatefulWidget {
   }
 }
 
-class SplashScreenState extends State<SplashScreen> {
   ///
   ///Checkes if the [user] has signed in after closing
   ///the application
+class SplashScreenState extends State<SplashScreen> {
 
   Color parolaColor = Colors.red[400];
   Color btnParola = Colors.red[200];
