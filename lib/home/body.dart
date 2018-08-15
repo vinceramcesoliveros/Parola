@@ -30,6 +30,7 @@ class EventListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double phoneSize = MediaQuery.of(context).size.shortestSide;
     return ListView.builder(
       itemCount: eventDocuments.length,
       itemExtent: 90.0,
@@ -37,7 +38,6 @@ class EventListView extends StatelessWidget {
         String eventTitle = eventDocuments[index].data['eventName'].toString();
         String eventDate = eventDocuments[index].data['eventDate'].toString();
         String eventPic = eventDocuments[index].data['eventPicURL'].toString();
-        double phoneSize = MediaQuery.of(context).size.shortestSide;
         return Card(
           child: GestureDetector(
             child: ListTile(
@@ -46,7 +46,6 @@ class EventListView extends StatelessWidget {
               leading: CachedNetworkImage(
                 height: phoneSize / 2,
                 imageUrl: eventPic,
-                placeholder: CircularProgressIndicator(),
               ),
               onTap: () {
                 //FIXME: When we tap to this index, we want to display the info about the event.

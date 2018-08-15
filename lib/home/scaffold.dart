@@ -14,7 +14,7 @@ class MyScaffold extends StatelessWidget {
         icon: Icon(FontAwesomeIcons.bluetoothB),
         onPressed: () {},
         label: Text("Join Event"),
-        backgroundColor: Colors.red[800],
+        backgroundColor: Colors.red[800], 
       ),
       backgroundColor: Colors.red[400],
       appBar: AppBar(

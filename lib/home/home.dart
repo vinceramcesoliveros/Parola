@@ -7,13 +7,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:final_parola/home/body.dart';
-import 'package:final_parola/home/profile.dart';
 import 'package:final_parola/home/scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 class HomePage extends StatefulWidget {
@@ -41,16 +37,23 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  _storeUser() async {
+  Future<Null> _storeUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    final Stream<QuerySnapshot> query = Firestore.instance
+        .collection("users")
+        .where("userid", isEqualTo: prefs.getString("userid"))
+        .limit(1)
+        .snapshots();
 
+    StreamBuilder userQuery = StreamBuilder(
+      stream: query,
+      builder: (context, snapshot) {
+        return null;
+      },
+    );
     final DocumentReference userRef = Firestore.instance
         .collection("users")
         .document(prefs.getString("userid"));
-    final query = Firestore.instance
-        .collection("users")
-        .where("userid", isEqualTo: prefs.getString("userid"))
-        .limit(1);
 
     Map<String, String> userData = {
       "username": prefs.getString("username") ?? '',
@@ -62,8 +65,8 @@ class _HomePageState extends State<HomePage> {
     ///Insert into users values (userID,email,photoURL)
     /// FIXME: User gets to be inserted everytime he/she logs in.
     ///
-    print(query.getDocuments());
-    query.getDocuments().toString() != prefs.getString("userid")
+    print(query);
+    query.toString() != prefs.getString("userid")
         ? await userRef
             .setData(userData,
                 merge: true) // Check if the userID has duplicate data
@@ -105,8 +108,6 @@ class _HomePageState extends State<HomePage> {
             ));
   }
 }
-
-
 
 //Add Bottom Navigation
 // bottomNavigationBar: BottomNavigationBar(
