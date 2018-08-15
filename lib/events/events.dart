@@ -1,3 +1,4 @@
+import 'package:final_parola/events/date_time.dart';
 import 'package:flutter/material.dart';
 
 class EventPage extends StatelessWidget {
@@ -11,8 +12,8 @@ class EventPage extends StatelessWidget {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(vertical: 32.0),
         child: Form(
+          autovalidate: true,
           child: EventForm(),
         ),
       ),
@@ -28,75 +29,119 @@ class EventForm extends StatefulWidget {
 //TODO: Finalize the UI for creating Events
 //Implement BLoC pattern for this. this is a horrible code.
 class _EventFormState extends State<EventForm> {
-  TextEditingController eventName,
+  int currentStep = 0;
+  static TextEditingController eventName,
       eventDescription,
       eventDate,
       eventTime,
       beaconUUID,
       major,
       minor;
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        TextFormField(
-          initialValue: "",
-          controller: eventName,
-          decoration: InputDecoration(
-              icon: Icon(Icons.description),
-              labelText: "Event Name",
-              border: OutlineInputBorder()),
-          maxLength: 60,
+  List<Step> steps = [
+    Step(
+      state: StepState.editing,
+      isActive: true,
+      title: Text("Event Name"),
+      subtitle: Text("Enter your Event Name"),
+      content: TextFormField(
+        initialValue: "",
+        controller: eventName,
+        decoration: InputDecoration(
+          labelText: "Event Name",
         ),
-        Padding(
-          padding: EdgeInsets.only(bottom: 32.0),
+        maxLength: 60,
+      ),
+    ),
+    Step(
+      state: StepState.editing,
+      isActive: true,
+      title: Text(""),
+      subtitle: Text(""),
+      content: TextFormField(
+        initialValue: "",
+        controller: eventDescription,
+        decoration: InputDecoration(
+          icon: Icon(Icons.text_fields),
+          labelText: "Event Description",
         ),
-        TextFormField(
-          initialValue: "",
-          controller: eventDescription,
-          decoration: InputDecoration(
-              icon: Icon(Icons.text_fields),
-              labelText: "Event Description",
-              border: OutlineInputBorder()),
-          maxLength: 60,
+        maxLength: 60,
+      ),
+    ),
+    Step(
+      state: StepState.editing,
+      isActive: true,
+      title: Text(""),
+      subtitle: Text(""),
+      content: TextFormField(
+        initialValue: "",
+        controller: eventDate,
+        decoration: InputDecoration(
+          labelText: "Event Date",
         ),
-        TextFormField(
-          initialValue: "",
-          controller: eventDate,
-          decoration: InputDecoration(
-              icon: Icon(Icons.date_range),
-              labelText: "Event Date",
-              border: OutlineInputBorder()),
-          maxLength: 60,
-        ),
+        maxLength: 60,
+      ),
+    ),
+    Step(
+        state: StepState.editing,
+        isActive: true,
+        title: Text("Event Location"),
+        subtitle: Text(""),
+        content: Text("")),
+    Step(
+      state: StepState.editing,
+      isActive: true,
+      title: Text(""),
+      subtitle: Text(""),
+      content: Column(children: [
         TextFormField(
           initialValue: "",
           controller: beaconUUID,
           decoration: InputDecoration(
-              icon: Icon(Icons.devices_other),
-              labelText: "Beacon UUID",
-              border: OutlineInputBorder()),
-          maxLength: 60,
-        ),
-        TextFormField(
-          initialValue: "",
-          controller: major,
-          decoration: InputDecoration(
-              icon: Icon(Icons.date_range),
-              labelText: "Event Major",
-              border: OutlineInputBorder()),
+            labelText: "Beacon UUID",
+          ),
           maxLength: 60,
         ),
         TextFormField(
           initialValue: "",
           controller: minor,
           decoration: InputDecoration(
-              icon: Icon(Icons.date_range),
-              labelText: "Event Date",
-              border: OutlineInputBorder()),
+            labelText: "Minor",
+          ),
           maxLength: 60,
         ),
-      ],
+        TextFormField(
+          initialValue: "",
+          controller: major,
+          decoration: InputDecoration(
+            labelText: "Major",
+          ),
+          maxLength: 60,
+        ),
+      ]),
+    ),
+  ];
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Stepper(
+        steps: steps,
+        currentStep: currentStep,
+        onStepTapped: (step) {
+          setState(() {
+            currentStep = step;
+          });
+        },
+        onStepCancel: () {
+          setState(() {
+            currentStep > 0 ? currentStep -= 1 : currentStep = 0;
+          });
+        },
+        onStepContinue: () {
+          setState(() {
+            currentStep < steps.length - 1 ? currentStep += 1 : currentStep = 0;
+          });
+        },
+      ),
     );
   }
 }

@@ -1,3 +1,6 @@
+// # Parola
+// ### An event based attendance using Beacon Technology
+
 //If you're reading this code, please do not say that this is a spaghetti code since
 // since I'm the one who wrote this, I've been refactoring it very well especially
 // on private variable namings in dart.
@@ -5,8 +8,8 @@
 // I'm glad to hear feedbacks from you!!
 // UPDATE: I've organized my widgets to separate dart files
 // so that you can find where and what is this
-// doing. OPEN THIS PROJECT IN AN EDITOR TO FIND THE PATH WHAT YOU ARE LOOKING FOR.
-// I did this because I want to make a rule "100 lines of code per file".
+// doing. **OPEN THIS PROJECT IN AN EDITOR TO FIND THE PATH WHAT YOU ARE LOOKING FOR**.
+// I did this because I want to make a rule **"100 lines of code per file"**.
 
 import 'dart:async';
 
@@ -36,10 +39,10 @@ class SplashScreen extends StatefulWidget {
   }
 }
 
-class SplashScreenState extends State<SplashScreen> {
   ///
-  ///Checkes if the [user] has signed in after closing
+  ///Checks if the `user` has signed in after closing
   ///the application
+class SplashScreenState extends State<SplashScreen> {
 
   Color parolaColor = Colors.red[400];
   Color btnParola = Colors.red[200];
@@ -90,7 +93,8 @@ class SplashScreenState extends State<SplashScreen> {
           '/event': (context) => EventPage(),
         },
         navigatorObservers: [
-          new VillainTransitionObserver(),
+        VillainTransitionObserver(),
+
         ],
       ),
     );

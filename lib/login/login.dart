@@ -55,7 +55,7 @@ class ParolaIcon extends StatelessWidget {
           padding: EdgeInsets.only(top: 64.0),
           child: CircleAvatar(
             maxRadius: 64.0,
-            backgroundColor: Colors.deepPurpleAccent[200],
+            backgroundColor: Colors.orange[200],
             child: svg,
           ),
         ),
