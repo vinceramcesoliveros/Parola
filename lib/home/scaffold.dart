@@ -9,13 +9,6 @@ class MyScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        icon: Icon(FontAwesomeIcons.bluetoothB),
-        onPressed: () {},
-        label: Text("Join Event"),
-        backgroundColor: Colors.red[800], 
-      ),
       backgroundColor: Colors.red[400],
       appBar: AppBar(
         title: Row(

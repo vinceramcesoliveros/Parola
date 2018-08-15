@@ -15,6 +15,12 @@ class DescPage extends StatelessWidget {
         title: Text(eventTitle),
         centerTitle: true,
       ),
+      floatingActionButton: FloatingActionButton.extended(
+          icon: Icon(Icons.event),
+          label: Text("Attend Event"),
+          onPressed: () {
+            Navigator.of(context).pushNamed('/attend');
+          }),
       body: DescBody(
         eventTitle: eventTitle,
       ),
@@ -53,11 +59,13 @@ class DescListView extends StatelessWidget {
   Widget build(BuildContext context) {
     double phoneSize = MediaQuery.of(context).size.shortestSide;
     return ListView.builder(
-      itemExtent: 1000.0,
+      itemExtent: phoneSize * 2,
       itemCount: descDocuments.length,
       itemBuilder: (context, index) {
         String eventPic = descDocuments[index].data['eventPicURL'].toString();
         String eventDesc = descDocuments[index].data['eventDesc'].toString();
+        //TODO: Add Beacon UUID, Major, Minor. or maybe it will be directed to a new
+        // Page that will have access to Beacon UUID, Major and Minor values too!
         return Column(
           children: <Widget>[
             CachedNetworkImage(
