@@ -13,6 +13,7 @@
 
 import 'dart:async';
 
+import 'package:final_parola/beacon/connectBeacon.dart';
 import 'package:final_parola/home/home.dart';
 import 'package:final_parola/login/login.dart';
 import 'package:final_parola/model/user_model.dart';
@@ -39,11 +40,10 @@ class SplashScreen extends StatefulWidget {
   }
 }
 
-  ///
-  ///Checks if the `user` has signed in after closing
-  ///the application
+///
+///Checks if the `user` has signed in after closing
+///the application
 class SplashScreenState extends State<SplashScreen> {
-
   Color parolaColor = Colors.red[400];
   Color btnParola = Colors.red[200];
   Color cardColor = Colors.red[600];
@@ -91,10 +91,10 @@ class SplashScreenState extends State<SplashScreen> {
           '/login': (context) => LoginPage(),
           '/home': (context) => HomePage(),
           '/event': (context) => EventPage(),
+          '/attend': (context) => BeaconConnect(),
         },
         navigatorObservers: [
-        VillainTransitionObserver(),
-
+          VillainTransitionObserver(),
         ],
       ),
     );
