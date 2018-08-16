@@ -27,3 +27,7 @@
 ### August 8 Notes
 - Added Connectivity, to ensure that if a user has no internet connection, it will give a toast that it has no internet connection
 - Added Images for the Event. Still under construction. Please bear with my effort.
+
+### August 15 Notes
+-Added Flutter Bluetooth just to test out the connection of the beacon.
+-Reinvent the architecture for enabling beacon, I should minimize the usage of SetState method.
