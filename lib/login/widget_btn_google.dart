@@ -8,6 +8,7 @@ class BtnGoogleSignIn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<UserModel>(
+      rebuildOnChange: false,
       builder: (context, child, model) => RaisedButton(
             textColor: Colors.white,
             color: Colors.red[500],
@@ -20,7 +21,8 @@ class BtnGoogleSignIn extends StatelessWidget {
             ),
             onPressed: () async {
               await model.googleSignIn().then((FirebaseUser user) =>
-                  Navigator.of(context).pushNamed('/home'));
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/introduction', ModalRoute.withName("/homePage")));
             },
           ),
     );

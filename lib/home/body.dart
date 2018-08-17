@@ -11,7 +11,10 @@ class HomeBodyPage extends StatelessWidget {
     return StreamBuilder(
         stream: eventQuery,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) return CircularProgressIndicator();
+          if (!snapshot.hasData)
+            return LinearProgressIndicator(
+              backgroundColor: Colors.red[200],
+            );
           return EventListView(
             eventDocuments: snapshot.data.documents,
           );
