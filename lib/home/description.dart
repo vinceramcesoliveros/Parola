@@ -57,7 +57,7 @@ class DescListView extends StatelessWidget {
   DescListView({this.descDocuments});
   @override
   Widget build(BuildContext context) {
-    double phoneSize = MediaQuery.of(context).size.shortestSide;
+    double phoneSize = MediaQuery.of(context).size.longestSide;
     return ListView.builder(
       itemExtent: phoneSize * 2,
       itemCount: descDocuments.length,

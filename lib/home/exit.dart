@@ -1,6 +1,7 @@
 import 'package:final_parola/model/user_model.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ExitParola extends StatefulWidget {
   @override
@@ -16,8 +17,7 @@ class _ExitParolaState extends State<ExitParola> {
             title: Text("Exit"),
             leading: Icon(Icons.exit_to_app),
             onTap: () async {
-              model.signOutGoogle().then((e) => Navigator
-                  .of(context)
+              model.signOut().then((e) => Navigator.of(context)
                   .pushNamedAndRemoveUntil("/login", ModalRoute.withName("/")));
             },
           ),

@@ -4,7 +4,6 @@ import 'package:final_parola/beacon/bluetooth_widgets.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class BeaconConnect extends StatefulWidget {
   @override

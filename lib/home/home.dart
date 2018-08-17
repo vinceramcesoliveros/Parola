@@ -45,12 +45,6 @@ class _HomePageState extends State<HomePage> {
         .limit(1)
         .snapshots();
 
-    StreamBuilder userQuery = StreamBuilder(
-      stream: query,
-      builder: (context, snapshot) {
-        return null;
-      },
-    );
     final DocumentReference userRef = Firestore.instance
         .collection("users")
         .document(prefs.getString("userid"));
@@ -64,8 +58,9 @@ class _HomePageState extends State<HomePage> {
     ///Equivalent to
     ///Insert into users values (userID,email,photoURL)
     /// FIXME: User gets to be inserted everytime he/she logs in.
+    ///TODO: Still have to make a query in Cloud firestore and store it in a variable.
     ///
-    print(query);
+
     query.toString() != prefs.getString("userid")
         ? await userRef
             .setData(userData,

@@ -15,15 +15,16 @@ import 'dart:async';
 
 import 'package:final_parola/beacon/connectBeacon.dart';
 import 'package:final_parola/home/home.dart';
+import 'package:final_parola/home/introduction.dart';
+import 'package:final_parola/home/scaffold.dart';
 import 'package:final_parola/login/login.dart';
 import 'package:final_parola/model/user_model.dart';
 import 'package:flutter/material.dart';
-// import 'package:beacons/beacons.dart';
-// import 'package:flutter_blue/flutter_blue.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:final_parola/events/events.dart';
 import 'package:flutter_villains/villain.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:battery/battery.dart';
 
 void main() {
   runApp(SplashScreen());
@@ -44,6 +45,8 @@ class SplashScreen extends StatefulWidget {
 ///Checks if the `user` has signed in after closing
 ///the application
 class SplashScreenState extends State<SplashScreen> {
+  Battery battery = new Battery();
+  int batteryLevel = 0;
   Color parolaColor = Colors.red[400];
   Color btnParola = Colors.red[200];
   Color cardColor = Colors.red[600];
@@ -62,10 +65,24 @@ class SplashScreenState extends State<SplashScreen> {
     return isLoggedIn;
   }
 
+  Future<int> currentBattery() async {
+    this.setState(() async {
+      batteryLevel = await battery.batteryLevel;
+    });
+    return batteryLevel;
+  }
+
+  @override
+  void initState() {
+    this.currentBattery();
+    this.loggedIn();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScopedModel<UserModel>(
-      model: UserModel(isLoggedIn: isLoggedIn),
+      model: UserModel(isLoggedIn: isLoggedIn, batteryLevel: batteryLevel),
       child: MaterialApp(
         theme: ThemeData(
           brightness: Brightness.light,
@@ -92,17 +109,13 @@ class SplashScreenState extends State<SplashScreen> {
           '/home': (context) => HomePage(),
           '/event': (context) => EventPage(),
           '/attend': (context) => BeaconConnect(),
+          '/homePage': (context) => MyScaffold(),
+          '/introduction': (context) => IntroductionPage(),
         },
         navigatorObservers: [
           VillainTransitionObserver(),
         ],
       ),
     );
-  }
-
-  @override
-  void initState() {
-    this.loggedIn();
-    super.initState();
   }
 }
