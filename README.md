@@ -29,5 +29,5 @@
 - Added Images for the Event. Still under construction. Please bear with my effort.
 
 ### August 15 Notes
--Added Flutter Bluetooth just to test out the connection of the beacon.
--Reinvent the architecture for enabling beacon, I should minimize the usage of SetState method.
+- Added Flutter Bluetooth just to test out the connection of the beacon.
+- Reinvent the architecture for enabling beacon, I should minimize the usage of SetState method.
