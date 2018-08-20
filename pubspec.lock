@@ -99,13 +99,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.2"
-  fancy_on_boarding:
-    dependency: "direct main"
-    description:
-      name: fancy_on_boarding
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.2"
   firebase_auth:
     dependency: "direct main"
     description:
@@ -242,6 +235,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.15.7"
+  intro_views_flutter:
+    dependency: "direct main"
+    description:
+      name: intro_views_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.3"
   io:
     dependency: transitive
     description:

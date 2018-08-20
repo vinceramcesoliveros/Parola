@@ -1,12 +1,9 @@
-import 'dart:async';
-
 import 'package:final_parola/model/user_model.dart';
 import 'package:flutter/material.dart';
 
-import 'package:fancy_on_boarding/fancy_on_boarding.dart';
-import 'package:fancy_on_boarding/page_model.dart';
-import 'package:battery/battery.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:intro_views_flutter/Models/page_view_model.dart';
+import 'package:intro_views_flutter/intro_views_flutter.dart';
 
 class IntroductionPage extends StatefulWidget {
   @override
@@ -14,8 +11,6 @@ class IntroductionPage extends StatefulWidget {
 }
 
 class _IntroductionPageState extends State<IntroductionPage> {
-  Battery _battery;
-
   @override
   void initState() {
     super.initState();
@@ -28,63 +23,64 @@ class _IntroductionPageState extends State<IntroductionPage> {
           rebuildOnChange: false,
           builder: (context, child, model) {
             TextStyle titleStyle = Theme.of(context).textTheme.display1;
-            // TextStyle(  color: Colors.white, wordSpacing: 2.0, fontSize: 64.0);
-            TextStyle bodyStyle = Theme.of(context).textTheme.display1;
-            return FancyOnBoarding(pageList: [
-              PageModel(
-                  color: Colors.red[400],
-                  iconAssetPath: 'assets/iconLighthouse.png',
-                  heroAssetPath: 'assets/lighthouse.png',
-                  title: Text(
-                    "Welcome to Parola",
-                    style: titleStyle,
-                  ),
-                  body: Text("Look at this fancy design by xsahil03x")),
-              PageModel(
-                color: model.batteryLevel >= 50
-                    ? Colors.green[300]
-                    : Colors.red[200],
-                iconAssetPath: 'assets/icons8-empty-battery-50.png',
-                heroAssetPath: model.batteryLevel >= 50
-                    ? 'assets/battery_charge.png'
-                    : 'assets/lowbat.png',
-                title: Text(
-                  "Battery Life",
-                  style: titleStyle,
-                ),
-                body: model.batteryLevel >= 50
-                    ? Text(
-                        "Your battery Life is ${model.batteryLevel}%, Make sure to have plenty of energy left!",
-                        style: bodyStyle,
-                        textAlign: TextAlign.center,
-                      )
-                    : Text(
-                        "Charge your phone before using it!",
-                        style: bodyStyle,
-                        textAlign: TextAlign.center,
-                      ),
-              ),
-              PageModel(
-                  color: Colors.blue[200],
-                  iconAssetPath: 'assets/icons8-bluetooth-24.png',
-                  heroAssetPath: 'assets/bluetooth_icon.png',
-                  title: Text(
-                    "Bluetooth Low Energy",
-                    style: titleStyle,
-                    textAlign: TextAlign.center,
-                  ),
-                  body: Center(
-                    child: Column(
-                      children: <Widget>[
-                        Text(
-                          "Just turn on your bluetooth when you want to connect to the beacon you want to connect.",
-                          style: bodyStyle,
-                          textAlign: TextAlign.center,
-                        )
-                      ],
+            return IntroViewsFlutter(
+              [
+                PageViewModel(
+                    iconImageAssetPath: 'assets/iconLighthouse.png',
+                    pageColor: Colors.redAccent[200],
+                    mainImage: Image.asset('assets/lighthouse.png'),
+                    title: Text(
+                      "Welcome to Parola",
+                      style: titleStyle,
                     ),
-                  )),
-            ], mainPageRoute: '/homePage');
+                    body: Text("Look at this fancy design by xsahil03x")),
+                PageViewModel(
+                  pageColor: model.batteryLevel >= 50
+                      ? Colors.green[300]
+                      : Colors.red[200],
+                  iconImageAssetPath: 'assets/icons8-empty-battery-50.png',
+                  mainImage: model.batteryLevel >= 50
+                      ? Image.asset('assets/battery_charge.png')
+                      : Image.asset('assets/lowbat.png'),
+                  title: Text(
+                    "Battery Life",
+                    style: titleStyle,
+                  ),
+                  body: model.batteryLevel >= 50
+                      ? Text(
+                          "Your battery Life is ${model.batteryLevel}%, Make sure to have plenty of energy left!",
+                          // style: bodyStyle,
+                          // textAlign: TextAlign.center,
+                        )
+                      : Text(
+                          "You have ${model.batteryLevel}%,Charge your phone before using it!",
+                          // style: bodyStyle,
+                          // textAlign: TextAlign.center,
+                        ),
+                ),
+                PageViewModel(
+                    pageColor: Colors.blue[200],
+                    iconImageAssetPath: 'assets/icons8-bluetooth-24.png',
+                    mainImage: Image.asset('assets/bluetooth_icon.png'),
+                    title: Text(
+                      "Bluetooth Low Energy",
+                      style: titleStyle,
+                      textAlign: TextAlign.center,
+                    ),
+                    body: Text(
+                      "Just turn on your bluetooth when you want to connect to the beacon you want to connect.",
+                      // style: bodyStyle,
+                      // textAlign: TextAlign.center,
+                    )),
+              ],
+              onTapDoneButton: () {
+                Navigator.of(context).pushReplacementNamed('/homePage');
+              },
+              onTapSkipButton: () {
+                Navigator.of(context).pushReplacementNamed('/homePage');
+              },
+              showSkipButton: true,
+            );
           }),
     );
   }

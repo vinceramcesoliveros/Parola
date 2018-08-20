@@ -46,15 +46,8 @@ class UserModel extends Model {
   }
 
   Future<bool> signOut() async {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    final GoogleSignIn _signIn = new GoogleSignIn();
-    final FacebookLogin fbSignOut = FacebookLogin();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getString("userid") == user.uid) {
-      await _signIn.signOut();
-    } else {
-      await fbSignOut.logOut();
-    }
+    await _signIn.signOut();
     await _auth.signOut();
     prefs.clear();
     // prefs.commit();

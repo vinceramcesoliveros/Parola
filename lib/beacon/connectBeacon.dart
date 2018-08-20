@@ -62,7 +62,7 @@ class _BeaconConnectState extends State<BeaconConnect> {
   startScan() {
     _scanSubscription = flutterBlue
         .scan(
-      timeout: Duration(seconds: 5),
+      timeout: Duration(seconds: 10),
     )
         .listen((scanResult) {
       setState(() {
@@ -75,7 +75,7 @@ class _BeaconConnectState extends State<BeaconConnect> {
   }
 
   stopScan() {
-    _scanSubscription?.cancel;
+    _scanSubscription?.cancel();
     _scanSubscription = null;
 
     setState(() {

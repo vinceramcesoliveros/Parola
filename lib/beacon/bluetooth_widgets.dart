@@ -17,7 +17,7 @@ class ScanResultTile extends StatelessWidget {
         ],
       );
     } else {
-      return Text(result.device.id.toString());
+      return Text(result.device.name.toString());
     }
   }
 
@@ -81,7 +81,7 @@ class ScanResultTile extends StatelessWidget {
       leading: Text(result.rssi.toString()),
       trailing: RaisedButton(
         child: Text('CONNECT'),
-        color: Colors.black,
+        color: Colors.red[200],
         textColor: Colors.white,
         onPressed: (result.advertisementData.connectable) ? onTap : null,
       ),

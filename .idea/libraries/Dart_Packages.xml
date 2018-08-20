@@ -149,6 +149,13 @@
             </list>
           </value>
         </entry>
+        <entry key="flutter_facebook_login">
+          <value>
+            <list>
+              <option value="D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_login-1.1.1/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="flutter_sequence_animation">
           <value>
             <list>
@@ -592,6 +599,7 @@
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/fixnum-0.10.8/lib" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_blue-0.4.0/lib" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_cache_manager-0.1.1/lib" />
+      <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_login-1.1.1/lib" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_sequence_animation-2.0.1/lib" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.4.1/lib" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_villains-1.1.1/lib" />

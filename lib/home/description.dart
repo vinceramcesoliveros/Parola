@@ -16,6 +16,7 @@ class DescPage extends StatelessWidget {
         centerTitle: true,
       ),
       floatingActionButton: FloatingActionButton.extended(
+          backgroundColor: Colors.red[200],
           icon: Icon(Icons.event),
           label: Text("Attend Event"),
           onPressed: () {
@@ -78,6 +79,7 @@ class DescListView extends StatelessWidget {
               child: Text(
                 eventDesc,
                 style: Theme.of(context).textTheme.headline,
+                textAlign: TextAlign.justify,
               ),
             ),
           ],

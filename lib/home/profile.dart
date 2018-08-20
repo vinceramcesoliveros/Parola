@@ -41,8 +41,8 @@ class UserDrawer extends StatelessWidget {
               leading: Icon(Icons.settings),
               onTap: () {}),
           ListTile(
-            title: Text("Events"),
-            leading: Icon(Icons.event_note),
+            title: Text("Create Events"),
+            leading: Icon(Icons.event_note),  
             onTap: () {
               Navigator.of(context).pop();
               Navigator.pushNamed(context, '/event');
