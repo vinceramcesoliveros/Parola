@@ -21,8 +21,25 @@ class BtnGoogleSignIn extends StatelessWidget {
             ),
             onPressed: () async {
               await model.googleSignIn().then((FirebaseUser user) =>
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/introduction', ModalRoute.withName("/homePage")));
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil(
+                          '/introduction', ModalRoute.withName("/homePage"))
+                      .catchError((e) {
+                    return showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text("Error!"),
+                            content:
+                                Text("Failed to sign in, Please Login again"),
+                            actions: <Widget>[
+                              FlatButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: Text("Ok")),
+                            ],
+                          );
+                        });
+                  }));
             },
           ),
     );

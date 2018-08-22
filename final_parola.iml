@@ -23,6 +23,9 @@
       <excludeFolder url="file://$MODULE_DIR$/sensoro_beacon/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/sensoro_beacon/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/sensoro_beacon/build" />
+      <excludeFolder url="file://$MODULE_DIR$/sensoro_beacon/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/sensoro_beacon/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/sensoro_beacon/example/build" />
     </content>
     <orderEntry type="jdk" jdkName="Android API 27 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

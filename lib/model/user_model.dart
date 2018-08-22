@@ -29,37 +29,34 @@ class UserModel extends Model {
     final GoogleSignInAccount googleUser = await _signIn.signIn();
     final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
-    user = await _auth.signInWithGoogle(
-        accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
-    assert(user.email != null);
-    assert(user.displayName != null);
-    assert(await user.getIdToken() != null);
-    final FirebaseUser currentUser = await _auth.currentUser();
+    try {
+      user = await _auth
+          .signInWithGoogle(
+              accessToken: googleAuth.accessToken, idToken: googleAuth.idToken)
+          .catchError((e) {});
+      assert(user.email != null);
+      assert(user.displayName != null);
+      assert(await user.getIdToken() != null);
+      final FirebaseUser currentUser = await _auth.currentUser();
 
-    prefs.setString("username", user.displayName);
-    prefs.setString("userid", user.uid);
-    prefs.setString("useremail", user.email);
-    prefs.setString("userphotoURL", user.photoUrl);
-    isLoggedIn = true;
-    notifyListeners();
-    return currentUser;
+      prefs.setString("username", user.displayName);
+      prefs.setString("userid", user.uid);
+      prefs.setString("useremail", user.email);
+      prefs.setString("userphotoURL", user.photoUrl);
+      isLoggedIn = true;
+      return currentUser;
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<bool> signOut() async {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    final GoogleSignIn _signIn = new GoogleSignIn();
-    final FacebookLogin fbSignOut = FacebookLogin();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getString("userid") == user.uid) {
-      await _signIn.signOut();
-    } else {
-      await fbSignOut.logOut();
-    }
+    await _signIn.signOut();
     await _auth.signOut();
     prefs.clear();
     // prefs.commit();
     isLoggedIn = false;
-    notifyListeners();
     return isLoggedIn;
   }
 
@@ -79,7 +76,8 @@ class UserModel extends Model {
     prefs.setString("useremail", user.email);
     prefs.setString("userphotoURL", user.photoUrl);
     isLoggedIn = true;
-    notifyListeners();
     return currentUser;
   }
+
+  notifyListeners();
 }

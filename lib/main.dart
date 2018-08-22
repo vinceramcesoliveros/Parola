@@ -22,7 +22,6 @@ import 'package:final_parola/model/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:final_parola/events/events.dart';
-import 'package:flutter_villains/villain.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:battery/battery.dart';
 
@@ -66,9 +65,8 @@ class SplashScreenState extends State<SplashScreen> {
   }
 
   Future<int> currentBattery() async {
-    this.setState(() async {
-      batteryLevel = await battery.batteryLevel;
-    });
+    batteryLevel = await battery.batteryLevel;
+
     return batteryLevel;
   }
 
@@ -77,6 +75,12 @@ class SplashScreenState extends State<SplashScreen> {
     this.currentBattery();
     this.loggedIn();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -96,7 +100,7 @@ class SplashScreenState extends State<SplashScreen> {
           scaffoldBackgroundColor: parolaColor,
         ),
         title: 'Parola',
-        // showPerformanceOverlay: true,
+        showPerformanceOverlay: true,
         debugShowCheckedModeBanner: false,
         home: ScopedModelDescendant<UserModel>(
             rebuildOnChange: false,
@@ -112,9 +116,6 @@ class SplashScreenState extends State<SplashScreen> {
           '/homePage': (context) => MyScaffold(),
           '/introduction': (context) => IntroductionPage(),
         },
-        navigatorObservers: [
-          VillainTransitionObserver(),
-        ],
       ),
     );
   }

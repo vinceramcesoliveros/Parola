@@ -39,39 +39,32 @@ class _HomePageState extends State<HomePage> {
 
   Future<Null> _storeUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final Stream<QuerySnapshot> query = Firestore.instance
-        .collection("users")
-        .where("userid", isEqualTo: prefs.getString("userid"))
-        .limit(1)
-        .snapshots();
-
+    String useremail;
     final DocumentReference userRef = Firestore.instance
         .collection("users")
         .document(prefs.getString("userid"));
-
     Map<String, String> userData = {
       "username": prefs.getString("username") ?? '',
       "email": prefs.getString("useremail") ?? '',
       "photoURL": prefs.getString("userphotoURL") ?? '',
     };
-
-    ///Equivalent to
-    ///Insert into users values (userID,email,photoURL)
-    /// FIXME: User gets to be inserted everytime he/she logs in.
-    ///TODO: Still have to make a query in Cloud firestore and store it in a variable.
-    ///
-
-    query.toString() != prefs.getString("userid")
-        ? await userRef
-            .setData(userData,
-                merge: true) // Check if the userID has duplicate data
-            .whenComplete(() => print("User added"))
-            .catchError((e) => print(e))
-        : print("user is already added!");
+    final Future<QuerySnapshot> query = Firestore.instance
+        .collection("users")
+        .where("username", isEqualTo: prefs.getString("username"))
+        .limit(1)
+        .getDocuments();
+    query.then((doc) async {
+      useremail = doc.documents[0].data['email'].toString();
+      useremail!= prefs.getString("useremail")
+          ? await userRef
+              .setData(userData,
+                  merge: true) // Check if the userID has duplicate data
+              .whenComplete(() => print("User added"))
+              .catchError((e) => print(e))
+          : print("user is already added!");
+    });
   }
 
-  // Widget currentPage;
-  // int currentTab = 0;
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
