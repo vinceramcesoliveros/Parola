@@ -11,7 +11,6 @@ class _ExitParolaState extends State<ExitParola> {
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<UserModel>(
-      rebuildOnChange: false,
       builder: (context, child, model) => ListTile(
             title: Text("Exit"),
             leading: Icon(Icons.exit_to_app),

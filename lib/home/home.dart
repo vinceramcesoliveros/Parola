@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<Null> _storeUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String username;
+    String useremail;
     final DocumentReference userRef = Firestore.instance
         .collection("users")
         .document(prefs.getString("userid"));
@@ -54,19 +54,17 @@ class _HomePageState extends State<HomePage> {
         .limit(1)
         .getDocuments();
     query.then((doc) async {
-      username = doc.documents[0].data['useremail'].toString();
-      username != prefs.getString("useremail")
+      useremail = doc.documents[0].data['email'].toString();
+      useremail!= prefs.getString("useremail")
           ? await userRef
               .setData(userData,
                   merge: true) // Check if the userID has duplicate data
               .whenComplete(() => print("User added"))
               .catchError((e) => print(e))
           : print("user is already added!");
-    }).toString();
+    });
   }
 
-  // Widget currentPage;
-  // int currentTab = 0;
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -98,14 +96,3 @@ class _HomePageState extends State<HomePage> {
             ));
   }
 }
-
-//Add Bottom Navigation
-// bottomNavigationBar: BottomNavigationBar(
-//   currentIndex: currentTab,
-//   items: <BottomNavigationBarItem>[
-//     BottomNavigationBarItem(
-//         icon: Icon(Icons.home), title: Text("Home")),
-//     BottomNavigationBarItem(
-//         icon: Icon(Icons.event), title: Text("Events")),
-//   ],
-// ),

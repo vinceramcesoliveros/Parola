@@ -29,20 +29,25 @@ class UserModel extends Model {
     final GoogleSignInAccount googleUser = await _signIn.signIn();
     final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
-    user = await _auth.signInWithGoogle(
-        accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
-    assert(user.email != null);
-    assert(user.displayName != null);
-    assert(await user.getIdToken() != null);
-    final FirebaseUser currentUser = await _auth.currentUser();
+    try {
+      user = await _auth
+          .signInWithGoogle(
+              accessToken: googleAuth.accessToken, idToken: googleAuth.idToken)
+          .catchError((e) {});
+      assert(user.email != null);
+      assert(user.displayName != null);
+      assert(await user.getIdToken() != null);
+      final FirebaseUser currentUser = await _auth.currentUser();
 
-    prefs.setString("username", user.displayName);
-    prefs.setString("userid", user.uid);
-    prefs.setString("useremail", user.email);
-    prefs.setString("userphotoURL", user.photoUrl);
-    isLoggedIn = true;
-    notifyListeners();
-    return currentUser;
+      prefs.setString("username", user.displayName);
+      prefs.setString("userid", user.uid);
+      prefs.setString("useremail", user.email);
+      prefs.setString("userphotoURL", user.photoUrl);
+      isLoggedIn = true;
+      return currentUser;
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<bool> signOut() async {
@@ -52,7 +57,6 @@ class UserModel extends Model {
     prefs.clear();
     // prefs.commit();
     isLoggedIn = false;
-    notifyListeners();
     return isLoggedIn;
   }
 
@@ -72,7 +76,8 @@ class UserModel extends Model {
     prefs.setString("useremail", user.email);
     prefs.setString("userphotoURL", user.photoUrl);
     isLoggedIn = true;
-    notifyListeners();
     return currentUser;
   }
+
+  notifyListeners();
 }

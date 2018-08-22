@@ -26,7 +26,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:battery/battery.dart';
 
 void main() {
-  
   runApp(SplashScreen());
 }
 
@@ -66,9 +65,8 @@ class SplashScreenState extends State<SplashScreen> {
   }
 
   Future<int> currentBattery() async {
-    this.setState(() async {
-      batteryLevel = await battery.batteryLevel;
-    });
+    batteryLevel = await battery.batteryLevel;
+
     return batteryLevel;
   }
 
@@ -77,6 +75,12 @@ class SplashScreenState extends State<SplashScreen> {
     this.currentBattery();
     this.loggedIn();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -96,7 +100,7 @@ class SplashScreenState extends State<SplashScreen> {
           scaffoldBackgroundColor: parolaColor,
         ),
         title: 'Parola',
-        // showPerformanceOverlay: true,
+        showPerformanceOverlay: true,
         debugShowCheckedModeBanner: false,
         home: ScopedModelDescendant<UserModel>(
             rebuildOnChange: false,

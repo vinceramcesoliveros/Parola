@@ -66,7 +66,6 @@ class EventDateTimePicker extends StatelessWidget {
 
   Future<Null> _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
-      
         context: context,
         initialDate: selectedDate,
         firstDate: new DateTime(2015, 8),
@@ -88,24 +87,27 @@ class EventDateTimePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle valueStyle = Theme.of(context).textTheme.title;
+    final TextStyle valueStyle = Theme.of(context).textTheme.subhead;
     return new Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         new Expanded(
-          flex: 4,
-          child: new DateInputDropDown(
-            labelText: labelText,
-            valueText: new DateFormat.yMMMd().format(selectedDate),
-            valueStyle: valueStyle,
-            onPressed: () {
-              _selectDate(context);
-            },
+          flex: 2,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: new DateInputDropDown(
+              labelText: labelText,
+              valueText: new DateFormat.yMMMd().format(selectedDate),
+              valueStyle: valueStyle,
+              onPressed: () {
+                _selectDate(context);
+              },
+            ),
           ),
         ),
-        const SizedBox(width: 12.0),
+        const SizedBox(width: 5.0),
         new Expanded(
-          flex: 3,
           child: new DateInputDropDown(
             labelText: 'From',
             valueText: eventStartTime.format(context),
@@ -116,10 +118,10 @@ class EventDateTimePicker extends StatelessWidget {
           ),
         ),
         SizedBox(
-          width: 12.0,
+          width: 5.0,
         ),
         new Expanded(
-          flex: 3,
+          flex: 1,
           child: new DateInputDropDown(
             labelText: 'To',
             valueText: eventEndTime.format(context),

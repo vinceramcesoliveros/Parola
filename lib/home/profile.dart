@@ -10,7 +10,9 @@ class UserProfile extends StatelessWidget {
     return StreamBuilder(
       stream: FirebaseAuth.instance.currentUser().asStream(),
       builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
+        if (!snapshot.hasData) return CircularProgressIndicator();
         return UserAccountsDrawerHeader(
+          decoration: BoxDecoration(color: Colors.red[400]),
           accountName: Text(snapshot.data.displayName),
           accountEmail: Text(snapshot.data.email),
           currentAccountPicture: ClipOval(
@@ -30,27 +32,32 @@ class UserProfile extends StatelessWidget {
 class UserDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      semanticLabel: "Open Settings",
-      elevation: 0.0,
-      child: ListView(
-        children: <Widget>[
-          UserProfile(),
-          ListTile(
-              title: Text("Settings"),
-              leading: Icon(Icons.settings),
-              onTap: () {}),
-          ListTile(
-            title: Text("Create Events"),
-            leading: Icon(Icons.event_note),  
-            onTap: () {
-              Navigator.of(context).pop();
-              Navigator.pushNamed(context, '/event');
-            },
-          ),
-          ExitParola(),
-          AboutParola(),
-        ],
+    return Container(
+      width: MediaQuery.of(context).size.longestSide / 3,
+      child: Drawer(
+        semanticLabel: "Open Settings",
+        elevation: 0.0,
+        child: ListView(
+          children: <Widget>[
+            UserProfile(),
+            ListTile(
+                title: Text("Read Tutorial"),
+                leading: Icon(Icons.settings),
+                onTap: () {
+                  Navigator.of(context).popAndPushNamed('/introduction');
+                }),
+            ListTile(
+              title: Text("Create Events"),
+              leading: Icon(Icons.event_note),
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.pushNamed(context, '/event');
+              },
+            ),
+            ExitParola(),
+            AboutParola(),
+          ],
+        ),
       ),
     );
   }

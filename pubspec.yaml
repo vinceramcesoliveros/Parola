@@ -14,12 +14,14 @@ dependencies:
   shared_preferences: ^0.4.2
   cloud_firestore: ^0.7.4
   firebase_core: ^0.2.5
-  flutter_villains:
   cached_network_image:
   intl:
   battery:
   flutter_facebook_login:
   intro_views_flutter:
+  firebase_storage:
+  image_picker:
+  flushbar:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
@@ -51,6 +53,7 @@ flutter:
    - assets/lowbat.png
    - assets/lighthouse.png
    - assets/iconLighthouse.png
+   - assets/lighthouse.gif
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.
 

@@ -34,35 +34,54 @@ class EventListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double phoneSize = MediaQuery.of(context).size.shortestSide;
-    return ListView.builder(
-      itemCount: eventDocuments.length,
-      itemExtent: 90.0,
-      itemBuilder: (context, index) {
-        String eventTitle = eventDocuments[index].data['eventName'].toString();
-        String eventDate = eventDocuments[index].data['eventDate'].toString();
-        String eventPic = eventDocuments[index].data['eventPicURL'].toString();
-        return Card(
-          child: GestureDetector(
-            child: ListTile(
-              title: Text(eventTitle),
-              subtitle: Text(eventDate),
-              leading: CachedNetworkImage(
-                height: phoneSize / 2,
-                imageUrl: eventPic,
-              ),
-              onTap: () {
-                //FIXME: When we tap to this index, we want to display the info about the event.
-                Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                        builder: (context) => DescPage(
-                              eventTitle: eventTitle,
-                            )),
-                    (p) => true);
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Text(
+            "Pinned",
+            style: Theme.of(context).textTheme.title,
+          ),
+          
+          Divider(
+            height: 16.0,
+          ),
+          Expanded(
+            flex: 2,
+            child: ListView.builder(
+              itemCount: eventDocuments.length,
+              itemExtent: 90.0,
+              itemBuilder: (context, index) {
+                String eventTitle =
+                    eventDocuments[index].data['eventName'].toString();
+                String eventDate =
+                    eventDocuments[index].data['eventDate'].toString();
+                String eventPic =
+                    eventDocuments[index].data['eventPicURL'].toString();
+                return Card(
+                  child: GestureDetector(
+                    child: ListTile(
+                      title: Text(eventTitle),
+                      subtitle: Text(eventDate),
+                      leading: CachedNetworkImage(
+                        height: phoneSize / 2,
+                        imageUrl: eventPic,
+                      ),
+                      onTap: () {
+                        //FIXME: When we tap to this index, we want to display the info about the event.
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (context) => DescPage(
+                                      eventTitle: eventTitle,
+                                    )),
+                            (p) => true);
+                      },
+                    ),
+                  ),
+                );
               },
             ),
           ),
-        );
-      },
-    );
+        ]);
   }
 }

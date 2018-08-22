@@ -23,56 +23,56 @@ class _IntroductionPageState extends State<IntroductionPage> {
           rebuildOnChange: false,
           builder: (context, child, model) {
             TextStyle titleStyle = Theme.of(context).textTheme.display1;
-            return IntroViewsFlutter(
-              [
-                PageViewModel(
-                    iconImageAssetPath: 'assets/iconLighthouse.png',
-                    pageColor: Colors.redAccent[200],
-                    mainImage: Image.asset('assets/lighthouse.png'),
-                    title: Text(
-                      "Welcome to Parola",
-                      style: titleStyle,
-                    ),
-                    body: Text("Look at this fancy design by xsahil03x")),
-                PageViewModel(
-                  pageColor: model.batteryLevel >= 50
-                      ? Colors.green[300]
-                      : Colors.red[200],
-                  iconImageAssetPath: 'assets/icons8-empty-battery-50.png',
-                  mainImage: model.batteryLevel >= 50
-                      ? Image.asset('assets/battery_charge.png')
-                      : Image.asset('assets/lowbat.png'),
+            List<PageViewModel> pageList = [
+              PageViewModel(
+                  iconImageAssetPath: 'assets/iconLighthouse.png',
+                  pageColor: Colors.redAccent[200],
+                  mainImage: Image.asset(
+                    'assets/lighthouse.gif',
+                    fit: BoxFit.fill,
+                    height: MediaQuery.of(context).size.shortestSide,
+                    width: MediaQuery.of(context).size.longestSide,
+                  ),
                   title: Text(
-                    "Battery Life",
+                    "Welcome to Parola",
                     style: titleStyle,
                   ),
-                  body: model.batteryLevel >= 50
-                      ? Text(
-                          "Your battery Life is ${model.batteryLevel}%, Make sure to have plenty of energy left!",
-                          // style: bodyStyle,
-                          // textAlign: TextAlign.center,
-                        )
-                      : Text(
-                          "You have ${model.batteryLevel}%,Charge your phone before using it!",
-                          // style: bodyStyle,
-                          // textAlign: TextAlign.center,
-                        ),
+                  body: Text("Look at this fancy design by xsahil03x")),
+              PageViewModel(
+                pageColor: model.batteryLevel >= 50
+                    ? Colors.green[300]
+                    : Colors.red[200],
+                iconImageAssetPath: 'assets/icons8-empty-battery-50.png',
+                mainImage: model.batteryLevel >= 50
+                    ? Image.asset('assets/battery_charge.png')
+                    : Image.asset('assets/lowbat.png'),
+                title: Text(
+                  "Battery Life",
+                  style: titleStyle,
                 ),
-                PageViewModel(
-                    pageColor: Colors.blue[200],
-                    iconImageAssetPath: 'assets/icons8-bluetooth-24.png',
-                    mainImage: Image.asset('assets/bluetooth_icon.png'),
-                    title: Text(
-                      "Bluetooth Low Energy",
-                      style: titleStyle,
-                      textAlign: TextAlign.center,
-                    ),
-                    body: Text(
-                      "Just turn on your bluetooth when you want to connect to the beacon you want to connect.",
-                      // style: bodyStyle,
-                      // textAlign: TextAlign.center,
-                    )),
-              ],
+                body: model.batteryLevel >= 50
+                    ? Text(
+                        "Your battery Life is ${model.batteryLevel}%, Make sure to have plenty of energy left!",
+                      )
+                    : Text(
+                        "You have ${model.batteryLevel}%,Charge your phone before using it!",
+                      ),
+              ),
+              PageViewModel(
+                  pageColor: Colors.blue[200],
+                  iconImageAssetPath: 'assets/icons8-bluetooth-24.png',
+                  mainImage: Image.asset('assets/bluetooth_icon.png'),
+                  title: Text(
+                    "Bluetooth Low Energy",
+                    style: titleStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                  body: Text(
+                    "Just turn on your bluetooth when you want to connect to the beacon you want to connect.",
+                  )),
+            ];
+            return IntroViewsFlutter(
+              pageList,
               onTapDoneButton: () {
                 Navigator.of(context).pushReplacementNamed('/homePage');
               },
