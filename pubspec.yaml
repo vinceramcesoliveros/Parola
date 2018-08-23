@@ -5,16 +5,17 @@ dependencies:
   flutter:
     sdk: flutter
   beacons: ^0.3.0
-  flutter_blue:
-  scoped_model: ^0.2.0
-  flutter_svg: ^0.4.1
-  font_awesome_flutter: ^7.1.0
-  firebase_auth: ^0.5.15
-  google_sign_in: ^3.0.4
-  shared_preferences: ^0.4.2
-  cloud_firestore: ^0.7.4
-  firebase_core: ^0.2.5
-  cached_network_image:
+  flutter_blue: ^0.4.0
+  scoped_model: 
+  flutter_svg: 
+  font_awesome_flutter:
+  firebase_auth: 
+  google_sign_in: 
+  shared_preferences: 
+  cloud_firestore: 
+  firebase_core: 
+  cached_network_image: 
+    git: https://github.com/Cretezy/flutter_cached_network_image.git
   intl:
   battery:
   flutter_facebook_login:

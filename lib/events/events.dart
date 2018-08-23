@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
-
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:final_parola/events/date_time.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flushbar/flushbar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EventPage extends StatefulWidget {
   @override
@@ -18,20 +17,10 @@ class EventPage extends StatefulWidget {
 
 class EventPageState extends State<EventPage> {
   DateTime eventDateStart = new DateTime.now();
-
   TimeOfDay eventTimeStart = const TimeOfDay(minute: 0, hour: 0);
-
-  DateTime eventDateEnd = new DateTime.now();
-
   TimeOfDay eventTimeEnd = const TimeOfDay(minute: 0, hour: 0);
-
-  TextEditingController eventNameController,
-      eventDescriptionController,
-      beaconUUIDController,
-      majorController,
-      minorController;
-  String eventName, eventDesc, beaconUUID, major, minor, eventLocation, _path;
-  final GlobalKey<FormState> key = new GlobalKey<FormState>();
+  String eventName, eventDesc, beaconUUID, major, minor, eventLocation, path;
+  final GlobalKey<FormState> eventKey = new GlobalKey<FormState>();
   File _image;
   Future getImage() async {
     _image = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -39,7 +28,7 @@ class EventPageState extends State<EventPage> {
   }
 
   Future<Null> uploadFile(String filepath) async {
-    final String fileName = '${new Random().nextInt(10000)}.jpg';
+    final String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
     final ByteData bytes = await rootBundle.load(filepath);
     final Directory tempDir = Directory.systemTemp;
     final File file = File('${tempDir.path}/$fileName');
@@ -47,18 +36,76 @@ class EventPageState extends State<EventPage> {
     final StorageReference storageRef =
         FirebaseStorage.instance.ref().child('eventImages/$fileName');
     final StorageUploadTask task = storageRef.putFile(file);
-    
-    final Uri downloadUrl = (await task.future).downloadUrl;
-    _path = downloadUrl.toString();
 
-    print(_path);
+    final Uri downloadUrl = (await task.future).downloadUrl;
+    path = downloadUrl.toString();
+
   }
 
-  void showSnackBar() {
-    Scaffold.of(context).showSnackBar(SnackBar(
-      content: Text("Successfully Uploaded"),
-      duration: Duration(seconds: 5),
-    ));
+  Future<void> showUploadTask() async {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+        duration: Duration(seconds: 5),
+        content: Row(
+          children: <Widget>[
+            CircularProgressIndicator(),
+            SizedBox(
+              width: 8.0,
+            ),
+            Text("Creating Event...")
+          ],
+        )));
+  }
+
+  Future<Null> addEvent() async {
+    String timeEnd =
+        "${eventTimeEnd.hour > 12 ? eventTimeEnd.hour - 12 : eventTimeEnd.hour}:${eventTimeStart.minute} ${eventTimeEnd.hour < 12 ? "AM" : "PM"}";
+    String timeStart =
+        "${eventTimeStart.hour > 12 ? eventTimeStart.hour - 12 : eventTimeStart.hour}:${eventTimeStart.minute} ${eventTimeStart.hour < 12 ? "AM" : "PM"}";
+    Map<String, dynamic> eventData = {
+      "eventName": eventName,
+      "eventDesc": eventDesc,
+      "eventDate": DateFormat.yMMMd().format(eventDateStart),
+      "eventLocation": eventLocation,
+      "timeStart": timeStart,
+      "timeEnd": timeEnd,
+      "eventPicURL": path,
+      "beaconUUID": beaconUUID,
+      "Major": major,
+      "Minor": minor
+    };
+    final DocumentReference ref =
+        Firestore.instance.collection('events').document();
+    Firestore.instance.runTransaction((trans) async {
+      await trans.set(ref, eventData);
+    }).then((result) {
+      printForms();
+      print("Added to the Database");
+    });
+  }
+
+  void submitEvent() async {
+    final form = eventKey.currentState;
+    if (form.validate() &&
+        eventDateStart != null &&
+        eventTimeStart != null &&
+        eventTimeEnd != null) {
+      form.save();
+    }
+  }
+
+  void printForms() {
+    print("""
+    EventName: $eventName
+    EventDescription: $eventDesc
+    EventLocation: $eventLocation
+    EventDate: ${DateFormat.yMMMd().format(eventDateStart)}
+    EventTimeStart: ${eventTimeStart.hour > 12 ? eventTimeStart.hour - 12 : eventTimeStart.hour}:${eventTimeStart.minute} ${eventTimeStart.hour < 12 ? "AM" : "PM"}
+    EventTimeEnd: ${eventTimeEnd.hour > 12 ? eventTimeEnd.hour - 12 : eventTimeEnd.hour}:${eventTimeStart.minute} ${eventTimeEnd.hour < 12 ? "AM" : "PM"}
+    BeaconUUID: $beaconUUID 
+    Major: $major
+    Minor: $minor
+    ImageURL: ${_image.path}
+    """);
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -73,9 +120,13 @@ class EventPageState extends State<EventPage> {
         icon: Icon(Icons.create),
         label: Text("Create Event"),
         onPressed: () async {
-          await uploadFile(_image.path).then((e) => Flushbar(
-                title: 'Successfully Uploaded',
-              ));
+          await showUploadTask().then((val) {
+            uploadFile(_image.path).then((val) async {
+              submitEvent();
+            }).whenComplete(() {
+              addEvent();
+            });
+          });
         },
       ),
       appBar: AppBar(
@@ -86,7 +137,7 @@ class EventPageState extends State<EventPage> {
       ),
       body: SingleChildScrollView(
         child: Form(
-          key: this.key,
+          key: this.eventKey,
           child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -95,6 +146,8 @@ class EventPageState extends State<EventPage> {
                 onSaved: (str) {
                   eventName = str;
                 },
+                validator: (val) =>
+                    val.isEmpty ? 'Event Title can\'t be empty' : null,
               ),
             ),
             SizedBox(
@@ -140,7 +193,9 @@ class EventPageState extends State<EventPage> {
                 decoration: InputDecoration(
                   labelText: "Event Location",
                 ),
-                onSaved: (str) => eventLocation,
+                onSaved: (str) {
+                  eventLocation = str;
+                },
               ),
             ),
             Padding(

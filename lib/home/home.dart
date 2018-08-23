@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
         .getDocuments();
     query.then((doc) async {
       useremail = doc.documents[0].data['email'].toString();
-      useremail!= prefs.getString("useremail")
+      useremail != prefs.getString("useremail")
           ? await userRef
               .setData(userData,
                   merge: true) // Check if the userID has duplicate data

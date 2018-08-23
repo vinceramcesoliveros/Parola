@@ -100,7 +100,7 @@ class SplashScreenState extends State<SplashScreen> {
           scaffoldBackgroundColor: parolaColor,
         ),
         title: 'Parola',
-        showPerformanceOverlay: true,
+        // showPerformanceOverlay: true,
         debugShowCheckedModeBanner: false,
         home: ScopedModelDescendant<UserModel>(
             rebuildOnChange: false,

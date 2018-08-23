@@ -100,7 +100,7 @@ class ScanResultTile extends StatelessWidget {
             context,
             'Service UUIDs',
             (result.advertisementData.serviceUuids.isNotEmpty)
-                ? result.advertisementData.serviceUuids.join(', ').toUpperCase()
+                ? result.advertisementData.localName
                 : 'N/A'),
         _buildAdvRow(context, 'Service Data',
             getNiceServiceData(result.advertisementData.serviceData) ?? 'N/A'),

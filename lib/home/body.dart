@@ -42,7 +42,6 @@ class EventListView extends StatelessWidget {
             "Pinned",
             style: Theme.of(context).textTheme.title,
           ),
-          
           Divider(
             height: 16.0,
           ),
@@ -63,9 +62,12 @@ class EventListView extends StatelessWidget {
                     child: ListTile(
                       title: Text(eventTitle),
                       subtitle: Text(eventDate),
-                      leading: CachedNetworkImage(
-                        height: phoneSize / 2,
-                        imageUrl: eventPic,
+                      leading: AspectRatio(
+                        aspectRatio: 1.0,
+                        child: CachedNetworkImage(
+                          fit: BoxFit.contain,
+                          imageUrl: eventPic,
+                        ),
                       ),
                       onTap: () {
                         //FIXME: When we tap to this index, we want to display the info about the event.
