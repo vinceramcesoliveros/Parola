@@ -31,3 +31,9 @@
 ### August 15 Notes
 - Added Flutter Bluetooth just to test out the connection of the beacon.
 - Reinvent the architecture for enabling beacon, I should minimize the usage of SetState method.
+
+### August 18 Notes
+-Display the properties of the beacon to scan devices. I will need to work out for this one.
+UUID | Major | Minor
+------------ | -------------|-------------|
+23A01AF0-4518C0E-323FB773F5EF|0xACE6|0x51F0
