@@ -33,7 +33,6 @@ class EventListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double phoneSize = MediaQuery.of(context).size.shortestSide;
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.max,
@@ -51,6 +50,7 @@ class EventListView extends StatelessWidget {
               itemCount: eventDocuments.length,
               itemExtent: 90.0,
               itemBuilder: (context, index) {
+                print(eventDocuments[index].data.toString);
                 String eventTitle =
                     eventDocuments[index].data['eventName'].toString();
                 String eventDate =
