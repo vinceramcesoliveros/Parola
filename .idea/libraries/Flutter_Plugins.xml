@@ -7,11 +7,13 @@
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/streams_channel-0.2.2" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_blue-0.4.0" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-0.7.4" />
-      <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in-3.0.4" />
-      <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_auth-0.5.18" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/beacons-0.3.0" />
-      <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/battery-0.2.2" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_login-1.1.1" />
+      <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker-0.4.7" />
+      <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in-3.0.5" />
+      <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_auth-0.5.19" />
+      <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage-1.0.2" />
+      <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/battery-0.2.3" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

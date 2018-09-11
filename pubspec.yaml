@@ -4,24 +4,30 @@ description: A new Flutter project.
 dependencies:
   flutter:
     sdk: flutter
-  beacons: ^0.3.0
-  flutter_blue:
-  scoped_model: ^0.2.0
-  flutter_svg: ^0.4.1
-  font_awesome_flutter: ^7.1.0
-  firebase_auth: ^0.5.15
-  google_sign_in: ^3.0.4
-  shared_preferences: ^0.4.2
-  cloud_firestore: ^0.7.4
-  firebase_core: ^0.2.5
-  cached_network_image:
+  beacons:
+  scoped_model: 
+  font_awesome_flutter:
+  firebase_auth: 
+  google_sign_in: 
+  shared_preferences: 
+  cloud_firestore: 
+  firebase_core: 
+  cached_network_image: 
+    git: https://github.com/Cretezy/flutter_cached_network_image.git
   intl:
   battery:
   flutter_facebook_login:
   intro_views_flutter:
   firebase_storage:
   image_picker:
-  flushbar:
+  flutter_scan_bluetooth:
+  flutter_local_notifications:
+  flutter_masked_text:
+  splashscreen:
+  fluro:
+  flutter_offline:  
+  flutter_spinkit:
+  flutter_blue:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
@@ -44,7 +50,6 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-   - assets/lighthouse.svg
    - assets/bluetooth_icon.png
    - assets/battery_charge.png
    - assets/icons8-bluetooth-24.png
@@ -54,6 +59,7 @@ flutter:
    - assets/lighthouse.png
    - assets/iconLighthouse.png
    - assets/lighthouse.gif
+   - assets/lighthouse_app.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.
 

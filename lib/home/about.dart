@@ -11,7 +11,10 @@ class AboutParola extends StatelessWidget {
       applicationLegalese: 'Developer: Vince Ramces Oliveros',
       child: Text("About Parola"),
       aboutBoxChildren: <Widget>[
-        Text('''This will be implemented in the next few weeks more!!'''),
+        Text(
+          '''This will be implemented in the next few weeks more!!''',
+          style: Theme.of(context).textTheme.display1,
+        ),
       ],
     );
   }

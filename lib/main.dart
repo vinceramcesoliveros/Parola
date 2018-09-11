@@ -13,7 +13,8 @@
 
 import 'dart:async';
 
-import 'package:final_parola/beacon/connectBeacon.dart';
+import 'package:beacons/beacons.dart';
+
 import 'package:final_parola/home/home.dart';
 import 'package:final_parola/home/introduction.dart';
 import 'package:final_parola/home/scaffold.dart';
@@ -24,32 +25,37 @@ import 'package:scoped_model/scoped_model.dart';
 import 'package:final_parola/events/events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:battery/battery.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:splashscreen/splashscreen.dart';
 
 void main() {
-  runApp(SplashScreen());
+  runApp(ParolaScreen());
 }
 
 ///This class will save the User's
 ///information to access the homepage
 ///
 
-class SplashScreen extends StatefulWidget {
+class ParolaScreen extends StatefulWidget {
   @override
-  SplashScreenState createState() {
-    return new SplashScreenState();
+  ParolaScreenState createState() {
+    return new ParolaScreenState();
   }
 }
 
 ///
 ///Checks if the `user` has signed in after closing
 ///the application
-class SplashScreenState extends State<SplashScreen> {
+class ParolaScreenState extends State<ParolaScreen> {
   Battery battery = new Battery();
   int batteryLevel = 0;
   Color parolaColor = Colors.red[400];
   Color btnParola = Colors.red[200];
   Color cardColor = Colors.red[600];
   bool isLoggedIn = false;
+
+  FlutterLocalNotificationsPlugin localNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   Future<bool> loggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     this.setState(() {
@@ -70,16 +76,53 @@ class SplashScreenState extends State<SplashScreen> {
     return batteryLevel;
   }
 
+  Future<void> initNotification() async {
+    AndroidInitializationSettings initializeSettingAndroid =
+        AndroidInitializationSettings('app_icon');
+    IOSInitializationSettings iosInitializationSettings =
+        IOSInitializationSettings();
+    InitializationSettings settings = InitializationSettings(
+        initializeSettingAndroid, iosInitializationSettings);
+    localNotificationsPlugin.initialize(settings,
+        selectNotification: onSelectNotification);
+  }
+
+  Future onSelectNotification(String payload) async {
+    if (payload != null) {
+      debugPrint("notification payload:" + payload);
+    }
+    await Navigator.of(context).pushNamed('/home');
+  }
+
+  Future showNotification() async {
+    AndroidNotificationDetails androidNotification = AndroidNotificationDetails(
+        'your channel id', 'your channel name', 'your channel description',
+        importance: Importance.Max, priority: Priority.High);
+    IOSNotificationDetails iosNotification = IOSNotificationDetails();
+    NotificationDetails notifDetails =
+        NotificationDetails(androidNotification, iosNotification);
+    await localNotificationsPlugin.show(
+        0, "Notification Example", 'Just a description', notifDetails,
+        payload: 'items');
+  }
+
+  Future cancelNotification() async {
+    await localNotificationsPlugin.cancel(0);
+  }
+
   @override
   void initState() {
     this.currentBattery();
     this.loggedIn();
     super.initState();
+    initNotification();
+    // showNotification();
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
+
     super.dispose();
   }
 
@@ -100,19 +143,32 @@ class SplashScreenState extends State<SplashScreen> {
           scaffoldBackgroundColor: parolaColor,
         ),
         title: 'Parola',
-        showPerformanceOverlay: true,
+        // showPerformanceOverlay: true,
         debugShowCheckedModeBanner: false,
         home: ScopedModelDescendant<UserModel>(
-            rebuildOnChange: false,
-            builder: (context, child, model) {
-              return isLoggedIn ? HomePage() : LoginPage();
-            }),
+          rebuildOnChange: false,
+          builder: (context, child, model) {
+            return SplashScreen(
+              title: Text(
+                "Parola",
+                style: Theme.of(context).textTheme.display4,
+              ),
+              image: Image.asset('assets/lighthouse_app.png'),
+              backgroundColor: Colors.red[400],
+              styleTextUnderTheLoader: TextStyle(),
+              photoSize: MediaQuery.of(context).size.shortestSide / 4,
+              onClick: () => print("Welcome to Parola"),
+              loaderColor: Colors.green[400],
+              seconds: 5,
+              navigateAfterSeconds: isLoggedIn ? HomePage() : LoginPage(),
+            );
+          },
+        ),
         // initialRoute: "/login",
         routes: {
           '/login': (context) => LoginPage(),
           '/home': (context) => HomePage(),
           '/event': (context) => EventPage(),
-          '/attend': (context) => BeaconConnect(),
           '/homePage': (context) => MyScaffold(),
           '/introduction': (context) => IntroductionPage(),
         },

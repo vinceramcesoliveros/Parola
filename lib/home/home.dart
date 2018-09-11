@@ -11,6 +11,7 @@ import 'package:final_parola/home/scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -55,7 +56,7 @@ class _HomePageState extends State<HomePage> {
         .getDocuments();
     query.then((doc) async {
       useremail = doc.documents[0].data['email'].toString();
-      useremail!= prefs.getString("useremail")
+      useremail != prefs.getString("useremail")
           ? await userRef
               .setData(userData,
                   merge: true) // Check if the userID has duplicate data
@@ -96,16 +97,3 @@ class _HomePageState extends State<HomePage> {
             ));
   }
 }
-
-
-
-//Add Bottom Navigation
-// bottomNavigationBar: BottomNavigationBar(
-//   currentIndex: currentTab,
-//   items: <BottomNavigationBarItem>[
-//     BottomNavigationBarItem(
-//         icon: Icon(Icons.home), title: Text("Home")),
-//     BottomNavigationBarItem(
-//         icon: Icon(Icons.event), title: Text("Events")),
-//   ],
-// ),

@@ -23,7 +23,6 @@ class UserModel extends Model {
   FirebaseUser user;
 
   ///Automatically Sign in from Splash Screen,
-  /// # GOOGLE SIGN IN
   Future<FirebaseUser> googleSignIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final GoogleSignInAccount googleUser = await _signIn.signIn();
@@ -38,7 +37,7 @@ class UserModel extends Model {
       assert(user.displayName != null);
       assert(await user.getIdToken() != null);
       final FirebaseUser currentUser = await _auth.currentUser();
-
+  
       prefs.setString("username", user.displayName);
       prefs.setString("userid", user.uid);
       prefs.setString("useremail", user.email);
@@ -48,6 +47,7 @@ class UserModel extends Model {
     } catch (e) {
       print(e);
     }
+    return null;
   }
 
   Future<bool> signOut() async {

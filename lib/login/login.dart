@@ -1,7 +1,6 @@
 import 'package:final_parola/login/widget_btn_facebook.dart';
 import 'package:final_parola/login/widget_btn_google.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -40,23 +39,16 @@ class PBodyPage extends StatelessWidget {
 }
 
 class ParolaIcon extends StatelessWidget {
-  static String lightHouse = 'assets/lighthouse.svg';
-  static Widget svg = SvgPicture.asset(
-    lightHouse,
-    color: Colors.red[400],
-    height: 128.0,
-    width: 104.0,
-  );
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.only(top: 64.0),
+          padding: EdgeInsets.only(top: 32.0),
           child: CircleAvatar(
-            maxRadius: 64.0,
-            backgroundColor: Colors.orange[200],
-            child: svg,
+            backgroundColor: Colors.red[400],
+            maxRadius: MediaQuery.of(context).size.shortestSide / 3,
+            child: Image.asset('assets/lighthouse_app.png'),
           ),
         ),
       ],

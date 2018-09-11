@@ -1,15 +1,15 @@
-import 'package:scoped_model/scoped_model.dart';
 import 'dart:async';
-import 'dart:io';
-import 'package:image_picker/image_picker.dart';
 
-class EventModel extends Model {
-  File _image;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:scoped_model/scoped_model.dart';
 
-  File get image => _image;
-  Future getImage() async {
-    _image = await ImagePicker.pickImage(source: ImageSource.gallery);
+class EventModel extends Model{
+    final eventQuery = Firestore.instance.collection('events').snapshots();
+    
+ Stream<QuerySnapshot> get events => eventQuery;
+  
 
-    notifyListeners();
-  }
+  void getEvents(){}
+
+
 }
