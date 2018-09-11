@@ -1,24 +1,30 @@
 import 'package:final_parola/home/description.dart';
+import 'package:final_parola/model/event_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class HomeBodyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final eventQuery = Firestore.instance.collection('events').snapshots();
-    return StreamBuilder(
-        stream: eventQuery,
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData)
-            return LinearProgressIndicator(
-              backgroundColor: Colors.red[200],
-            );
-          return EventListView(
-            eventDocuments: snapshot.data.documents,
-          );
-        });
+    return ScopedModel<EventModel>(
+      model: EventModel(),
+      child: ScopedModelDescendant<EventModel>(
+        builder: (context, child, model) => StreamBuilder(
+            stream: model.events,
+            builder:
+                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (!snapshot.hasData)
+                return SpinKitThreeBounce(color: Colors.green[200]);
+              return EventListView(
+                eventDocuments: snapshot.data.documents,
+              );
+            }),
+      ),
+    );
   }
 }
 
@@ -26,64 +32,42 @@ class HomeBodyPage extends StatelessWidget {
 // put Firebase Storage too as a storage of calling images.
 class EventListView extends StatelessWidget {
   final List<DocumentSnapshot> eventDocuments;
-  final eventQuery;
 
-  const EventListView({Key key, this.eventDocuments, this.eventQuery})
-      : super(key: key);
+  const EventListView({Key key, this.eventDocuments}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Text(
-            "Pinned",
-            style: Theme.of(context).textTheme.title,
-          ),
-          Divider(
-            height: 16.0,
-          ),
-          Expanded(
-            flex: 2,
-            child: ListView.builder(
-              itemCount: eventDocuments.length,
-              itemExtent: 90.0,
-              itemBuilder: (context, index) {
-                print(eventDocuments[index].data.toString);
-                String eventTitle =
-                    eventDocuments[index].data['eventName'].toString();
-                String eventDate =
-                    eventDocuments[index].data['eventDate'].toString();
-                String eventPic =
-                    eventDocuments[index].data['eventPicURL'].toString();
-                return Card(
-                  child: GestureDetector(
-                    child: ListTile(
-                      title: Text(eventTitle),
-                      subtitle: Text(eventDate),
-                      leading: AspectRatio(
-                        aspectRatio: 1.0,
-                        child: CachedNetworkImage(
-                          fit: BoxFit.contain,
-                          imageUrl: eventPic,
-                        ),
-                      ),
-                      onTap: () {
-                        //FIXME: When we tap to this index, we want to display the info about the event.
-                        Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                                builder: (context) => DescPage(
-                                      eventTitle: eventTitle,
-                                    )),
-                            (p) => true);
-                      },
-                    ),
-                  ),
-                );
+    return ListView.builder(
+      itemExtent: 90.0,
+      itemCount: eventDocuments.length,
+      itemBuilder: (context, index) {
+        String eventTitle = eventDocuments[index].data['eventName'].toString();
+        String eventDate = eventDocuments[index].data['eventDate'].toString();
+        String eventPic = eventDocuments[index].data['eventPicURL'].toString();
+        return Card(
+          child: GestureDetector(
+            child: ListTile(
+              title: Text(eventTitle),
+              subtitle: Text(eventDate),
+              leading: AspectRatio(
+                aspectRatio: 0.90,
+                child: CachedNetworkImage(
+                  imageUrl: eventPic,
+                ),
+              ),
+              onTap: () {
+                //FIXME: When we tap to this index, we want to display the info about the event.
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => DescPage(
+                              eventTitle: eventTitle,
+                            )),
+                    (p) => true);
               },
             ),
           ),
-        ]);
+        );
+      },
+    );
   }
 }

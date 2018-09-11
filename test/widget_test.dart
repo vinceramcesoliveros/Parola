@@ -9,7 +9,6 @@ import 'package:final_parola/main.dart';
 
  main() {
   testWidgets("Test the Beacon plugin", (WidgetTester tester) async {
-    await tester.pumpWidget(SplashScreen());
-    // expect()
+    await tester.pumpWidget(ParolaScreen());
   });
 }

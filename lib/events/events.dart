@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_masked_text/flutter_masked_text.dart';
 
 class EventPage extends StatefulWidget {
   @override
@@ -22,6 +24,8 @@ class EventPageState extends State<EventPage> {
   String eventName, eventDesc, beaconUUID, major, minor, eventLocation, path;
   final GlobalKey<FormState> eventKey = new GlobalKey<FormState>();
   File _image;
+  MaskedTextController beaconController =
+      MaskedTextController(mask: '@@@@@@@-@@@@-@@@@-@@@@-@@@@@@@@@@@@');
   Future getImage() async {
     _image = await ImagePicker.pickImage(source: ImageSource.gallery);
     setState(() {});
@@ -39,7 +43,6 @@ class EventPageState extends State<EventPage> {
 
     final Uri downloadUrl = (await task.future).downloadUrl;
     path = downloadUrl.toString();
-
   }
 
   Future<void> showUploadTask() async {
@@ -57,10 +60,23 @@ class EventPageState extends State<EventPage> {
   }
 
   Future<Null> addEvent() async {
-    String timeEnd =
-        "${eventTimeEnd.hour > 12 ? eventTimeEnd.hour - 12 : eventTimeEnd.hour}:${eventTimeStart.minute} ${eventTimeEnd.hour < 12 ? "AM" : "PM"}";
-    String timeStart =
-        "${eventTimeStart.hour > 12 ? eventTimeStart.hour - 12 : eventTimeStart.hour}:${eventTimeStart.minute} ${eventTimeStart.hour < 12 ? "AM" : "PM"}";
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String admin = prefs.getString('username');
+
+    DateTime finalStartDate = new DateTime(
+        eventDateStart.year,
+        eventDateStart.month,
+        eventDateStart.day,
+        eventTimeStart.hour,
+        eventTimeStart.minute);
+    DateTime finalEndDate = new DateTime(
+        eventDateStart.year,
+        eventDateStart.month,
+        eventDateStart.day,
+        eventTimeEnd.hour,
+        eventTimeEnd.minute);
+    String timeEnd = DateFormat.jm().format(finalEndDate);
+    String timeStart = DateFormat.jm().format(finalStartDate);
     Map<String, dynamic> eventData = {
       "eventName": eventName,
       "eventDesc": eventDesc,
@@ -71,7 +87,8 @@ class EventPageState extends State<EventPage> {
       "eventPicURL": path,
       "beaconUUID": beaconUUID,
       "Major": major,
-      "Minor": minor
+      "Minor": minor,
+      'Admin': admin
     };
     final DocumentReference ref =
         Firestore.instance.collection('events').document();
@@ -80,6 +97,7 @@ class EventPageState extends State<EventPage> {
     }).then((result) {
       printForms();
       print("Added to the Database");
+      Navigator.of(context).pop();
     });
   }
 
@@ -99,8 +117,6 @@ class EventPageState extends State<EventPage> {
     EventDescription: $eventDesc
     EventLocation: $eventLocation
     EventDate: ${DateFormat.yMMMd().format(eventDateStart)}
-    EventTimeStart: ${eventTimeStart.hour > 12 ? eventTimeStart.hour - 12 : eventTimeStart.hour}:${eventTimeStart.minute} ${eventTimeStart.hour < 12 ? "AM" : "PM"}
-    EventTimeEnd: ${eventTimeEnd.hour > 12 ? eventTimeEnd.hour - 12 : eventTimeEnd.hour}:${eventTimeStart.minute} ${eventTimeEnd.hour < 12 ? "AM" : "PM"}
     BeaconUUID: $beaconUUID 
     Major: $major
     Minor: $minor
@@ -207,6 +223,8 @@ class EventPageState extends State<EventPage> {
                   Expanded(
                     flex: 2,
                     child: TextFormField(
+                      controller: beaconController,
+                      maxLength: 36,
                       decoration: InputDecoration(
                           labelText: "Beacon UUID",
                           labelStyle: Theme.of(context).textTheme.body1),
@@ -219,6 +237,7 @@ class EventPageState extends State<EventPage> {
                   Expanded(
                     flex: 1,
                     child: TextFormField(
+                        maxLength: 4,
                         onSaved: (str) => major = str,
                         decoration: InputDecoration(
                             labelText: "Major",
@@ -230,6 +249,7 @@ class EventPageState extends State<EventPage> {
                   Expanded(
                     flex: 1,
                     child: TextFormField(
+                        maxLength: 4,
                         onSaved: (str) => minor = str,
                         decoration: InputDecoration(
                             labelText: "Minor",

@@ -3,6 +3,20 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/android.iml" filepath="$PROJECT_DIR$/android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/battery-0.2.3/android/battery.iml" filepath="D:/flutter/.pub-cache/hosted/pub.dartlang.org/battery-0.2.3/android/battery.iml" />
+      <module fileurl="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/beacons-0.3.0/android/beacons.iml" filepath="D:/flutter/.pub-cache/hosted/pub.dartlang.org/beacons-0.3.0/android/beacons.iml" />
+      <module fileurl="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-0.7.4/android/cloud_firestore.iml" filepath="D:/flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-0.7.4/android/cloud_firestore.iml" />
+      <module fileurl="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_auth-0.5.19/android/firebase_auth.iml" filepath="D:/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_auth-0.5.19/android/firebase_auth.iml" />
+      <module fileurl="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.2.5/android/firebase_core.iml" filepath="D:/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.2.5/android/firebase_core.iml" />
+      <module fileurl="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage-1.0.2/android/firebase_storage.iml" filepath="D:/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage-1.0.2/android/firebase_storage.iml" />
+      <module fileurl="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_blue-0.4.0/android/flutter_blue.iml" filepath="D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_blue-0.4.0/android/flutter_blue.iml" />
+      <module fileurl="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_login-1.1.1/android/flutter_facebook_login.iml" filepath="D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_login-1.1.1/android/flutter_facebook_login.iml" />
+      <module fileurl="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in-3.0.5/android/google_sign_in.iml" filepath="D:/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in-3.0.5/android/google_sign_in.iml" />
+      <module fileurl="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker-0.4.7/android/image_picker.iml" filepath="D:/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker-0.4.7/android/image_picker.iml" />
+      <module fileurl="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-0.4.1/android/path_provider.iml" filepath="D:/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-0.4.1/android/path_provider.iml" />
+      <module fileurl="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.4.2/android/shared_preferences.iml" filepath="D:/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.4.2/android/shared_preferences.iml" />
+      <module fileurl="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/streams_channel-0.2.2/android/streams_channel.iml" filepath="D:/flutter/.pub-cache/hosted/pub.dartlang.org/streams_channel-0.2.2/android/streams_channel.iml" />
     </modules>
   </component>
 </project>

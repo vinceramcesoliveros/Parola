@@ -31,3 +31,6 @@
 ### August 15 Notes
 - Added Flutter Bluetooth just to test out the connection of the beacon.
 - Reinvent the architecture for enabling beacon, I should minimize the usage of SetState method.
+
+### August 24 Notes
+- This will be the Beacon Identification for testing Parola.

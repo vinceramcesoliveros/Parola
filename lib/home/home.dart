@@ -11,6 +11,7 @@ import 'package:final_parola/home/scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 
 class HomePage extends StatefulWidget {
   @override

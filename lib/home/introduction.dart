@@ -26,7 +26,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
             List<PageViewModel> pageList = [
               PageViewModel(
                   iconImageAssetPath: 'assets/iconLighthouse.png',
-                  pageColor: Colors.redAccent[200],
+                  pageColor: Colors.purple[700],
                   mainImage: Image.asset(
                     'assets/lighthouse.gif',
                     fit: BoxFit.fill,
@@ -37,7 +37,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
                     "Welcome to Parola",
                     style: titleStyle,
                   ),
-                  body: Text("Look at this fancy design by xsahil03x")),
+                  body: Text("Parola - came from a Filipino word  for 'Lighthouse'")),
               PageViewModel(
                 pageColor: model.batteryLevel >= 50
                     ? Colors.green[300]
