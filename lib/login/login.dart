@@ -17,7 +17,7 @@ class PBodyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(fit: StackFit.expand, children: [
       Container(
-        color: Colors.red[400],
+        color: Colors.green[500],
         child: Column(
           children: <Widget>[
             ParolaIcon(),
@@ -45,9 +45,7 @@ class ParolaIcon extends StatelessWidget {
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(top: 32.0),
-          child: CircleAvatar(
-            backgroundColor: Colors.red[400],
-            maxRadius: MediaQuery.of(context).size.shortestSide / 3,
+          child: ClipOval(
             child: Image.asset('assets/lighthouse_app.png'),
           ),
         ),

@@ -45,6 +45,11 @@ class EventListView extends StatelessWidget {
         String eventDate = eventDocuments[index].data['eventDate'].toString();
         String eventPic = eventDocuments[index].data['eventPicURL'].toString();
         return Card(
+          shape: BeveledRectangleBorder(
+              borderRadius: BorderRadius.only(
+            topRight: Radius.circular(16.0),
+          )),
+          elevation: 16.0,
           child: GestureDetector(
             child: ListTile(
               title: Text(eventTitle),

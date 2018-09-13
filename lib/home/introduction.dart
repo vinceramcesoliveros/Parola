@@ -22,13 +22,13 @@ class _IntroductionPageState extends State<IntroductionPage> {
       body: ScopedModelDescendant<UserModel>(
           rebuildOnChange: false,
           builder: (context, child, model) {
-            TextStyle titleStyle = Theme.of(context).textTheme.display1;
+            TextStyle titleStyle = Theme.of(context).textTheme.title;
             List<PageViewModel> pageList = [
               PageViewModel(
                   iconImageAssetPath: 'assets/iconLighthouse.png',
-                  pageColor: Colors.purple[700],
+                  pageColor: Colors.grey[400],
                   mainImage: Image.asset(
-                    'assets/lighthouse.gif',
+                    'assets/lighthouse_app.png',
                     fit: BoxFit.fill,
                     height: MediaQuery.of(context).size.shortestSide,
                     width: MediaQuery.of(context).size.longestSide,
@@ -37,7 +37,8 @@ class _IntroductionPageState extends State<IntroductionPage> {
                     "Welcome to Parola",
                     style: titleStyle,
                   ),
-                  body: Text("Parola - came from a Filipino word  for 'Lighthouse'")),
+                  body: Text(
+                      "Parola - came from a Filipino word  for 'Lighthouse'")),
               PageViewModel(
                 pageColor: model.batteryLevel >= 50
                     ? Colors.green[300]
@@ -61,7 +62,11 @@ class _IntroductionPageState extends State<IntroductionPage> {
               PageViewModel(
                   pageColor: Colors.blue[200],
                   iconImageAssetPath: 'assets/icons8-bluetooth-24.png',
-                  mainImage: Image.asset('assets/bluetooth_icon.png'),
+                  mainImage: Image.asset(
+                    'assets/bluetooth_icon.png',
+                    height: MediaQuery.of(context).size.shortestSide,
+                    width: MediaQuery.of(context).size.longestSide,
+                  ),
                   title: Text(
                     "Bluetooth Low Energy",
                     style: titleStyle,

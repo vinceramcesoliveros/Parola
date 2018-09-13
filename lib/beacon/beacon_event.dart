@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/beacon/_header.dart';
 import 'package:final_parola/beacon/result.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MonitoringTab extends ListTab {
@@ -53,12 +54,51 @@ class _ListTabState extends State<ListTab> {
   StreamSubscription<ListTabResult> _subscription;
   bool _running = false;
   bool isConnected = false;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   Map<String, dynamic> attendees;
   @override
   void dispose() {
     super.dispose();
     _subscription.cancel();
+  }
+
+  void initState() {
+    super.initState();
+    // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
+    var initializationSettingsAndroid =
+        new AndroidInitializationSettings('app_icon');
+    var initializationSettingsIOS = new IOSInitializationSettings();
+    var initializationSettings = new InitializationSettings(
+        initializationSettingsAndroid, initializationSettingsIOS);
+    flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        selectNotification: onSelectNotification);
+  }
+
+  Future onSelectNotification(String payload) async {
+    if (payload != null) {
+      debugPrint("notification payload:" + payload);
+    }
+  }
+
+  Future _cancelNotification() async {
+    await flutterLocalNotificationsPlugin.cancel(0);
+  }
+
+  Future _showOngoingNotification({String successful, String status}) async {
+    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+        'your channel id', 'your channel name', 'your channel description',
+        importance: Importance.Min,
+        priority: Priority.Low,
+        ongoing: true,
+        autoCancel: true,
+        playSound: false);
+    var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+    var platformChannelSpecifics = new NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+        0, successful, status, platformChannelSpecifics);
   }
 
   @override
@@ -87,20 +127,23 @@ class _ListTabState extends State<ListTab> {
               }
             }
           };
+          _showOngoingNotification(
+              successful: result.isSuccessful ? 'Connected' : 'Disconnected',
+              status: result.text);
 
-          Future.delayed(duration, () async {
-            Firestore.instance.runTransaction((transAttendees) async {
-              DocumentSnapshot snapshot =
-                  await transAttendees.get(attendeesRef);
-              if (snapshot.exists) {
-                transAttendees.update(attendeesRef, attendees);
-              }
-            });
-            // attendeesRef
-            //     .collection('Lists')
-            //     .document(prefs.getString('userid'))
-            //     .setData(attendees, merge: false);
-          });
+          // Future.delayed(duration, () async {
+          //   Firestore.instance.runTransaction((transAttendees) async {
+          //     DocumentSnapshot snapshot =
+          //         await transAttendees.get(attendeesRef);
+          //     if (snapshot.exists) {
+          //       transAttendees.update(attendeesRef, attendees);
+          //     }
+          //   });
+          //   // attendeesRef
+          //   //     .collection('Lists')
+          //   //     .document(prefs.getString('userid'))
+          //   //     .setData(attendees, merge: false);
+          // });
         });
       });
 
@@ -111,13 +154,13 @@ class _ListTabState extends State<ListTab> {
       });
     }
 
-    void _onStop() {
+    void _onStop() async {
       setState(() {
         _running = false;
         _results.clear();
         isConnected = false;
       });
-
+      await _cancelNotification();
       _subscription?.cancel();
     }
 

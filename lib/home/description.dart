@@ -5,30 +5,35 @@ import 'package:final_parola/model/notification_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_scan_bluetooth/flutter_scan_bluetooth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class DescPage extends StatelessWidget {
+class DescPage extends StatefulWidget {
   final String eventTitle;
 
   DescPage({this.eventTitle});
+
+  @override
+  DescPageState createState() {
+    return new DescPageState();
+  }
+}
+
+class DescPageState extends State<DescPage> {
   @override
   Widget build(BuildContext context) {
     final descQuery = Firestore.instance
         .collection('events')
-        .where('eventName', isEqualTo: eventTitle)
+        .where('eventName', isEqualTo: widget.eventTitle)
         .snapshots();
     return ScopedModel(
         model: NotificationModel(),
         child: Scaffold(
             appBar: AppBar(
-              backgroundColor: Colors.red[400],
+              backgroundColor: Colors.green[200],
               centerTitle: true,
-              title: Text(eventTitle),
+              title: Text(widget.eventTitle),
             ),
             floatingActionButton: StreamBuilder(
                 stream: descQuery,
@@ -45,7 +50,7 @@ class DescPage extends StatelessWidget {
                           .whenComplete(() => Navigator.of(context).push(
                               MaterialPageRoute(
                                   builder: (context) => MonitoringTab(
-                                      eventTitle: eventTitle,
+                                      eventTitle: widget.eventTitle,
                                       beaconID: snapshot
                                           .data.documents[0].data['beaconUUID']
                                           .toString(),
@@ -63,7 +68,7 @@ class DescPage extends StatelessWidget {
                   );
                 }),
             body: DescBody(
-              eventTitle: eventTitle,
+              eventTitle: widget.eventTitle,
             )));
   }
 }
@@ -116,7 +121,9 @@ class DescListView extends StatelessWidget {
               ),
             ),
             Positioned(
-              child: FavButton(),
+              child: FavButton(
+                eventTitle: eventTitle,
+              ),
               bottom: 0.0,
               right: 4.0,
             )
@@ -137,7 +144,7 @@ class DescListView extends StatelessWidget {
           ),
           Text("Time: $eventTimeStart - $eventTimeEnd",
               style: Theme.of(context).textTheme.title),
-          adminName != null ? Text("Created by: $adminName") : Text("")
+          adminName != "null" ? Text("Created by: $adminName") : Text("")
         ],
       ),
     );
@@ -151,31 +158,66 @@ class FavButton extends StatefulWidget {
 }
 
 class FavButtonState extends State<FavButton> {
-  bool isAttending = false;
-
-  Future<bool> eventAttendance(bool attend) async {
+  bool isAttending;
+  Future<bool> hasAttended() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    Map<String, dynamic> status = {
-      "Connected": false,
-      "Distance": null,
-    };
-    Map<String, dynamic> setAttendees = {
-      "EventName": widget.eventTitle,
-      "Name": prefs.getString('username'),
-      "status": status
-    };
-    DocumentReference attendEvent =
-        Firestore.instance.collection('EventAttendees').document();
-    Firestore.instance.runTransaction((tx) async {
-      DocumentSnapshot snapshot = await tx.get(attendEvent);
-      if (!snapshot.exists) {
-        tx.set(attendEvent, setAttendees);
+    this.setState(() {
+      if (prefs.getBool('isAttending') != null) {
+        isAttending = true;
       } else {
-        tx.update(attendEvent, setAttendees['status']);
+        isAttending = false;
       }
     });
-    return attend;
+    return isAttending;
+  }
+
+  Future<bool> eventAttendance() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    if (isAttending) {
+      prefs.setBool('IsAttending', isAttending);
+      Map<String, dynamic> status = {
+        "Connected": false,
+        "Distance": null,
+      };
+      Map<String, dynamic> setAttendees = {
+        "${prefs.getString('userid')}": {
+          "Name": prefs.getString('username'),
+          "status": status
+        }
+      };
+      DocumentReference attendEvent =
+          Firestore.instance.document('EventAttendees/${widget.eventTitle}');
+      Firestore.instance.runTransaction((tx) async {
+        DocumentSnapshot snapshot = await tx.get(attendEvent);
+        if (!snapshot.exists) {
+          await tx.set(attendEvent, setAttendees);
+        } else {
+          await tx.update(attendEvent, setAttendees);
+        }
+        print("Attended Event");
+      });
+    } else {
+      prefs.setBool('IsAttending', isAttending);
+
+      Map<String, dynamic> deleteAttendee = {
+        "${prefs.getString('userid')}": FieldValue.delete()
+      };
+      DocumentReference deleteAttendees = Firestore.instance
+          .collection('EventAttendees')
+          .document(widget.eventTitle);
+
+      deleteAttendees.updateData(deleteAttendee);
+      print("Didn't attend");
+    }
+    return isAttending;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    this.hasAttended();
   }
 
   @override
@@ -186,7 +228,7 @@ class FavButtonState extends State<FavButton> {
         children: <Widget>[
           Icon(
             isAttending == false ? Icons.favorite_border : Icons.favorite,
-            color: isAttending ? Colors.red[200] : Colors.white70,
+            color: isAttending == true ? Colors.red[200] : Colors.white70,
           ),
           Text(
             isAttending == false ? "Attend" : "Attending",
@@ -195,9 +237,9 @@ class FavButtonState extends State<FavButton> {
         ],
       ),
       onPressed: () {
-        setState(() {
+        this.setState(() {
           isAttending = !isAttending;
-          eventAttendance(isAttending);
+          eventAttendance();
         });
         // Firestore.instance.runTransaction(transactionHandler)
       },

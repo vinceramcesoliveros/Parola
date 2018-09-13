@@ -13,7 +13,7 @@
 
 import 'dart:async';
 
-import 'package:beacons/beacons.dart';
+import 'package:final_parola/admin/eventAdmin.dart';
 
 import 'package:final_parola/home/home.dart';
 import 'package:final_parola/home/introduction.dart';
@@ -21,6 +21,7 @@ import 'package:final_parola/home/scaffold.dart';
 import 'package:final_parola/login/login.dart';
 import 'package:final_parola/model/user_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:final_parola/events/events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,7 +30,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:splashscreen/splashscreen.dart';
 
 void main() {
-  runApp(ParolaScreen());
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) {
+    runApp(ParolaScreen());
+  });
 }
 
 ///This class will save the User's
@@ -49,9 +53,9 @@ class ParolaScreen extends StatefulWidget {
 class ParolaScreenState extends State<ParolaScreen> {
   Battery battery = new Battery();
   int batteryLevel = 0;
-  Color parolaColor = Colors.red[400];
-  Color btnParola = Colors.red[200];
-  Color cardColor = Colors.red[600];
+  Color parolaColor = Colors.green[400];
+  Color btnParola = Colors.green[400];
+  Color cardColor = Colors.green[300];
   bool isLoggedIn = false;
 
   FlutterLocalNotificationsPlugin localNotificationsPlugin =
@@ -91,7 +95,6 @@ class ParolaScreenState extends State<ParolaScreen> {
     if (payload != null) {
       debugPrint("notification payload:" + payload);
     }
-    await Navigator.of(context).pushNamed('/home');
   }
 
   Future showNotification() async {
@@ -135,9 +138,9 @@ class ParolaScreenState extends State<ParolaScreen> {
           brightness: Brightness.light,
           textTheme: TextTheme(
               title: TextStyle(color: Colors.white),
-              display4: TextStyle(color: Colors.white)),
-          errorColor: Colors.red[100],
-          backgroundColor: Colors.red[400],
+              display4: TextStyle(color: Colors.white),
+              body1: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.green[200],
           buttonColor: btnParola,
           cardColor: cardColor,
           scaffoldBackgroundColor: parolaColor,
@@ -154,12 +157,12 @@ class ParolaScreenState extends State<ParolaScreen> {
                 style: Theme.of(context).textTheme.display4,
               ),
               image: Image.asset('assets/lighthouse_app.png'),
-              backgroundColor: Colors.red[400],
+              backgroundColor: Colors.green[500],
               styleTextUnderTheLoader: TextStyle(),
               photoSize: MediaQuery.of(context).size.shortestSide / 4,
               onClick: () => print("Welcome to Parola"),
               loaderColor: Colors.green[400],
-              seconds: 5,
+              seconds: 2,
               navigateAfterSeconds: isLoggedIn ? HomePage() : LoginPage(),
             );
           },
@@ -171,6 +174,7 @@ class ParolaScreenState extends State<ParolaScreen> {
           '/event': (context) => EventPage(),
           '/homePage': (context) => MyScaffold(),
           '/introduction': (context) => IntroductionPage(),
+          '/admin': (context) => AdminEvents()
         },
       ),
     );

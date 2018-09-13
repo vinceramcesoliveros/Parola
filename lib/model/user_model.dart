@@ -37,12 +37,12 @@ class UserModel extends Model {
       assert(user.displayName != null);
       assert(await user.getIdToken() != null);
       final FirebaseUser currentUser = await _auth.currentUser();
-  
+
       prefs.setString("username", user.displayName);
       prefs.setString("userid", user.uid);
       prefs.setString("useremail", user.email);
       prefs.setString("userphotoURL", user.photoUrl);
-      isLoggedIn = true;
+      if (_auth.currentUser() != null) isLoggedIn = true;
       return currentUser;
     } catch (e) {
       print(e);

@@ -24,6 +24,7 @@ class EventPageState extends State<EventPage> {
   String eventName, eventDesc, beaconUUID, major, minor, eventLocation, path;
   final GlobalKey<FormState> eventKey = new GlobalKey<FormState>();
   File _image;
+
   MaskedTextController beaconController =
       MaskedTextController(mask: '@@@@@@@-@@@@-@@@@-@@@@-@@@@@@@@@@@@');
   Future getImage() async {
@@ -127,26 +128,53 @@ class EventPageState extends State<EventPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
+    List<DropdownMenuItem<String>> orgMenu = [
+      DropdownMenuItem(
+        child: Text("CSD"),
+        value: "csd",
+      ),
+      DropdownMenuItem(
+        child: FlatButton(
+            child: Text("Add New"),
+            onPressed: () async => await showDialog(
+                context: context,
+                builder: (context) => SimpleDialog(
+                      contentPadding: EdgeInsets.fromLTRB(0.0, 24.0, 0.0, 0.0),
+                      title: Text("Add Organization"),
+                      children: <Widget>[
+                        SimpleDialogOption(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text("Add"),
+                        )
+                      ],
+                    ))),
+        value: "add new",
+      )
+    ];
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomPadding: false,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.red[300],
-        icon: Icon(Icons.create),
-        label: Text("Create Event"),
-        onPressed: () async {
-          await showUploadTask().then((val) {
-            uploadFile(_image.path).then((val) async {
-              submitEvent();
-            }).whenComplete(() {
-              addEvent();
-            });
-          });
-        },
-      ),
+      floatingActionButton: _image != null
+          ? FloatingActionButton.extended(
+              backgroundColor: Colors.red[300],
+              icon: Icon(Icons.create),
+              label: Text("Create Event"),
+              onPressed: () async {
+                await showUploadTask().then((val) {
+                  uploadFile(_image.path).then((val) async {
+                    submitEvent();
+                  }).whenComplete(() {
+                    addEvent();
+                  });
+                });
+              },
+            )
+          : null,
       appBar: AppBar(
-        backgroundColor: Colors.red[400],
+        backgroundColor: Colors.green[400],
         elevation: 0.0,
         title: Text("Create Event"),
         centerTitle: true,
@@ -154,128 +182,149 @@ class EventPageState extends State<EventPage> {
       body: SingleChildScrollView(
         child: Form(
           key: this.eventKey,
-          child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: TextFormField(
-                decoration: InputDecoration(labelText: "Event Name"),
-                onSaved: (str) {
-                  eventName = str;
-                },
-                validator: (val) =>
-                    val.isEmpty ? 'Event Title can\'t be empty' : null,
-              ),
-            ),
-            SizedBox(
-              height: 16.0,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: TextFormField(
-                decoration: InputDecoration(
-                    labelText: "Event Description",
-                    border: OutlineInputBorder()),
-                maxLines: 3,
-                onSaved: (str) {
-                  eventDesc = str;
-                },
-              ),
-            ),
-            EventDateTimePicker(
-              labelText: 'Event Date',
-              selectedDate: eventDateStart,
-              eventStartTime: eventTimeStart,
-              eventEndTime: eventTimeEnd,
-              selectDate: (DateTime date) {
-                setState(() {
-                  eventDateStart = date;
-                });
-              },
-              startSelect: (TimeOfDay time) {
-                setState(() {
-                  eventTimeStart = time;
-                });
-              },
-              endSelect: (TimeOfDay endTime) {
-                setState(() {
-                  eventTimeEnd = endTime;
-                });
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: TextFormField(
-                initialValue: "",
-                decoration: InputDecoration(
-                  labelText: "Event Location",
+          child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(labelText: "Event Name"),
+                    onSaved: (str) {
+                      eventName = str;
+                    },
+                    validator: (val) =>
+                        val.isEmpty ? 'Event Title can\'t be empty' : null,
+                  ),
                 ),
-                onSaved: (str) {
-                  eventLocation = str;
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Expanded(
-                    flex: 2,
-                    child: TextFormField(
-                      controller: beaconController,
-                      maxLength: 36,
-                      decoration: InputDecoration(
-                          labelText: "Beacon UUID",
-                          labelStyle: Theme.of(context).textTheme.body1),
-                      onSaved: (str) => beaconUUID = str,
-                    ),
+                SizedBox(
+                  height: 16.0,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                        labelText: "Event Description",
+                        border: OutlineInputBorder()),
+                    maxLines: 3,
+                    onSaved: (str) {
+                      eventDesc = str;
+                    },
                   ),
-                  SizedBox(
-                    width: 8.0,
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: TextFormField(
-                        maxLength: 4,
-                        onSaved: (str) => major = str,
-                        decoration: InputDecoration(
-                            labelText: "Major",
-                            labelStyle: Theme.of(context).textTheme.body1)),
-                  ),
-                  SizedBox(
-                    width: 8.0,
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: TextFormField(
-                        maxLength: 4,
-                        onSaved: (str) => minor = str,
-                        decoration: InputDecoration(
-                            labelText: "Minor",
-                            labelStyle: Theme.of(context).textTheme.body1)),
-                  )
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 16.0,
-            ),
-            RaisedButton(
-              child: Text("Upload Image"),
-              onPressed: getImage,
-            ),
-            _image == null
-                ? Center(child: Text("No file selected"))
-                : Column(children: [
-                    AspectRatio(
-                      aspectRatio: 16.0 / 9.0,
-                      child: Image.file(
-                        _image,
+                ),
+                EventDateTimePicker(
+                  labelText: 'Event Date',
+                  selectedDate: eventDateStart,
+                  eventStartTime: eventTimeStart,
+                  eventEndTime: eventTimeEnd,
+                  selectDate: (DateTime date) {
+                    setState(() {
+                      eventDateStart = date;
+                    });
+                  },
+                  startSelect: (TimeOfDay time) {
+                    setState(() {
+                      eventTimeStart = time;
+                    });
+                  },
+                  endSelect: (TimeOfDay endTime) {
+                    setState(() {
+                      eventTimeEnd = endTime;
+                    });
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: TextFormField(
+                          initialValue: "",
+                          maxLength: 50,
+                          decoration: InputDecoration(
+                            labelText: "Event Location",
+                          ),
+                          onSaved: (str) {
+                            eventLocation = str;
+                          },
+                        ),
                       ),
-                    ),
-                  ]),
-          ]),
+                      Expanded(
+                        flex: 1,
+                        child: DropdownButton(
+                            hint: Text("Select Organization"),
+                            items: orgMenu,
+                            onChanged: (val) {}),
+                      )
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
+                          controller: beaconController,
+                          maxLength: 35,
+                          decoration: InputDecoration(
+                              labelText: "Beacon UUID",
+                              labelStyle: Theme.of(context).textTheme.body1),
+                          onSaved: (str) => beaconUUID = str,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 8.0,
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: TextFormField(
+                            maxLength: 4,
+                            onSaved: (str) => major = str,
+                            decoration: InputDecoration(
+                                labelText: "Major",
+                                labelStyle: Theme.of(context).textTheme.body1)),
+                      ),
+                      SizedBox(
+                        width: 8.0,
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: TextFormField(
+                            maxLength: 4,
+                            onSaved: (str) => minor = str,
+                            decoration: InputDecoration(
+                                labelText: "Minor",
+                                labelStyle: Theme.of(context).textTheme.body1)),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 16.0,
+                ),
+                Center(
+                  child: RaisedButton(
+                    child: Text("Upload Image"),
+                    onPressed: getImage,
+                    shape: StadiumBorder(),
+                  ),
+                ),
+                _image == null
+                    ? Center(child: Text("No file selected"))
+                    : Column(children: [
+                        AspectRatio(
+                          aspectRatio: 16.0 / 9.0,
+                          child: Image.file(
+                            _image,
+                          ),
+                        ),
+                      ]),
+              ]),
         ),
       ),
     );
