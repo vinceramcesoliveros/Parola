@@ -67,7 +67,6 @@ class EventListView extends StatelessWidget {
                 ),
               ),
               onTap: () {
-                //FIXME: When we tap to this index, we want to display the info about the event.
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => DescPage(

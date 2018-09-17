@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:final_parola/beacon/beacon_event.dart';
+import 'package:final_parola/events/edit_events.dart';
 import 'package:final_parola/model/notification_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_scan_bluetooth/flutter_scan_bluetooth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
 class DescPage extends StatefulWidget {
   final String eventTitle, eventKey;
 
@@ -24,7 +26,6 @@ class DescPage extends StatefulWidget {
 
 class DescPageState extends State<DescPage> {
   @override
-
   Widget build(BuildContext context) {
     final descQuery = Firestore.instance
         .collection('events')
@@ -40,24 +41,63 @@ class DescPageState extends State<DescPage> {
               actions: <Widget>[
                 StreamBuilder(
                   stream: descQuery,
-                    builder: (context,snapshot){
-                      if(!snapshot.hasData) return Text("");
-                      return IconButton(icon: Icon(FontAwesomeIcons.solidEdit),onPressed: ()async{
-                        SharedPreferences prefs = await SharedPreferences.getInstance();
-                        if(snapshot.data.documents[0].data['Admin'] == prefs.getString('username')){
-                          Navigator.of(context).pushNamed('/event');
-                        }else
-                        {
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return Text("");
+                    return IconButton(
+                      icon: Icon(FontAwesomeIcons.solidEdit),
+                      onPressed: () async {
+                        String description = snapshot
+                            .data.documents[0].data['eventDesc']
+                            .toString();
+                        String eventName = snapshot
+                            .data.documents[0].data['eventName']
+                            .toString();
+                        String eventLocation = snapshot
+                            .data.documents[0].data['eventLocation']
+                            .toString();
+                        String timeEnd = snapshot
+                            .data.documents[0].data['timeEnd']
+                            .toString();
+                        String timeStart = snapshot
+                            .data.documents[0].data['timeStart']
+                            .toString();
+                        String eventDate = snapshot
+                            .data.documents[0].data['eventDate']
+                            .toString();
+                        String major =
+                            snapshot.data.documents[0].data['Major'].toString();
+                        String minor =
+                            snapshot.data.documents[0].data['Minor'].toString();
+                        String beaconUUID = snapshot
+                            .data.documents[0].data['beaconUUID']
+                            .toString();
+
+                        SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        if (snapshot.data.documents[0].data['Admin'] ==
+                            prefs.getString('username')) {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => EditEventPage(
+                                  eventName: eventName,
+                                  description: description,
+                                  eventLocation: eventLocation,
+                                  eventDate: eventDate,
+                                  timeStart: timeStart,
+                                  timeEnd: timeEnd,
+                                  beacon: beaconUUID,
+                                  major: major,
+                                  minor: minor)));
+                        } else {
                           Fluttertoast.showToast(
                             msg: "You don't have permission to edit the event",
                             toastLength: Toast.LENGTH_SHORT,
                             gravity: ToastGravity.BOTTOM,
                             timeInSecForIos: 1,
-                            
                           );
                         }
-                      },);
-                    },
+                      },
+                    );
+                  },
                 )
               ],
             ),
@@ -211,7 +251,9 @@ class FavButtonState extends State<FavButton> {
       };
       Map<String, dynamic> setAttendees = {
         "Name": prefs.getString('username'),
-        "status": status
+        "status": status,
+        "In": null,
+        "Out": null,
       };
       DocumentReference attendEvent = Firestore.instance
           .document('ListFor${widget.eventTitle}/${prefs.getString('userid')}');

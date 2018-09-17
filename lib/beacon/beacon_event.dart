@@ -190,7 +190,9 @@ class _ListTabState extends State<ListTab> {
           Map<String, dynamic> setAttendees = {
             "userid": "${prefs.getString('userid')}",
             "Name": prefs.getString('username'),
-            "status": status
+            "status": status,
+            "In": "Attended",
+            "Out": ""
           };
           result.distance < 3.0
               ? _showOngoingNotification(

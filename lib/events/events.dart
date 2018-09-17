@@ -46,6 +46,11 @@ class EventPageState extends State<EventPage> {
     path = downloadUrl.toString();
   }
 
+  void dispose() {
+    super.dispose();
+    beaconController.dispose();
+  }
+
   Future<void> showUploadTask() async {
     _scaffoldKey.currentState.showSnackBar(SnackBar(
         duration: Duration(seconds: 5),

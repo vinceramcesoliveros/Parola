@@ -77,7 +77,6 @@ class MyScaffoldState extends State<MyScaffold> {
       drawer: UserDrawer(),
       body: currentPage,
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
         iconSize: 32.0,
         fixedColor: Colors.green[700],
         currentIndex: currentIndex,
