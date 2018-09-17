@@ -1,11 +1,16 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/events/date_time.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditEventPage extends StatefulWidget {
   final String eventName,
+      eventKey,
       eventDate,
       major,
       minor,
@@ -15,7 +20,8 @@ class EditEventPage extends StatefulWidget {
       eventLocation,
       description;
   EditEventPage(
-      {this.eventName,
+      {this.eventKey,
+      this.eventName,
       this.description,
       this.eventLocation,
       this.eventDate,
@@ -47,6 +53,45 @@ class _EditEventPageState extends State<EditEventPage> {
 
     MaskedTextController beaconController = MaskedTextController(
         mask: '@@@@@@@@-@@@@-@@@@-@@@@-@@@@@@@@@@@@', text: beacon);
+
+    Future<Null> editEvent() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String admin = prefs.getString('username');
+
+      DateTime finalStartDate = new DateTime(
+          eventDateStart.year,
+          eventDateStart.month,
+          eventDateStart.day,
+          eventTimeStart.hour,
+          eventTimeStart.minute);
+      DateTime finalEndDate = new DateTime(
+          eventDateStart.year,
+          eventDateStart.month,
+          eventDateStart.day,
+          eventTimeEnd.hour,
+          eventTimeEnd.minute);
+      String timeEnd = DateFormat.jm().format(finalEndDate);
+      String timeStart = DateFormat.jm().format(finalStartDate);
+      Map<String, dynamic> eventData = {
+        "eventName": eventName,
+        "eventDesc": description,
+        "eventDate": DateFormat.yMMMd().format(eventDateStart),
+        "eventLocation": eventLocation,
+        "timeStart": timeStart,
+        "timeEnd": timeEnd,
+        "beaconUUID": beacon,
+        "Major": major,
+        "Minor": minor,
+      };
+      final DocumentReference ref =
+          Firestore.instance.collection('events').document();
+      Firestore.instance.runTransaction((trans) async {
+        await trans.update(ref, eventData);
+      }).then((result) {
+        print("Added to the Database");
+        Navigator.of(context).pop();
+      });
+    }
 
     return Scaffold(
       resizeToAvoidBottomPadding: false,

@@ -14,9 +14,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class DescPage extends StatefulWidget {
-  final String eventTitle, eventKey;
+  final String eventTitle, eventKey, username;
 
-  DescPage({this.eventTitle, this.eventKey});
+  DescPage({this.eventTitle, this.eventKey, this.username});
 
   @override
   DescPageState createState() {
@@ -71,13 +71,15 @@ class DescPageState extends State<DescPage> {
                         String beaconUUID = snapshot
                             .data.documents[0].data['beaconUUID']
                             .toString();
-
+                        String eventKey =
+                            snapshot.data.documents[0].documentID.toString();
                         SharedPreferences prefs =
                             await SharedPreferences.getInstance();
                         if (snapshot.data.documents[0].data['Admin'] ==
                             prefs.getString('username')) {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => EditEventPage(
+                                  eventKey: eventKey,
                                   eventName: eventName,
                                   description: description,
                                   eventLocation: eventLocation,
@@ -136,14 +138,15 @@ class DescPageState extends State<DescPage> {
                 }),
             body: DescBody(
               eventTitle: widget.eventTitle,
+              username: widget.username,
             )));
   }
 }
 
 class DescBody extends StatelessWidget {
-  final String eventTitle;
+  final String eventTitle, username;
 
-  DescBody({this.eventTitle});
+  DescBody({this.eventTitle, this.username});
 
   @override
   Widget build(BuildContext context) {
@@ -158,6 +161,7 @@ class DescBody extends StatelessWidget {
           return Center(child: CircularProgressIndicator());
         return DescListView(
           descDocuments: snapshot.data.documents,
+          username: username,
         );
       },
     );
@@ -166,7 +170,8 @@ class DescBody extends StatelessWidget {
 
 class DescListView extends StatelessWidget {
   final List<DocumentSnapshot> descDocuments;
-  DescListView({this.descDocuments});
+  final String username;
+  DescListView({this.descDocuments, this.username});
   @override
   Widget build(BuildContext context) {
     String eventDesc = descDocuments[0].data['eventDesc'].toString();
@@ -190,6 +195,7 @@ class DescListView extends StatelessWidget {
             ),
             Positioned(
               child: FavButton(
+                username: username,
                 eventTitle: eventTitle,
                 eventKey: eventKey,
               ),
@@ -220,25 +226,17 @@ class DescListView extends StatelessWidget {
   }
 }
 
+/// I want to make an algorithm for this one,Let's say the user has clicked the **Attend**
+/// Then it will be passed to `ListFor$eventName`, It will be added to the list for THAT attendee.
+///
 class FavButton extends StatefulWidget {
-  final String eventTitle, eventKey;
-  FavButton({this.eventTitle, this.eventKey});
+  final String eventTitle, eventKey, username;
+  FavButton({this.eventTitle, this.eventKey, this.username});
   FavButtonState createState() => FavButtonState();
 }
 
 class FavButtonState extends State<FavButton> {
-  bool isAttending;
-  Future<bool> hasAttended() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    this.setState(() {
-      if (prefs.getBool('isAttending') != null) {
-        isAttending = true;
-      } else {
-        isAttending = false;
-      }
-    });
-    return isAttending;
-  }
+  bool isAttending = false;
 
   Future<bool> eventAttendance() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -282,33 +280,62 @@ class FavButtonState extends State<FavButton> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    this.hasAttended();
   }
 
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
-      color: Colors.green[200],
-      child: Row(
-        children: <Widget>[
-          Icon(
-            isAttending == false ? Icons.favorite_border : Icons.favorite,
-            color: isAttending == true ? Colors.red[200] : Colors.white70,
-          ),
-          Text(
-            isAttending == false ? "Attend" : "Attending",
-            style: Theme.of(context).textTheme.title,
-          )
-        ],
-      ),
-      onPressed: () {
-        this.setState(() {
-          isAttending = !isAttending;
-          eventAttendance();
+    return StreamBuilder(
+        stream: Firestore.instance
+            .collection('ListFor${widget.eventTitle}')
+            .where('Name', isEqualTo: widget.username)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if(!snapshot.hasData) return Text("Loading...");
+          if (snapshot.data.documents.isEmpty) {
+            return RaisedButton(
+              color: Colors.green[200],
+              child: Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.favorite_border,
+                    color: Colors.white70,
+                  ),
+                  Text(
+                    "Attend",
+                    style: Theme.of(context).textTheme.title,
+                  )
+                ],
+              ),
+              onPressed: () {
+                this.setState(() {
+                  isAttending = true;
+                  eventAttendance();
+                });
+              },
+              shape: StadiumBorder(),
+            );
+          } else {
+            return RaisedButton(
+              color: Colors.green[200],
+              child: Row(
+                children: <Widget>[
+                  Icon(Icons.favorite, color: Colors.red[200]),
+                  Text(
+                    "Attending",
+                    style: Theme.of(context).textTheme.title,
+                  )
+                ],
+              ),
+              onPressed: () {
+                this.setState(() {
+                  isAttending = false;
+                  eventAttendance();
+                });
+                // Firestore.instance.runTransaction(transactionHandler)
+              },
+              shape: StadiumBorder(),
+            );
+          }
         });
-        // Firestore.instance.runTransaction(transactionHandler)
-      },
-      shape: StadiumBorder(),
-    );
   }
 }

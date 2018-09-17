@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeBodyPage extends StatelessWidget {
   @override
@@ -66,12 +67,15 @@ class EventListView extends StatelessWidget {
                   ),
                 ),
               ),
-              onTap: () {
+              onTap: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                String username = prefs.getString('username');
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => DescPage(
                               eventKey: eventKey,
                               eventTitle: eventTitle,
+                              username: username,
                             )),
                     (p) => true);
               },
