@@ -10,9 +10,15 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MonitoringTab extends ListTab {
-  final String eventTitle, major, minor, beaconID;
-  MonitoringTab({this.eventTitle, this.beaconID, this.major, this.minor})
-      : super(title: eventTitle, beacon: beaconID, major: major, minor: minor);
+  final String eventTitle, major, minor, beaconID, eventKey;
+  MonitoringTab(
+      {this.eventTitle, this.beaconID, this.major, this.minor, this.eventKey})
+      : super(
+            title: eventTitle,
+            beacon: beaconID,
+            major: major,
+            minor: minor,
+            eventKey: eventKey);
 
   @override
   Stream<ListTabResult> stream(BeaconRegion region) {
@@ -24,24 +30,27 @@ class MonitoringTab extends ListTab {
       String text;
       if (result.isSuccessful == true) {
         text = result.beacons.isNotEmpty
-            ? 'You are ${result.beacons.first.distance.toStringAsFixed(2)} meters from $eventTitle'
+            ? "You are ${result.beacons.first.distance < 3.0 ? 'Connected' : 'Too far'} from $eventTitle "
             : 'You are Disconnected from $eventTitle';
       } else {
-        text = result.error.toString();
+        text = result.beacons.isNotEmpty == false
+            ? result.error.toString()
+            : "Unable To Connect";
       }
 
       return new ListTabResult(
           text: text,
-          isSuccessful: result.isSuccessful,
-          description: "${result.beacons.first.distance.toStringAsFixed(2)}m");
+          isSuccessful: result.beacons.first.distance < 3.0 ? true : false,
+          distance: result.beacons.first.distance);
     });
   }
 }
 
 abstract class ListTab extends StatefulWidget {
-  const ListTab({Key key, this.title, this.beacon, this.major, this.minor})
+  const ListTab(
+      {Key key, this.title, this.beacon, this.major, this.minor, this.eventKey})
       : super(key: key);
-  final String title, beacon, major, minor;
+  final String title, beacon, major, minor, eventKey;
 
   Stream<ListTabResult> stream(BeaconRegion region);
 
@@ -101,98 +110,187 @@ class _ListTabState extends State<ListTab> {
         0, successful, status, platformChannelSpecifics);
   }
 
+  Future _showStatusNotifcation({String successful, status}) async {
+    AndroidNotificationDetails androidPlatformChannelSpecifics =
+        new AndroidNotificationDetails(
+      '1',
+      'Disconnected',
+      'It might be you are too far from the beacon',
+      importance: Importance.Min,
+      priority: Priority.Default,
+      ongoing: true,
+      autoCancel: true,
+      playSound: false,
+    );
+    IOSNotificationDetails iOSPlatformChannelSpecifics =
+        new IOSNotificationDetails();
+    NotificationDetails platformChannelSpecifics = new NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+        0, successful, status, platformChannelSpecifics);
+  }
+
   @override
   Widget build(BuildContext context) {
-    DocumentReference attendeesRef =
-        Firestore.instance.collection('AttendeesList').document(widget.title);
-
-    void _onStart(BeaconRegion region) {
-      Duration duration = Duration(seconds: 5);
-      setState(() {
-        _running = true;
-      });
-
-      _subscription = widget.stream(region).listen((result) async {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        setState(() {
-          _results.clear();
-          _results.insert(0, result);
-          attendees = {
-            "Names": {
-              "userID": prefs.getString('userid'),
-              "FullName": prefs.getString('username'),
-              "status": {
-                "Connected": result.isSuccessful,
-                "Distance": result.description,
-              }
-            }
-          };
-          _showOngoingNotification(
-              successful: result.isSuccessful ? 'Connected' : 'Disconnected',
-              status: result.text);
-
-          // Future.delayed(duration, () async {
-          //   Firestore.instance.runTransaction((transAttendees) async {
-          //     DocumentSnapshot snapshot =
-          //         await transAttendees.get(attendeesRef);
-          //     if (snapshot.exists) {
-          //       transAttendees.update(attendeesRef, attendees);
-          //     }
-          //   });
-          //   // attendeesRef
-          //   //     .collection('Lists')
-          //   //     .document(prefs.getString('userid'))
-          //   //     .setData(attendees, merge: false);
-          // });
-        });
-      });
-
-      _subscription.onDone(() {
-        setState(() {
-          _running = false;
-        });
-      });
-    }
-
     void _onStop() async {
       setState(() {
         _running = false;
         _results.clear();
         isConnected = false;
       });
+      Future.delayed(Duration(seconds: 5), () async {
+        DocumentReference attendeesRef = Firestore.instance
+            .document("EventAttendees/${widget.title}_${widget.eventKey}");
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+
+        Map<String, dynamic> status = {
+          "Connected": false,
+          "Distance": "Disconnected",
+        };
+        Map<String, dynamic> setAttendees = {
+          "${prefs.getString('userid')}": {"status": status}
+        };
+        Firestore.instance.runTransaction((transAttendees) async {
+          DocumentSnapshot snapshot = await transAttendees.get(attendeesRef);
+          if (snapshot.exists) {
+            await transAttendees.update(attendeesRef, setAttendees);
+          }
+        });
+      });
       await _cancelNotification();
       _subscription?.cancel();
     }
 
-    return new Scaffold(
-      backgroundColor:
-          isConnected == true ? Colors.green[200] : Colors.red[200],
-      appBar: new AppBar(
-        elevation: 0.0,
+    void _onStart(BeaconRegion region) {
+      Duration duration = Duration(seconds: 5);
+      setState(() {
+        _running = true;
+      });
+      _subscription = widget.stream(region).listen((result) async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        DocumentReference attendeesRef = Firestore.instance
+            .document("ListFor${widget.title}/${prefs.getString('userid')}");
+        setState(() {
+          if (result.text != null) {
+            _results.clear();
+            _results.insert(0, result);
+          } else {
+            _results.clear();
+            _results.insert(
+                0,
+                ListTabResult(
+                    text: "Failed to Connect",
+                    isSuccessful: false,
+                    distance: null));
+          }
+          Map<String, dynamic> status = {
+            "Connected": result.isSuccessful,
+            "Distance": result.distance,
+          };
+          Map<String, dynamic> setAttendees = {
+            "userid": "${prefs.getString('userid')}",
+            "Name": prefs.getString('username'),
+            "status": status
+          };
+          result.distance < 3.0
+              ? _showOngoingNotification(
+                  successful:
+                      result.distance < 3.0 ? 'Connected' : 'Disconnected',
+                  status: result.text)
+              : _showStatusNotifcation();
+
+          Future.delayed(duration, () async {
+            Firestore.instance.runTransaction((transAttendees) async {
+              DocumentSnapshot snapshot =
+                  await transAttendees.get(attendeesRef);
+              if (snapshot.exists) {
+                await transAttendees.update(attendeesRef, setAttendees);
+              }
+            });
+          });
+        });
+      });
+      _subscription.onDone(() async {
+        setState(() {
+          Future.delayed(duration, () async {
+            DocumentReference attendeesRef = Firestore.instance
+                .document("EventAttendees/${widget.title}_${widget.eventKey}");
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+
+            Map<String, dynamic> status = {
+              "Connected": false,
+              "Distance": "Disconnected",
+            };
+            Map<String, dynamic> setAttendees = {
+              "${prefs.getString('userid')}": {"status": status}
+            };
+            Firestore.instance.runTransaction((transAttendees) async {
+              DocumentSnapshot snapshot =
+                  await transAttendees.get(attendeesRef);
+              if (snapshot.exists) {
+                await transAttendees.update(attendeesRef, setAttendees);
+              }
+            });
+          });
+          _running = false;
+        });
+      });
+    }
+
+    return WillPopScope(
+      onWillPop: () async {
+        _onStop();
+        return true;
+      },
+      child: new Scaffold(
         backgroundColor:
             isConnected == true ? Colors.green[200] : Colors.red[200],
-        centerTitle: true,
-        title: Header(
-          regionIdentifier: 'test',
-          running: _running,
-          onStart: _onStart,
-          onStop: _onStop,
-          beaconID: widget.beacon,
-          major: widget.major,
-          minor: widget.minor,
+        appBar: new AppBar(
+          elevation: 0.0,
+          backgroundColor:
+              isConnected == true ? Colors.green[200] : Colors.red[200],
+          centerTitle: true,
+          title: Header(
+            regionIdentifier: 'test',
+            running: _running,
+            onStart: _onStart,
+            onStop: _onStop,
+            beaconID: widget.beacon,
+            major: widget.major,
+            minor: widget.minor,
+          ),
         ),
-      ),
-      body: _running == true
-          ? Stack(
-              children: ListTile.divideTiles(
-              context: context,
-              tiles: _results.map((location) {
-                isConnected = location.isSuccessful;
+        body: _running == true
+            ? Stack(
+                children: _results.isNotEmpty
+                    ? ListTile.divideTiles(
+                        context: context,
+                        tiles: _results.map((location) {
+                          isConnected = location.isSuccessful;
 
-                return _Item(result: location);
-              }),
-            ).toList())
-          : Center(child: Icon(Icons.signal_wifi_off, size: 64.0)),
+                          return location.isSuccessful
+                              ? _Item(result: location)
+                              : Text(location.text);
+                        }),
+                      ).toList()
+                    : [
+                        Center(
+                            child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(
+                              Icons.signal_wifi_off,
+                              size: 64.0,
+                            ),
+                            Text(
+                              "Unable to connect, Maybe you're not at the event. :(",
+                              style: Theme.of(context).textTheme.title,
+                            ),
+                          ],
+                        ))
+                      ])
+            : Center(child: Icon(Icons.signal_wifi_off, size: 64.0)),
+      ),
     );
   }
 }
@@ -205,7 +303,8 @@ class _Item extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String text = result.text;
-    final String status = result.isSuccessful ? "Connected" : "Not Connected";
+    final String status =
+        result.isSuccessful ? "${result.distance.toString()}" : "Not Connected";
     final List<Widget> content = <Widget>[
       Text(
         text,

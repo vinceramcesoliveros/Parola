@@ -1,7 +1,10 @@
 import 'dart:async';
 
+import 'package:final_parola/admin/attendeesListAdmin.dart';
+import 'package:final_parola/model/crud_events.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class AdminEvents extends StatelessWidget {
   final String adminName;
@@ -45,50 +48,87 @@ class ListOfEvents extends StatelessWidget {
     return ListView.builder(
       itemCount: eventRef.length,
       itemBuilder: (context, index) {
-        Future<void> deleteEvents({String eventKey}) async {
-          await Firestore.instance
-              .collection('events')
-              .document(eventKey)
-              .delete()
-              .then((doc) {
-            print("Deleted $eventKey");
-          });
-        }
-
         String eventName = eventRef[index].data['eventName'].toString();
+        String eventKey = eventRef[index].documentID.toString();
         String eventDate = eventRef[index].data['eventDate'].toString();
-        return Card(
-          color: Colors.green[300],
-          shape: BeveledRectangleBorder(
-              borderRadius: BorderRadius.only(topRight: Radius.circular(16.0))),
-          elevation: 16.0,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                title: Text(eventName),
-                subtitle: Text(eventDate),
-                trailing: IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () async => deleteEvents(
-                      eventKey: eventRef[index].documentID.toString()),
-                ),
-              ),
-              ButtonTheme.bar(
-                  child: ButtonBar(children: [
-                FlatButton(
-                    shape: BeveledRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(20.0),
-                            bottomRight: Radius.circular(20.0))),
-                    color: Colors.green[600],
-                    child: Text(
-                      "View Attendees",
-                      style: Theme.of(context).textTheme.body1,
-                    ),
-                    onPressed: () {}),
-              ]))
-            ],
+        return ScopedModel(
+          model: DeleteEvent(),
+          child: Card(
+            color: Colors.green[300],
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(32.0))),
+            elevation: 16.0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ScopedModelDescendant<DeleteEvent>(
+                    rebuildOnChange: false,
+                    builder: (context, child, model) {
+                      return ListTile(
+                        title: Text(eventName),
+                        subtitle: Text(eventDate),
+                        trailing: IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () async => showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: Text(
+                                      "Delete $eventName ?",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    content: Text(
+                                        "Are you sure want to Delete $eventName ?"),
+                                    actions: <Widget>[
+                                      RaisedButton(
+                                          child: Text(
+                                            "Delete Event",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .title,
+                                          ),
+                                          onPressed: () async => model
+                                              .deleteEvents(
+                                                  eventName: eventRef[index]
+                                                      .data['eventName']
+                                                      .toString(),
+                                                  eventKey: eventRef[index]
+                                                      .documentID
+                                                      .toString())
+                                              .whenComplete(() =>
+                                                  Navigator.of(context).pop())),
+                                      FlatButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                          child: Text("NO"))
+                                    ],
+                                  )),
+                        ),
+                      );
+                    }),
+                ButtonTheme.bar(
+                    child: ButtonBar(children: [
+                  FlatButton(
+                      shape: BeveledRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(20.0),
+                              bottomRight: Radius.circular(20.0))),
+                      color: Colors.green[600],
+                      child: Text(
+                        "View Attendees",
+                        style: Theme.of(context).textTheme.body1,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AttendeesLists(
+                                      eventKey: eventKey,
+                                      eventName: eventName,
+                                    )));
+                      }),
+                ]))
+              ],
+            ),
           ),
         );
       },

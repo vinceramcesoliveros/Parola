@@ -1,4 +1,5 @@
 import 'package:final_parola/home/body.dart';
+import 'package:final_parola/home/eventBody.dart';
 import 'package:final_parola/home/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -21,12 +22,41 @@ class MyScaffoldState extends State<MyScaffold> {
   }
   AppBar searchAppBar(BuildContext context) {
     return AppBar(
-      title: Text("Home"),
-      elevation: 0.0,
+      brightness: Brightness.dark,
+      title: currentIndex == 0 ? Text("Home") : Text("Events"),
+      elevation: 4.0,
       backgroundColor: Colors.green[300],
       centerTitle: true,
-      actions: <Widget>[searchBar.getSearchAction(context)],
+      actions: <Widget>[
+        searchBar.getSearchAction(context),
+        PopupMenuButton(
+            itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: "eventDate",
+                    child: Text("Sort by Date"),
+                  ),
+                  PopupMenuItem(
+                      value: "eventName", child: Text("Sort by Name")),
+                  PopupMenuItem(
+                      value: "eventLocation", child: Text("Sort by Location"))
+                ])
+      ],
     );
+  }
+
+  HomeBodyPage homeBodyPage;
+  EventBodyPage eventBodyPage;
+  List<Widget> pages;
+  Widget currentPage;
+  int currentIndex = 0;
+  @override
+  void initState() {
+    homeBodyPage = HomeBodyPage();
+    eventBodyPage = EventBodyPage();
+    pages = [homeBodyPage, eventBodyPage];
+
+    currentPage = homeBodyPage;
+    super.initState();
   }
 
   @override
@@ -41,8 +71,31 @@ class MyScaffoldState extends State<MyScaffold> {
         icon: Icon(FontAwesomeIcons.plus),
         onPressed: () => Navigator.of(context).pushNamed('/event'),
       ),
+      floatingActionButtonLocation: currentIndex == 0
+          ? FloatingActionButtonLocation.centerDocked
+          : FloatingActionButtonLocation.endFloat,
       drawer: UserDrawer(),
-      body: HomeBodyPage(),
+      body: currentPage,
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        iconSize: 32.0,
+        fixedColor: Colors.green[700],
+        currentIndex: currentIndex,
+        onTap: (current) {
+          setState(() {
+            currentIndex = current;
+            currentPage = pages[current];
+          });
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            title: Text("Home"),
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.event_available), title: Text("Events"))
+        ],
+      ),
     );
   }
 }

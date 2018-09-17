@@ -26,14 +26,14 @@ class EventPageState extends State<EventPage> {
   File _image;
 
   MaskedTextController beaconController =
-      MaskedTextController(mask: '@@@@@@@-@@@@-@@@@-@@@@-@@@@@@@@@@@@');
+      MaskedTextController(mask: '@@@@@@@@-@@@@-@@@@-@@@@-@@@@@@@@@@@@');
   Future getImage() async {
     _image = await ImagePicker.pickImage(source: ImageSource.gallery);
     setState(() {});
   }
 
   Future<Null> uploadFile(String filepath) async {
-    final String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final String fileName = '$eventKey.jpg';
     final ByteData bytes = await rootBundle.load(filepath);
     final Directory tempDir = Directory.systemTemp;
     final File file = File('${tempDir.path}/$fileName');
@@ -270,7 +270,7 @@ class EventPageState extends State<EventPage> {
                         flex: 2,
                         child: TextFormField(
                           controller: beaconController,
-                          maxLength: 35,
+                          maxLength: 36,
                           decoration: InputDecoration(
                               labelText: "Beacon UUID",
                               labelStyle: Theme.of(context).textTheme.body1),

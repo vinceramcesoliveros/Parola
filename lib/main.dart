@@ -28,6 +28,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:battery/battery.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:splashscreen/splashscreen.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
@@ -35,10 +37,6 @@ void main() {
     runApp(ParolaScreen());
   });
 }
-
-///This class will save the User's
-///information to access the homepage
-///
 
 class ParolaScreen extends StatefulWidget {
   @override
@@ -61,11 +59,15 @@ class ParolaScreenState extends State<ParolaScreen> {
   FlutterLocalNotificationsPlugin localNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   Future<bool> loggedIn() async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     this.setState(() {
+      _auth.onAuthStateChanged.firstWhere((user) => isLoggedIn = user != null);
+
       if (prefs.getString("username") != null) {
         isLoggedIn = true;
-        print(prefs.getString('username'));
+        print("Shared Prefs: " + prefs.getString('username'));
       } else {
         isLoggedIn = false;
       }
@@ -125,7 +127,6 @@ class ParolaScreenState extends State<ParolaScreen> {
   @override
   void dispose() {
     // TODO: implement dispose
-
     super.dispose();
   }
 
@@ -137,9 +138,9 @@ class ParolaScreenState extends State<ParolaScreen> {
         theme: ThemeData(
           brightness: Brightness.light,
           textTheme: TextTheme(
-              title: TextStyle(color: Colors.white),
-              display4: TextStyle(color: Colors.white),
-              body1: TextStyle(color: Colors.white)),
+            title: TextStyle(color: Colors.white),
+            display4: TextStyle(color: Colors.white),
+          ),
           backgroundColor: Colors.green[200],
           buttonColor: btnParola,
           cardColor: cardColor,
@@ -161,7 +162,7 @@ class ParolaScreenState extends State<ParolaScreen> {
               styleTextUnderTheLoader: TextStyle(),
               photoSize: MediaQuery.of(context).size.shortestSide / 4,
               onClick: () => print("Welcome to Parola"),
-              loaderColor: Colors.green[400],
+              loaderColor: Colors.green[200],
               seconds: 2,
               navigateAfterSeconds: isLoggedIn ? HomePage() : LoginPage(),
             );

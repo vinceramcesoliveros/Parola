@@ -66,6 +66,7 @@ class EventDateTimePicker extends StatelessWidget {
 
   Future<Null> _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
+        
         context: context,
         initialDate: selectedDate,
         firstDate: new DateTime(2015, 8),

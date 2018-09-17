@@ -11,7 +11,6 @@ import 'package:final_parola/home/scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_offline/flutter_offline.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -40,30 +39,41 @@ class _HomePageState extends State<HomePage> {
 
   Future<Null> _storeUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String useremail;
-    final DocumentReference userRef = Firestore.instance
-        .collection("users")
-        .document(prefs.getString("userid"));
+    final DocumentReference userRef =
+        Firestore.instance.document("users/${prefs.getString("userid")}");
     Map<String, String> userData = {
       "username": prefs.getString("username") ?? '',
       "email": prefs.getString("useremail") ?? '',
       "photoURL": prefs.getString("userphotoURL") ?? '',
     };
-    final Future<QuerySnapshot> query = Firestore.instance
-        .collection("users")
-        .where("username", isEqualTo: prefs.getString("username"))
-        .limit(1)
-        .getDocuments();
-    query.then((doc) async {
-      useremail = doc.documents[0].data['email'].toString();
-      useremail != prefs.getString("useremail")
-          ? await userRef
-              .setData(userData,
-                  merge: true) // Check if the userID has duplicate data
-              .whenComplete(() => print("User added"))
-              .catchError((e) => print(e))
-          : print("user is already added!");
+    print("height:${MediaQuery.of(context).size.height}");
+    print("width:${MediaQuery.of(context).size.width}");
+    print("Longest Side: ${MediaQuery.of(context).size.longestSide}");
+    print("Shortest Side: ${MediaQuery.of(context).size.shortestSide}");
+    Firestore.instance.runTransaction((tx) async {
+      DocumentSnapshot snapshot = await tx.get(userRef);
+      if (!snapshot.exists) {
+        await tx.set(userRef, userData);
+        print("User Added");
+      } else {
+        await tx.update(userRef, userData);
+        print("User already added");
+      }
     });
+    // final Future<QuerySnapshot> query = Firestore.instance
+    //     .collection("users")
+    //     .where("username", isEqualTo: prefs.getString("username"))
+    //     .limit(1)
+    //     .getDocuments();
+    // query.then((doc) async {
+    //   useremail = doc.documents[0].data['email'].toString();
+    //   useremail != prefs.getString("useremail")
+    //       ? await userRef
+    //           .setData(userData) // Check if the userID has duplicate data
+    //           .whenComplete(() => print("User added"))
+    //           .catchError((e) => print(e))
+    //       : print("user is already added!");
+    // });
   }
 
   @override

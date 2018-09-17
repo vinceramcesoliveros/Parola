@@ -38,15 +38,17 @@ class EventListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemExtent: 90.0,
+      itemExtent: MediaQuery.of(context).size.height / 10,
       itemCount: eventDocuments.length,
       itemBuilder: (context, index) {
         String eventTitle = eventDocuments[index].data['eventName'].toString();
         String eventDate = eventDocuments[index].data['eventDate'].toString();
         String eventPic = eventDocuments[index].data['eventPicURL'].toString();
+        String eventKey = eventDocuments[index].documentID.toString();
         return Card(
           shape: BeveledRectangleBorder(
               borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16.0),
             topRight: Radius.circular(16.0),
           )),
           elevation: 16.0,
@@ -54,10 +56,14 @@ class EventListView extends StatelessWidget {
             child: ListTile(
               title: Text(eventTitle),
               subtitle: Text(eventDate),
-              leading: AspectRatio(
-                aspectRatio: 0.90,
-                child: CachedNetworkImage(
-                  imageUrl: eventPic,
+              leading: CircleAvatar(
+                maxRadius: 32.0,
+                backgroundColor: Colors.green[300],
+                child: AspectRatio(
+                  aspectRatio: 1.0,
+                  child: CachedNetworkImage(
+                    imageUrl: eventPic,
+                  ),
                 ),
               ),
               onTap: () {
@@ -65,6 +71,7 @@ class EventListView extends StatelessWidget {
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => DescPage(
+                              eventKey: eventKey,
                               eventTitle: eventTitle,
                             )),
                     (p) => true);

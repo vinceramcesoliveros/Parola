@@ -5,14 +5,16 @@ import 'package:final_parola/model/notification_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:intl/intl.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter_scan_bluetooth/flutter_scan_bluetooth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 class DescPage extends StatefulWidget {
-  final String eventTitle;
+  final String eventTitle, eventKey;
 
-  DescPage({this.eventTitle});
+  DescPage({this.eventTitle, this.eventKey});
 
   @override
   DescPageState createState() {
@@ -22,6 +24,7 @@ class DescPage extends StatefulWidget {
 
 class DescPageState extends State<DescPage> {
   @override
+
   Widget build(BuildContext context) {
     final descQuery = Firestore.instance
         .collection('events')
@@ -34,38 +37,62 @@ class DescPageState extends State<DescPage> {
               backgroundColor: Colors.green[200],
               centerTitle: true,
               title: Text(widget.eventTitle),
+              actions: <Widget>[
+                StreamBuilder(
+                  stream: descQuery,
+                    builder: (context,snapshot){
+                      if(!snapshot.hasData) return Text("");
+                      return IconButton(icon: Icon(FontAwesomeIcons.solidEdit),onPressed: ()async{
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        if(snapshot.data.documents[0].data['Admin'] == prefs.getString('username')){
+                          Navigator.of(context).pushNamed('/event');
+                        }else
+                        {
+                          Fluttertoast.showToast(
+                            msg: "You don't have permission to edit the event",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIos: 1,
+                            
+                          );
+                        }
+                      },);
+                    },
+                )
+              ],
             ),
             floatingActionButton: StreamBuilder(
                 stream: descQuery,
                 builder: (context, snapshot) {
                   return FloatingActionButton.extended(
-                    backgroundColor: Colors.red[200],
-                    icon: Icon(Icons.event),
-                    label: Text("Attend Event"),
-                    onPressed: () async {
-                      // if (eventToday ==
-                      //     DateFormat.yMMMd().format(DateTime.now())) {
-                      await FlutterScanBluetooth.startScan(pairedDevices: false)
-                          .catchError((e) => print(e))
-                          .whenComplete(() => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) => MonitoringTab(
-                                      eventTitle: widget.eventTitle,
-                                      beaconID: snapshot
-                                          .data.documents[0].data['beaconUUID']
-                                          .toString(),
-                                      major: snapshot
-                                          .data.documents[0].data['Major']
-                                          .toString(),
-                                      minor: snapshot
-                                          .data.documents[0].data['Minor']
-                                          .toString()))));
-                    },
-                    // onPressed: () {
-                    //   //Directs to to ConnectBeacon if the date is today.
-
-                    // }
-                  );
+                      backgroundColor: Colors.red[200],
+                      icon: Icon(Icons.event),
+                      label: Text("Attend Event"),
+                      onPressed: () async {
+                        String eventToday =
+                            snapshot.data.documents[0].data['eventDate'];
+                        if (eventToday ==
+                            DateFormat.yMMMd().format(DateTime.now())) {
+                          await FlutterScanBluetooth.startScan(pairedDevices: false)
+                              .catchError((e) => print(e))
+                              .whenComplete(() => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) => MonitoringTab(
+                                          eventKey: widget.eventKey,
+                                          eventTitle: widget.eventTitle,
+                                          beaconID: snapshot.data.documents[0]
+                                              .data['beaconUUID']
+                                              .toString(),
+                                          major: snapshot
+                                              .data.documents[0].data['Major']
+                                              .toString(),
+                                          minor: snapshot
+                                              .data.documents[0].data['Minor']
+                                              .toString()))));
+                        }
+                        // onPressed: () {
+                        //   //Directs to to ConnectBeacon if the date is today.
+                      });
                 }),
             body: DescBody(
               eventTitle: widget.eventTitle,
@@ -109,6 +136,7 @@ class DescListView extends StatelessWidget {
     String adminName = descDocuments[0].data['Admin'].toString();
     String imageURL = descDocuments[0].data['eventPicURL'].toString();
     String eventTitle = descDocuments[0].data['eventName'].toString();
+    String eventKey = descDocuments[0].documentID;
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,6 +151,7 @@ class DescListView extends StatelessWidget {
             Positioned(
               child: FavButton(
                 eventTitle: eventTitle,
+                eventKey: eventKey,
               ),
               bottom: 0.0,
               right: 4.0,
@@ -133,7 +162,7 @@ class DescListView extends StatelessWidget {
           ),
           Text(
             "Description: $eventDesc",
-            style: TextStyle(fontSize: 24.0),
+            style: Theme.of(context).textTheme.title,
           ),
           SizedBox(
             height: 8.0,
@@ -152,8 +181,8 @@ class DescListView extends StatelessWidget {
 }
 
 class FavButton extends StatefulWidget {
-  final String eventTitle;
-  FavButton({this.eventTitle});
+  final String eventTitle, eventKey;
+  FavButton({this.eventTitle, this.eventKey});
   FavButtonState createState() => FavButtonState();
 }
 
@@ -181,13 +210,11 @@ class FavButtonState extends State<FavButton> {
         "Distance": null,
       };
       Map<String, dynamic> setAttendees = {
-        "${prefs.getString('userid')}": {
-          "Name": prefs.getString('username'),
-          "status": status
-        }
+        "Name": prefs.getString('username'),
+        "status": status
       };
-      DocumentReference attendEvent =
-          Firestore.instance.document('EventAttendees/${widget.eventTitle}');
+      DocumentReference attendEvent = Firestore.instance
+          .document('ListFor${widget.eventTitle}/${prefs.getString('userid')}');
       Firestore.instance.runTransaction((tx) async {
         DocumentSnapshot snapshot = await tx.get(attendEvent);
         if (!snapshot.exists) {
@@ -200,14 +227,10 @@ class FavButtonState extends State<FavButton> {
     } else {
       prefs.setBool('IsAttending', isAttending);
 
-      Map<String, dynamic> deleteAttendee = {
-        "${prefs.getString('userid')}": FieldValue.delete()
-      };
       DocumentReference deleteAttendees = Firestore.instance
-          .collection('EventAttendees')
-          .document(widget.eventTitle);
-
-      deleteAttendees.updateData(deleteAttendee);
+          .collection('ListFor${widget.eventTitle}')
+          .document(prefs.getString('userid'));
+      deleteAttendees.delete();
       print("Didn't attend");
     }
     return isAttending;

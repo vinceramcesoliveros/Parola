@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class ListTabResult {
   ListTabResult(
-      {@required this.text, @required this.isSuccessful, this.description});
+      {@required this.text, @required this.isSuccessful, this.distance});
 
-  final String text, description;
+  final String text;
+  final double distance;
   final bool isSuccessful;
 }
