@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:final_parola/admin/attendeesListAdmin.dart';
 import 'package:final_parola/home/description.dart';
 import 'package:final_parola/model/crud_events.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class AdminEvents extends StatelessWidget {
   final String adminName;
@@ -29,7 +28,10 @@ class AdminEvents extends StatelessWidget {
                   .where('Admin', isEqualTo: adminName)
                   .snapshots(),
               builder: (context, freshSnap) {
-                if (!freshSnap.hasData) return LinearProgressIndicator();
+                if (!freshSnap.hasData)
+                  return SpinKitChasingDots(
+                    color: Colors.red[200],
+                  );
                 return ListOfEvents(eventRef: freshSnap.data.documents);
               },
             ),
@@ -102,9 +104,7 @@ class ListOfEvents extends StatelessWidget {
                                                     eventName: eventRef[index]
                                                         .data['eventName']
                                                         .toString(),
-                                                    eventKey: eventRef[index]
-                                                        .documentID
-                                                        .toString())
+                                                    eventKey: eventKey)
                                                 .whenComplete(() =>
                                                     Navigator.of(context)
                                                         .pop())),
@@ -130,6 +130,7 @@ class ListOfEvents extends StatelessWidget {
                           style: Theme.of(context).textTheme.body1,
                         ),
                         onPressed: () {
+                          print(eventKey);
                           Navigator.push(
                               context,
                               MaterialPageRoute(

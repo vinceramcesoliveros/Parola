@@ -11,8 +11,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MonitoringTab extends ListTab {
   final String eventTitle, major, minor, beaconID, eventKey;
+  final DateTime eventDateStart, eventTimeStart, eventEndStart;
   MonitoringTab(
-      {this.eventTitle, this.beaconID, this.major, this.minor, this.eventKey})
+      {this.eventTitle,
+      this.beaconID,
+      this.major,
+      this.minor,
+      this.eventKey,
+      this.eventDateStart,
+      this.eventEndStart,
+      this.eventTimeStart})
       : super(
             title: eventTitle,
             beacon: beaconID,
@@ -113,9 +121,9 @@ class _ListTabState extends State<ListTab> {
   Future _showStatusNotifcation({String successful, status}) async {
     AndroidNotificationDetails androidPlatformChannelSpecifics =
         new AndroidNotificationDetails(
-      '1',
-      'Disconnected',
-      'It might be you are too far from the beacon',
+      'your channel id',
+      'your channel name',
+      'your channel description',
       importance: Importance.Min,
       priority: Priority.Default,
       ongoing: true,
@@ -127,7 +135,7 @@ class _ListTabState extends State<ListTab> {
     NotificationDetails platformChannelSpecifics = new NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(
-        0, successful, status, platformChannelSpecifics);
+        1, successful, status, platformChannelSpecifics);
   }
 
   @override
@@ -272,7 +280,7 @@ class _ListTabState extends State<ListTab> {
 
                           return location.isSuccessful
                               ? _Item(result: location)
-                              : Text(location.text);
+                              : Center(child: Text(location.text));
                         }),
                       ).toList()
                     : [
@@ -305,8 +313,9 @@ class _Item extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String text = result.text;
-    final String status =
-        result.isSuccessful ? "${result.distance.toString()}" : "Not Connected";
+    final String status = result.isSuccessful
+        ? "${result.distance.toStringAsFixed(2)}"
+        : "Not Connected";
     final List<Widget> content = <Widget>[
       Text(
         text,

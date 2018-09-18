@@ -56,7 +56,6 @@ class _EditEventPageState extends State<EditEventPage> {
 
     Future<Null> editEvent() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String admin = prefs.getString('username');
 
       DateTime finalStartDate = new DateTime(
           eventDateStart.year,
@@ -88,7 +87,7 @@ class _EditEventPageState extends State<EditEventPage> {
       Firestore.instance.runTransaction((trans) async {
         await trans.update(ref, eventData);
       }).then((result) {
-        print("Added to the Database");
+        print("Update to the Database");
         Navigator.of(context).pop();
       });
     }
@@ -100,7 +99,9 @@ class _EditEventPageState extends State<EditEventPage> {
         backgroundColor: Colors.red[300],
         icon: Icon(FontAwesomeIcons.solidEdit),
         label: Text("Edit Event"),
-        onPressed: () async {},
+        onPressed: () async {
+          editEvent();
+        },
       ),
       appBar: AppBar(
         backgroundColor: Colors.green[400],
@@ -239,10 +240,6 @@ class _EditEventPageState extends State<EditEventPage> {
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: 16.0,
-                ),
-                Center(child: Text("No file selected"))
               ]),
         ),
       ),

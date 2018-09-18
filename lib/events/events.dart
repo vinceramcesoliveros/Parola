@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:final_parola/events/date_time.dart';
@@ -9,6 +10,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
+import 'package:path_provider/path_provider.dart';
 
 class EventPage extends StatefulWidget {
   @override
@@ -23,6 +25,7 @@ class EventPageState extends State<EventPage> {
   TimeOfDay eventTimeEnd = const TimeOfDay(minute: 0, hour: 0);
   String eventName, eventDesc, beaconUUID, major, minor, eventLocation, path;
   final GlobalKey<FormState> eventKey = new GlobalKey<FormState>();
+  int eventID = Random.secure().nextInt(10000000);
   File _image;
 
   MaskedTextController beaconController =
@@ -33,9 +36,10 @@ class EventPageState extends State<EventPage> {
   }
 
   Future<Null> uploadFile(String filepath) async {
-    final String fileName = '$eventKey.jpg';
+    final String fileName = 'E-$eventID.jpg';
     final ByteData bytes = await rootBundle.load(filepath);
-    final Directory tempDir = Directory.systemTemp;
+    final Directory tempDir = await getTemporaryDirectory();
+
     final File file = File('${tempDir.path}/$fileName');
     file.writeAsBytes(bytes.buffer.asInt8List(), mode: FileMode.write);
     final StorageReference storageRef =
@@ -44,6 +48,7 @@ class EventPageState extends State<EventPage> {
 
     final Uri downloadUrl = (await task.future).downloadUrl;
     path = downloadUrl.toString();
+    print(path);
   }
 
   void dispose() {
@@ -81,23 +86,26 @@ class EventPageState extends State<EventPage> {
         eventDateStart.day,
         eventTimeEnd.hour,
         eventTimeEnd.minute);
-    String timeEnd = DateFormat.jm().format(finalEndDate);
-    String timeStart = DateFormat.jm().format(finalStartDate);
+    DateTime eventDate = DateTime(
+        eventDateStart.year, eventDateStart.month, eventDateStart.day, 0, 0);
+    // String timeEnd = DateFormat.jm().format(finalEndDate);
+    // String timeStart = DateFormat.jm().format(finalStartDate);
     Map<String, dynamic> eventData = {
       "eventName": eventName,
       "eventDesc": eventDesc,
-      "eventDate": DateFormat.yMMMd().format(eventDateStart),
+      "eventDate": eventDate,
       "eventLocation": eventLocation,
-      "timeStart": timeStart,
-      "timeEnd": timeEnd,
+      "timeStart": finalStartDate,
+      "timeEnd": finalEndDate,
       "eventPicURL": path,
       "beaconUUID": beaconUUID,
       "Major": major,
       "Minor": minor,
       'Admin': admin
     };
-    final DocumentReference ref =
-        Firestore.instance.collection('events').document();
+    final DocumentReference ref = Firestore.instance
+        .collection('events')
+        .document('E-${eventID.toString()}');
     Firestore.instance.runTransaction((trans) async {
       await trans.set(ref, eventData);
     }).then((result) {
@@ -168,10 +176,10 @@ class EventPageState extends State<EventPage> {
               icon: Icon(Icons.create),
               label: Text("Create Event"),
               onPressed: () async {
-                await showUploadTask().then((val) {
-                  uploadFile(_image.path).then((val) async {
-                    submitEvent();
-                  }).whenComplete(() {
+                await uploadFile(_image.path).then((val) async {
+                  submitEvent();
+                }).whenComplete(() {
+                  showUploadTask().then((val) {
                     addEvent();
                   });
                 });

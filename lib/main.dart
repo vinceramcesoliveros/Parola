@@ -28,10 +28,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:battery/battery.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:splashscreen/splashscreen.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-void main() {
+void main() async {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
     runApp(ParolaScreen());
@@ -135,8 +134,9 @@ class ParolaScreenState extends State<ParolaScreen> {
     return ScopedModel<UserModel>(
       model: UserModel(isLoggedIn: isLoggedIn, batteryLevel: batteryLevel),
       child: MaterialApp(
+        showPerformanceOverlay: true,
         theme: ThemeData(
-          brightness: Brightness.light,
+          brightness: Brightness.dark,
           textTheme: TextTheme(
             title: TextStyle(color: Colors.white),
             display4: TextStyle(color: Colors.white),

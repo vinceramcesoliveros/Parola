@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class NotificationModel extends Model {
   FlutterLocalNotificationsPlugin localNotificationsPlugin =
@@ -21,7 +20,6 @@ class NotificationModel extends Model {
 
     notifyListeners();
   }
-  Future eventNotification() async{
-    
-  }
+
+  Future eventNotification() async {}
 }

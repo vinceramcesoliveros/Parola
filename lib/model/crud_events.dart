@@ -7,7 +7,7 @@ import 'package:scoped_model/scoped_model.dart';
 class DeleteEvent extends Model {
   Future<void> deleteEvents({String eventKey, String eventName}) async {
     StorageReference deleteRef =
-        FirebaseStorage.instance.ref().child("eventImages/$eventKey,jpg");
+        FirebaseStorage.instance.ref().child("eventImages/$eventKey.jpg");
 
     await deleteRef.delete().then((del) {
       print("Deleted: $eventKey");
