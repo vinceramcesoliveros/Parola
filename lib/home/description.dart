@@ -106,6 +106,19 @@ class DescPageState extends State<DescPage> {
             floatingActionButton: StreamBuilder(
                 stream: descQuery,
                 builder: (context, snapshot) {
+                  DateTime eventDate =
+                          snapshot.data.documents[0].data['eventDate'],
+                      eventTimeStart =
+                          snapshot.data.documents[0].data['timeStart'],
+                      eventTimeEnd = snapshot.data.documents[0].data['timeEnd'];
+
+                  String beaconID = snapshot
+                          .data.documents[0].data['beaconUUID']
+                          .toString(),
+                      major =
+                          snapshot.data.documents[0].data['Major'].toString(),
+                      minor =
+                          snapshot.data.documents[0].data['Minor'].toString();
                   return FloatingActionButton.extended(
                       backgroundColor: Colors.red[200],
                       icon: Icon(Icons.event),
@@ -115,22 +128,21 @@ class DescPageState extends State<DescPage> {
                             snapshot.data.documents[0].data['eventDate'];
                         if (eventToday ==
                             DateFormat.yMMMd().format(DateTime.now())) {
-                          await FlutterScanBluetooth.startScan(pairedDevices: false)
+                          await FlutterScanBluetooth.startScan(
+                                  pairedDevices: false)
                               .catchError((e) => print(e))
-                              .whenComplete(() => Navigator.of(context).push(
-                                  MaterialPageRoute(
+                              .whenComplete(() =>
+                                  Navigator.of(context).push(MaterialPageRoute(
                                       builder: (context) => MonitoringTab(
-                                          eventKey: widget.eventKey,
-                                          eventTitle: widget.eventTitle,
-                                          beaconID: snapshot.data.documents[0]
-                                              .data['beaconUUID']
-                                              .toString(),
-                                          major: snapshot
-                                              .data.documents[0].data['Major']
-                                              .toString(),
-                                          minor: snapshot
-                                              .data.documents[0].data['Minor']
-                                              .toString()))));
+                                            eventKey: widget.eventKey,
+                                            eventTitle: widget.eventTitle,
+                                            beaconID: beaconID,
+                                            major: major,
+                                            minor: minor,
+                                            eventDateStart: eventDate,
+                                            eventTimeStart: eventTimeStart,
+                                            eventTimeEnd: eventTimeEnd,
+                                          ))));
                         }
                         // onPressed: () {
                         //   //Directs to to ConnectBeacon if the date is today.
@@ -175,8 +187,9 @@ class DescListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String eventDesc = descDocuments[0].data['eventDesc'].toString();
-    String eventTimeStart = descDocuments[0].data['timeStart'].toString();
-    String eventTimeEnd = descDocuments[0].data['timeEnd'].toString();
+    DateTime eventTimeStart = descDocuments[0].data['timeStart'];
+
+    DateTime eventTimeEnd = descDocuments[0].data['timeEnd'];
     String eventLocation = descDocuments[0].data['eventLocation'].toString();
     String adminName = descDocuments[0].data['Admin'].toString();
     String imageURL = descDocuments[0].data['eventPicURL'].toString();
@@ -217,7 +230,8 @@ class DescListView extends StatelessWidget {
             "Location: $eventLocation",
             style: Theme.of(context).textTheme.title,
           ),
-          Text("Time: $eventTimeStart - $eventTimeEnd",
+          Text(
+              "Time: ${DateFormat.jm().format(eventTimeStart)} - ${DateFormat.jm().format(eventTimeEnd)}",
               style: Theme.of(context).textTheme.title),
           adminName != "null" ? Text("Created by: $adminName") : Text("")
         ],
@@ -290,7 +304,7 @@ class FavButtonState extends State<FavButton> {
             .where('Name', isEqualTo: widget.username)
             .snapshots(),
         builder: (context, snapshot) {
-          if(!snapshot.hasData) return Text("Loading...");
+          if (!snapshot.hasData) return Text("Loading...");
           if (snapshot.data.documents.isEmpty) {
             return RaisedButton(
               color: Colors.green[200],

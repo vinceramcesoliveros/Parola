@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MonitoringTab extends ListTab {
   final String eventTitle, major, minor, beaconID, eventKey;
-  final DateTime eventDateStart, eventTimeStart, eventEndStart;
+  final DateTime eventDateStart, eventTimeStart, eventTimeEnd;
   MonitoringTab(
       {this.eventTitle,
       this.beaconID,
@@ -19,14 +19,17 @@ class MonitoringTab extends ListTab {
       this.minor,
       this.eventKey,
       this.eventDateStart,
-      this.eventEndStart,
+      this.eventTimeEnd,
       this.eventTimeStart})
       : super(
             title: eventTitle,
             beacon: beaconID,
             major: major,
             minor: minor,
-            eventKey: eventKey);
+            eventKey: eventKey,
+            eventDate: eventDateStart,
+            eventTimeStart: eventTimeStart,
+            eventTimeEnd: eventTimeEnd);
 
   @override
   Stream<ListTabResult> stream(BeaconRegion region) {
@@ -56,9 +59,18 @@ class MonitoringTab extends ListTab {
 
 abstract class ListTab extends StatefulWidget {
   const ListTab(
-      {Key key, this.title, this.beacon, this.major, this.minor, this.eventKey})
+      {Key key,
+      this.title,
+      this.beacon,
+      this.major,
+      this.minor,
+      this.eventKey,
+      this.eventDate,
+      this.eventTimeEnd,
+      this.eventTimeStart})
       : super(key: key);
   final String title, beacon, major, minor, eventKey;
+  final DateTime eventDate, eventTimeStart, eventTimeEnd;
 
   Stream<ListTabResult> stream(BeaconRegion region);
 
@@ -146,7 +158,7 @@ class _ListTabState extends State<ListTab> {
         _results.clear();
         isConnected = false;
       });
-      Future.delayed(Duration(seconds: 5), () async {
+      Future.delayed(Duration(minutes: 1), () async {
         DocumentReference attendeesRef = Firestore.instance
             .document("EventAttendees/${widget.title}_${widget.eventKey}");
         SharedPreferences prefs = await SharedPreferences.getInstance();
