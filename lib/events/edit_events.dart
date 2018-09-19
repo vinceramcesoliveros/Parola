@@ -11,14 +11,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class EditEventPage extends StatefulWidget {
   final String eventName,
       eventKey,
-      eventDate,
       major,
       minor,
       beacon,
-      timeEnd,
-      timeStart,
       eventLocation,
       description;
+  final DateTime eventDate, timeStart, timeEnd;
   EditEventPage(
       {this.eventKey,
       this.eventName,
@@ -38,46 +36,34 @@ class _EditEventPageState extends State<EditEventPage> {
   @override
   Widget build(BuildContext context) {
     String eventName = widget.eventName,
-        eventDate = widget.eventDate,
         major = widget.major,
         minor = widget.minor,
         beacon = widget.beacon,
-        timeEnd = widget.timeEnd,
-        timeStart = widget.timeStart,
         eventLocation = widget.eventLocation,
         description = widget.description;
-    eventDate = widget.eventDate;
-    DateTime eventDateStart = DateFormat.yMMMd().parse(eventDate);
     TimeOfDay eventTimeStart = const TimeOfDay(minute: 0, hour: 0);
     TimeOfDay eventTimeEnd = const TimeOfDay(minute: 0, hour: 0);
 
     MaskedTextController beaconController = MaskedTextController(
         mask: '@@@@@@@@-@@@@-@@@@-@@@@-@@@@@@@@@@@@', text: beacon);
 
+    DateTime eventDate = widget.eventDate,
+        timeEnd = widget.timeEnd,
+        timeStart = widget.timeStart;
     Future<Null> editEvent() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      DateTime finalStartDate = new DateTime(
-          eventDateStart.year,
-          eventDateStart.month,
-          eventDateStart.day,
-          eventTimeStart.hour,
-          eventTimeStart.minute);
-      DateTime finalEndDate = new DateTime(
-          eventDateStart.year,
-          eventDateStart.month,
-          eventDateStart.day,
-          eventTimeEnd.hour,
-          eventTimeEnd.minute);
-      String timeEnd = DateFormat.jm().format(finalEndDate);
-      String timeStart = DateFormat.jm().format(finalStartDate);
+      DateTime finalStartDate = new DateTime(eventDate.year, eventDate.month,
+          eventDate.day, timeStart.hour, timeStart.minute);
+      DateTime finalEndDate = new DateTime(eventDate.year, eventDate.month,
+          eventDate.day, timeEnd.hour, timeEnd.minute);
       Map<String, dynamic> eventData = {
         "eventName": eventName,
         "eventDesc": description,
-        "eventDate": DateFormat.yMMMd().format(eventDateStart),
+        "eventDate": eventDate,
         "eventLocation": eventLocation,
-        "timeStart": timeStart,
-        "timeEnd": timeEnd,
+        "timeStart": finalStartDate,
+        "timeEnd": finalEndDate,
         "beaconUUID": beacon,
         "Major": major,
         "Minor": minor,
@@ -98,7 +84,10 @@ class _EditEventPageState extends State<EditEventPage> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Colors.red[300],
         icon: Icon(FontAwesomeIcons.solidEdit),
-        label: Text("Edit Event"),
+        label: Text(
+          "Edit Event",
+          style: TextStyle(color: Colors.white),
+        ),
         onPressed: () async {
           editEvent();
         },
@@ -145,12 +134,12 @@ class _EditEventPageState extends State<EditEventPage> {
                 ),
                 EventDateTimePicker(
                   labelText: 'Event Date',
-                  selectedDate: eventDateStart,
+                  selectedDate: widget.eventDate,
                   eventStartTime: eventTimeStart,
                   eventEndTime: eventTimeEnd,
                   selectDate: (DateTime date) {
                     setState(() {
-                      eventDateStart = date;
+                      eventDate = date;
                     });
                   },
                   startSelect: (TimeOfDay time) {

@@ -134,7 +134,6 @@ class ParolaScreenState extends State<ParolaScreen> {
     return ScopedModel<UserModel>(
       model: UserModel(isLoggedIn: isLoggedIn, batteryLevel: batteryLevel),
       child: MaterialApp(
-        showPerformanceOverlay: true,
         theme: ThemeData(
           brightness: Brightness.dark,
           textTheme: TextTheme(

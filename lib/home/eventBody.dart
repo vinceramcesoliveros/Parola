@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/admin/eventAdmin.dart';
 import 'package:final_parola/events/attended_events.dart';
 import 'package:final_parola/events/upcoming_events.dart';
@@ -94,7 +95,7 @@ class EventBodyPage extends StatelessWidget {
                               MaterialPageRoute(
                                   builder: (context) => AttendedEvents(
                                       user: prefs.getString('username'))));
-                        })
+                        }),
                   ],
                 ))
               ],

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminEvents extends StatelessWidget {
   final String adminName;
@@ -62,12 +63,14 @@ class ListOfEvents extends StatelessWidget {
                 borderRadius: BorderRadius.all(Radius.circular(32.0))),
             elevation: 16.0,
             child: GestureDetector(
-              onTap: () {
+              onTap: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => DescPage(
                               eventKey: eventKey,
                               eventTitle: eventName,
+                              username: prefs.getString('username'),
                             )),
                     (p) => true);
               },

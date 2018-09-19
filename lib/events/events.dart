@@ -174,14 +174,15 @@ class EventPageState extends State<EventPage> {
           ? FloatingActionButton.extended(
               backgroundColor: Colors.red[300],
               icon: Icon(Icons.create),
-              label: Text("Create Event"),
+              label: Text(
+                "Create Event",
+                style: TextStyle(color: Colors.white),
+              ),
               onPressed: () async {
-                await uploadFile(_image.path).then((val) async {
+                await uploadFile(_image.path).whenComplete(() async {
                   submitEvent();
                 }).whenComplete(() {
-                  showUploadTask().then((val) {
-                    addEvent();
-                  });
+                  addEvent();
                 });
               },
             )

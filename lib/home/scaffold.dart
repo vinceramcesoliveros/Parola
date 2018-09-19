@@ -16,10 +16,17 @@ class MyScaffoldState extends State<MyScaffold> {
   SearchBar searchBar;
   MyScaffoldState() {
     searchBar = SearchBar(
+        inBar: false,
         buildDefaultAppBar: searchAppBar,
         setState: setState,
-        onSubmitted: null);
+        onSubmitted: (val) => querySearch(val));
   }
+  querySearch(String query) {
+    showDialog(
+        context: context,
+        builder: (context) => SimpleDialog(title: Text(query)));
+  }
+
   AppBar searchAppBar(BuildContext context) {
     return AppBar(
       brightness: Brightness.dark,
@@ -68,7 +75,10 @@ class MyScaffoldState extends State<MyScaffold> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Colors.red[200],
         label: Text("Create Event"),
-        icon: Icon(FontAwesomeIcons.plus),
+        icon: Icon(
+          FontAwesomeIcons.plus,
+          color: Colors.white,
+        ),
         onPressed: () => Navigator.of(context).pushNamed('/event'),
       ),
       floatingActionButtonLocation: currentIndex == 0

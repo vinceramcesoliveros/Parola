@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:intl/intl.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,11 +40,10 @@ class EventListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemExtent: MediaQuery.of(context).size.height / 10,
       itemCount: eventDocuments.length,
       itemBuilder: (context, index) {
         String eventTitle = eventDocuments[index].data['eventName'].toString();
-        String eventDate = eventDocuments[index].data['eventDate'].toString();
+        DateTime eventDate = eventDocuments[index].data['eventDate'];
         String eventPic = eventDocuments[index].data['eventPicURL'].toString();
         String eventKey = eventDocuments[index].documentID.toString();
         return Card(
@@ -56,7 +56,8 @@ class EventListView extends StatelessWidget {
           child: GestureDetector(
             child: ListTile(
               title: Text(eventTitle),
-              subtitle: Text(eventDate),
+              subtitle: Text(
+                  "${DateFormat.yMMMd().format(eventDate)} at ${DateFormat.Hm().format(eventDate)}"),
               leading: CircleAvatar(
                 maxRadius: 32.0,
                 backgroundColor: Colors.green[300],

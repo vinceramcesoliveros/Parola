@@ -1,7 +1,6 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class AttendeesLists extends StatelessWidget {
   final String eventName;
@@ -17,7 +16,7 @@ class AttendeesLists extends StatelessWidget {
       ),
       body: StreamBuilder(
           stream:
-              Firestore.instance.collection('ListFor$eventName').snapshots(),
+              Firestore.instance.collection('${eventKey}_$eventName').snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData)
               return Center(child: CircularProgressIndicator());
@@ -38,9 +37,20 @@ class AttendeesListsDocuments extends StatelessWidget {
       itemCount: lists.length,
       itemBuilder: (context, index) {
         String name = lists[index].data["Name"].toString();
+        String attendanceIN = lists[index].data['In'].toString();
+        String attendanceOut = lists[index].data['Out'].toString();
         return ListTile(
           title: Text("${index + 1}. $name"),
-          trailing: Icon(Icons.check),
+          trailing: Row(
+            children: <Widget>[
+              Text(attendanceIN),
+              Icon(attendanceIN != "Absent" ? Icons.check : Icons.close),
+              Text(attendanceOut),
+              Icon(attendanceOut != "Half-Complete"
+                  ? Icons.check
+                  : Icons.warning)
+            ],
+          ),
         );
       },
     );

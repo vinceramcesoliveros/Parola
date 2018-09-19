@@ -7,6 +7,8 @@ import 'package:final_parola/beacon/_header.dart';
 import 'package:final_parola/beacon/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MonitoringTab extends ListTab {
@@ -131,6 +133,7 @@ class _ListTabState extends State<ListTab> {
   }
 
   Future _showStatusNotifcation({String successful, status}) async {
+    await flutterLocalNotificationsPlugin.cancel(0);
     AndroidNotificationDetails androidPlatformChannelSpecifics =
         new AndroidNotificationDetails(
       'your channel id',
@@ -168,7 +171,8 @@ class _ListTabState extends State<ListTab> {
           "Distance": "Disconnected",
         };
         Map<String, dynamic> setAttendees = {
-          "${prefs.getString('userid')}": {"status": status}
+          "status": status,
+          "userid": "${prefs.getString('userid')}"
         };
         Firestore.instance.runTransaction((transAttendees) async {
           DocumentSnapshot snapshot = await transAttendees.get(attendeesRef);
@@ -182,14 +186,18 @@ class _ListTabState extends State<ListTab> {
     }
 
     void _onStart(BeaconRegion region) {
-      Duration duration = Duration(seconds: 5);
+      Duration duration = Duration(seconds: 30);
       setState(() {
         _running = true;
       });
       _subscription = widget.stream(region).listen((result) async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        DocumentReference attendeesRef = Firestore.instance
-            .document("ListFor${widget.title}/${prefs.getString('userid')}");
+        DocumentReference attendeesRef = Firestore.instance.document(
+            "${widget.eventKey}_${widget.title}/${prefs.getString('userid')}");
+
+        DocumentReference userRef = Firestore.instance.document(
+            "attended_${prefs.getString('userid')}/${widget.eventKey}");
+
         setState(() {
           if (result.text != null) {
             _results.clear();
@@ -208,11 +216,21 @@ class _ListTabState extends State<ListTab> {
             "Distance": result.distance,
           };
           Map<String, dynamic> setAttendees = {
-            "userid": "${prefs.getString('userid')}",
+            "eventName": widget.title,
+            "userid": prefs.getString('userid'),
             "Name": prefs.getString('username'),
             "status": status,
-            "In": "Attended",
-            "Out": ""
+            "In": widget.eventTimeStart
+                    .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
+                ? "Late"
+                : "Attended",
+          };
+          Map<String, dynamic> outAttendance = {
+            "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
+                    widget.eventTimeEnd.isBefore(
+                         widget.eventTimeEnd.add(Duration(minutes: 10)))
+                ? "Completed"
+                : "Half-completed"
           };
           result.distance < 3.0
               ? _showOngoingNotification(
@@ -221,39 +239,49 @@ class _ListTabState extends State<ListTab> {
                   status: result.text)
               : _showStatusNotifcation();
 
-          Future.delayed(duration, () async {
-            Firestore.instance.runTransaction((transAttendees) async {
-              DocumentSnapshot snapshot =
-                  await transAttendees.get(attendeesRef);
+          if (widget.eventTimeStart
+              .isBefore(widget.eventTimeStart.add(Duration(seconds: 10)))) {
+            Future.delayed(duration, () async {
+              Firestore.instance.runTransaction((transAttendees) async {
+                DocumentSnapshot snapshot =
+                    await transAttendees.get(attendeesRef);
+                if (snapshot.exists) {
+                  await transAttendees.update(attendeesRef, setAttendees);
+                  Fluttertoast.showToast(
+                      msg: "You have been signed as ATTENDED",
+                      gravity: ToastGravity.BOTTOM);
+                }
+              });
+              Firestore.instance.runTransaction((tx) async {
+                DocumentSnapshot snapshot = await tx.get(userRef);
+                if (snapshot.exists) {
+                  await tx.update(userRef, setAttendees);
+                }
+              });
+            });
+          } else if (widget.eventTimeEnd
+              .isAfter(widget.eventTimeEnd.add(Duration(minutes: 5)))) {
+            Future.delayed(duration, () async {
+              Firestore.instance.runTransaction((transAttendees) async {
+                DocumentSnapshot snapshot =
+                    await transAttendees.get(attendeesRef);
+                if (snapshot.exists) {
+                  await transAttendees.update(attendeesRef, outAttendance);
+                }
+              });
+            });
+
+            Firestore.instance.runTransaction((tx) async {
+              DocumentSnapshot snapshot = await tx.get(userRef);
               if (snapshot.exists) {
-                await transAttendees.update(attendeesRef, setAttendees);
+                await tx.update(userRef, outAttendance);
               }
             });
-          });
+          }
         });
       });
       _subscription.onDone(() async {
         setState(() {
-          Future.delayed(duration, () async {
-            DocumentReference attendeesRef = Firestore.instance
-                .document("EventAttendees/${widget.title}_${widget.eventKey}");
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-
-            Map<String, dynamic> status = {
-              "Connected": false,
-              "Distance": "Disconnected",
-            };
-            Map<String, dynamic> setAttendees = {
-              "${prefs.getString('userid')}": {"status": status}
-            };
-            Firestore.instance.runTransaction((transAttendees) async {
-              DocumentSnapshot snapshot =
-                  await transAttendees.get(attendeesRef);
-              if (snapshot.exists) {
-                await transAttendees.update(attendeesRef, setAttendees);
-              }
-            });
-          });
           _running = false;
         });
       });
@@ -305,7 +333,7 @@ class _ListTabState extends State<ListTab> {
                               size: 64.0,
                             ),
                             Text(
-                              "Unable to connect, Maybe you're not at the event. :(",
+                              "Unable to connect, Maybe you're not at the event. 😞",
                               style: Theme.of(context).textTheme.title,
                             ),
                           ],

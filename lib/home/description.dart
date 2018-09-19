@@ -2,12 +2,11 @@ import 'dart:async';
 
 import 'package:final_parola/beacon/beacon_event.dart';
 import 'package:final_parola/events/edit_events.dart';
-import 'package:final_parola/model/notification_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter_scan_bluetooth/flutter_scan_bluetooth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -31,103 +30,89 @@ class DescPageState extends State<DescPage> {
         .collection('events')
         .where('eventName', isEqualTo: widget.eventTitle)
         .snapshots();
-    return ScopedModel(
-        model: NotificationModel(),
-        child: Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.green[200],
-              centerTitle: true,
-              title: Text(widget.eventTitle),
-              actions: <Widget>[
-                StreamBuilder(
-                  stream: descQuery,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return Text("");
-                    return IconButton(
-                      icon: Icon(FontAwesomeIcons.solidEdit),
-                      onPressed: () async {
-                        String description = snapshot
-                            .data.documents[0].data['eventDesc']
-                            .toString();
-                        String eventName = snapshot
-                            .data.documents[0].data['eventName']
-                            .toString();
-                        String eventLocation = snapshot
-                            .data.documents[0].data['eventLocation']
-                            .toString();
-                        String timeEnd = snapshot
-                            .data.documents[0].data['timeEnd']
-                            .toString();
-                        String timeStart = snapshot
-                            .data.documents[0].data['timeStart']
-                            .toString();
-                        String eventDate = snapshot
-                            .data.documents[0].data['eventDate']
-                            .toString();
-                        String major =
-                            snapshot.data.documents[0].data['Major'].toString();
-                        String minor =
-                            snapshot.data.documents[0].data['Minor'].toString();
-                        String beaconUUID = snapshot
-                            .data.documents[0].data['beaconUUID']
-                            .toString();
-                        String eventKey =
-                            snapshot.data.documents[0].documentID.toString();
-                        SharedPreferences prefs =
-                            await SharedPreferences.getInstance();
-                        if (snapshot.data.documents[0].data['Admin'] ==
-                            prefs.getString('username')) {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => EditEventPage(
-                                  eventKey: eventKey,
-                                  eventName: eventName,
-                                  description: description,
-                                  eventLocation: eventLocation,
-                                  eventDate: eventDate,
-                                  timeStart: timeStart,
-                                  timeEnd: timeEnd,
-                                  beacon: beaconUUID,
-                                  major: major,
-                                  minor: minor)));
-                        } else {
-                          Fluttertoast.showToast(
-                            msg: "You don't have permission to edit the event",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIos: 1,
-                          );
-                        }
-                      },
-                    );
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.green[200],
+          centerTitle: true,
+          title: Text(widget.eventTitle),
+          actions: <Widget>[
+            StreamBuilder(
+              stream: descQuery,
+              builder: (context, snapshot) {
+                List<DocumentSnapshot> eventDesc = snapshot.data.documents;
+                String description = eventDesc[0].data['eventDesc'].toString();
+                String eventName = eventDesc[0].data['eventName'].toString();
+                String eventLocation =
+                    eventDesc[0].data['eventLocation'].toString();
+                DateTime timeEnd = eventDesc[0].data['timeEnd'];
+                DateTime timeStart = eventDesc[0].data['timeStart'];
+                DateTime eventDate = eventDesc[0].data['eventDate'];
+                String major = eventDesc[0].data['Major'].toString();
+                String minor = eventDesc[0].data['Minor'].toString();
+                String beaconUUID = eventDesc[0].data['beaconUUID'].toString();
+                String eventKey = eventDesc[0].documentID.toString();
+                if (!snapshot.hasData)
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                return IconButton(
+                  icon: Icon(FontAwesomeIcons.solidEdit),
+                  onPressed: () async {
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    if (eventDesc[0].data['Admin'] ==
+                        prefs.getString('username')) {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => EditEventPage(
+                              eventKey: eventKey,
+                              eventName: eventName,
+                              description: description,
+                              eventLocation: eventLocation,
+                              eventDate: eventDate,
+                              timeStart: timeStart,
+                              timeEnd: timeEnd,
+                              beacon: beaconUUID,
+                              major: major,
+                              minor: minor)));
+                    } else {
+                      Fluttertoast.showToast(
+                        msg: "You don't have permission to edit the event",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIos: 1,
+                      );
+                    }
                   },
-                )
-              ],
-            ),
-            floatingActionButton: StreamBuilder(
-                stream: descQuery,
-                builder: (context, snapshot) {
-                  DateTime eventDate =
-                          snapshot.data.documents[0].data['eventDate'],
-                      eventTimeStart =
-                          snapshot.data.documents[0].data['timeStart'],
-                      eventTimeEnd = snapshot.data.documents[0].data['timeEnd'];
-
-                  String beaconID = snapshot
-                          .data.documents[0].data['beaconUUID']
-                          .toString(),
-                      major =
-                          snapshot.data.documents[0].data['Major'].toString(),
-                      minor =
-                          snapshot.data.documents[0].data['Minor'].toString();
-                  return FloatingActionButton.extended(
+                );
+              },
+            )
+          ],
+        ),
+        floatingActionButton: StreamBuilder(
+            stream: descQuery,
+            builder: (context, snapshot) {
+              List<DocumentSnapshot> eventDesc = snapshot.data.documents;
+              DateTime eventDate = eventDesc[0].data['eventDate'],
+                  eventTimeStart = eventDesc[0].data['timeStart'],
+                  eventTimeEnd = eventDesc[0].data['timeEnd'];
+              String beaconID = eventDesc[0].data['beaconUUID'].toString(),
+                  major = eventDesc[0].data['Major'].toString(),
+                  minor = eventDesc[0].data['Minor'].toString();
+              if (!snapshot.hasData) return SizedBox();
+              return eventTimeEnd
+                          .isAfter(eventTimeEnd.add(Duration(hours: 1))) ||
+                      DateTime.now().isBefore(eventTimeStart)
+                  ? FloatingActionButton(onPressed: null)
+                  : FloatingActionButton.extended(
                       backgroundColor: Colors.red[200],
                       icon: Icon(Icons.event),
-                      label: Text("Attend Event"),
+                      label: Text(
+                        "Attend Event",
+                        style: TextStyle(color: Colors.white),
+                      ),
                       onPressed: () async {
-                        String eventToday =
-                            snapshot.data.documents[0].data['eventDate'];
-                        if (eventToday ==
-                            DateFormat.yMMMd().format(DateTime.now())) {
+                        if (DateTime.now().isAfter(eventTimeStart) &&
+                            DateTime.now().isBefore(eventTimeEnd)) {
                           await FlutterScanBluetooth.startScan(
                                   pairedDevices: false)
                               .catchError((e) => print(e))
@@ -143,15 +128,32 @@ class DescPageState extends State<DescPage> {
                                             eventTimeStart: eventTimeStart,
                                             eventTimeEnd: eventTimeEnd,
                                           ))));
+                        } else {
+                          print("Event is not open yet");
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                  title: Text("CLOSED"),
+                                  content: Text(
+                                      "The event may not be available at the moment"),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                      child: Text("Okay"),
+                                    )
+                                  ],
+                                ),
+                          );
                         }
                         // onPressed: () {
                         //   //Directs to to ConnectBeacon if the date is today.
                       });
-                }),
-            body: DescBody(
-              eventTitle: widget.eventTitle,
-              username: widget.username,
-            )));
+            }),
+        body: DescBody(
+          eventTitle: widget.eventTitle,
+          username: widget.username,
+        ));
   }
 }
 
@@ -194,6 +196,8 @@ class DescListView extends StatelessWidget {
     String adminName = descDocuments[0].data['Admin'].toString();
     String imageURL = descDocuments[0].data['eventPicURL'].toString();
     String eventTitle = descDocuments[0].data['eventName'].toString();
+
+    DateTime eventDate = descDocuments[0].data['timeStart'];
     String eventKey = descDocuments[0].documentID;
     return SingleChildScrollView(
       child: Column(
@@ -208,10 +212,10 @@ class DescListView extends StatelessWidget {
             ),
             Positioned(
               child: FavButton(
-                username: username,
-                eventTitle: eventTitle,
-                eventKey: eventKey,
-              ),
+                  username: username,
+                  eventTitle: eventTitle,
+                  eventKey: eventKey,
+                  eventDate: eventDate),
               bottom: 0.0,
               right: 4.0,
             )
@@ -245,13 +249,16 @@ class DescListView extends StatelessWidget {
 ///
 class FavButton extends StatefulWidget {
   final String eventTitle, eventKey, username;
-  FavButton({this.eventTitle, this.eventKey, this.username});
+  final DateTime eventDate;
+  FavButton({this.eventTitle, this.eventKey, this.username, this.eventDate});
   FavButtonState createState() => FavButtonState();
 }
 
 class FavButtonState extends State<FavButton> {
   bool isAttending = false;
 
+  FlutterLocalNotificationsPlugin localNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   Future<bool> eventAttendance() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -262,6 +269,8 @@ class FavButtonState extends State<FavButton> {
         "Distance": null,
       };
       Map<String, dynamic> setAttendees = {
+        "eventName": widget.eventTitle,
+        "userid": prefs.getString('userid'),
         "Name": prefs.getString('username'),
         "status": status,
         "In": null,
@@ -269,12 +278,35 @@ class FavButtonState extends State<FavButton> {
       };
       DocumentReference attendEvent = Firestore.instance
           .document('ListFor${widget.eventTitle}/${prefs.getString('userid')}');
+      String date = DateFormat.yMMMd().format(widget.eventDate);
       Firestore.instance.runTransaction((tx) async {
         DocumentSnapshot snapshot = await tx.get(attendEvent);
         if (!snapshot.exists) {
           await tx.set(attendEvent, setAttendees);
-        } else {
-          await tx.update(attendEvent, setAttendees);
+          Fluttertoast.showToast(
+              msg: "You will be notified at $date",
+              gravity: ToastGravity.BOTTOM,
+              toastLength: Toast.LENGTH_LONG);
+
+          AndroidNotificationDetails androidNotification =
+              AndroidNotificationDetails('your channel id', 'your channel name',
+                  'your channel description',
+                  importance: Importance.Max, priority: Priority.Low);
+          IOSNotificationDetails iosNotification = IOSNotificationDetails();
+          NotificationDetails notifDetails =
+              NotificationDetails(androidNotification, iosNotification);
+          await localNotificationsPlugin.schedule(
+              0,
+              widget.eventTitle,
+              "You have an event to attend, please be on time of the event",
+              widget.eventDate,
+              notifDetails);
+          await localNotificationsPlugin.schedule(
+              1,
+              widget.eventTitle,
+              "You have an event to attend today!",
+              widget.eventDate.subtract(Duration(hours: 10)),
+              notifDetails);
         }
         print("Attended Event");
       });
