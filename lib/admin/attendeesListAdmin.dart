@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class AttendeesLists extends StatelessWidget {
   final String eventName;
@@ -15,8 +14,9 @@ class AttendeesLists extends StatelessWidget {
         backgroundColor: Colors.green[200],
       ),
       body: StreamBuilder(
-          stream:
-              Firestore.instance.collection('${eventKey}_$eventName').snapshots(),
+          stream: Firestore.instance
+              .collection('${eventKey}_$eventName')
+              .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData)
               return Center(child: CircularProgressIndicator());
@@ -38,19 +38,24 @@ class AttendeesListsDocuments extends StatelessWidget {
       itemBuilder: (context, index) {
         String name = lists[index].data["Name"].toString();
         String attendanceIN = lists[index].data['In'].toString();
-        String attendanceOut = lists[index].data['Out'].toString();
-        return ListTile(
-          title: Text("${index + 1}. $name"),
-          trailing: Row(
-            children: <Widget>[
-              Text(attendanceIN),
-              Icon(attendanceIN != "Absent" ? Icons.check : Icons.close),
-              Text(attendanceOut),
-              Icon(attendanceOut != "Half-Complete"
-                  ? Icons.check
-                  : Icons.warning)
-            ],
-          ),
+        String attendanceOut = lists[index].data['Out']?.toString();
+        return Card(
+          color: Colors.white,
+          child: Column(children: [
+            ListTile(
+              title: Text("${index + 1}. $name"),
+            ),
+            ButtonTheme.bar(
+              child: ButtonBar(
+                children: <Widget>[
+                  Text(attendanceIN),
+                  Icon(attendanceIN != "Absent" ? Icons.check : Icons.close),
+                  Text(attendanceOut ?? "Absent"),
+                  Icon(attendanceOut != null ? Icons.check : Icons.close)
+                ],
+              ),
+            )
+          ]),
         );
       },
     );

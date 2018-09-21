@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/admin/eventAdmin.dart';
 import 'package:final_parola/events/attended_events.dart';
 import 'package:final_parola/events/upcoming_events.dart';
@@ -83,6 +82,7 @@ class EventBodyPage extends StatelessWidget {
                         elevation: 12.0,
                         shape: StadiumBorder(),
                         color: Colors.green[200],
+                        highlightColor: Colors.red[200],
                         child: Text(
                           "View Attended Events",
                           style: Theme.of(context).textTheme.title,

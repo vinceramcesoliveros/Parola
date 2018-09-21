@@ -56,8 +56,7 @@ class EventListView extends StatelessWidget {
           child: GestureDetector(
             child: ListTile(
               title: Text(eventTitle),
-              subtitle: Text(
-                  "${DateFormat.yMMMd().format(eventDate)} at ${DateFormat.Hm().format(eventDate)}"),
+              subtitle: Text("${DateFormat.yMMMd().format(eventDate)}"),
               leading: CircleAvatar(
                 maxRadius: 32.0,
                 backgroundColor: Colors.green[300],
@@ -73,8 +72,7 @@ class EventListView extends StatelessWidget {
                 String username = prefs.getString('username');
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                        builder: (context) => DescPage(
-                              eventKey: eventKey,
+                        builder: (context) => DescPage( 
                               eventTitle: eventTitle,
                               username: username,
                             )),

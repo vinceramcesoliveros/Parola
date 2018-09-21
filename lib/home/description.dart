@@ -13,9 +13,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class DescPage extends StatefulWidget {
-  final String eventTitle, eventKey, username;
+  final String eventTitle, username;
 
-  DescPage({this.eventTitle, this.eventKey, this.username});
+  DescPage({this.eventTitle, this.username});
 
   @override
   DescPageState createState() {
@@ -55,35 +55,38 @@ class DescPageState extends State<DescPage> {
                   return Center(
                     child: CircularProgressIndicator(),
                   );
-                return IconButton(
-                  icon: Icon(FontAwesomeIcons.solidEdit),
-                  onPressed: () async {
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    if (eventDesc[0].data['Admin'] ==
-                        prefs.getString('username')) {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => EditEventPage(
-                              eventKey: eventKey,
-                              eventName: eventName,
-                              description: description,
-                              eventLocation: eventLocation,
-                              eventDate: eventDate,
-                              timeStart: timeStart,
-                              timeEnd: timeEnd,
-                              beacon: beaconUUID,
-                              major: major,
-                              minor: minor)));
-                    } else {
-                      Fluttertoast.showToast(
-                        msg: "You don't have permission to edit the event",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        timeInSecForIos: 1,
-                      );
-                    }
-                  },
-                );
+                return eventDesc[0].data['Admin'] == widget.username
+                    ? IconButton(
+                        icon: Icon(FontAwesomeIcons.solidEdit),
+                        onPressed: () async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          if (eventDesc[0].data['Admin'] ==
+                              prefs.getString('username')) {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => EditEventPage(
+                                    eventKey: eventKey,
+                                    eventName: eventName,
+                                    description: description,
+                                    eventLocation: eventLocation,
+                                    eventDate: eventDate,
+                                    timeStart: timeStart,
+                                    timeEnd: timeEnd,
+                                    beacon: beaconUUID,
+                                    major: major,
+                                    minor: minor)));
+                          } else {
+                            Fluttertoast.showToast(
+                              msg:
+                                  "You don't have permission to edit the event",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIos: 1,
+                            );
+                          }
+                        },
+                      )
+                    : Text("");
               },
             )
           ],
@@ -97,12 +100,13 @@ class DescPageState extends State<DescPage> {
                   eventTimeEnd = eventDesc[0].data['timeEnd'];
               String beaconID = eventDesc[0].data['beaconUUID'].toString(),
                   major = eventDesc[0].data['Major'].toString(),
-                  minor = eventDesc[0].data['Minor'].toString();
+                  minor = eventDesc[0].data['Minor'].toString(),
+                  eventKey = eventDesc[0].documentID.toString();
               if (!snapshot.hasData) return SizedBox();
-              return eventTimeEnd
-                          .isAfter(eventTimeEnd.add(Duration(hours: 1))) ||
-                      DateTime.now().isBefore(eventTimeStart)
-                  ? FloatingActionButton(onPressed: null)
+              return DateTime.now()
+                          .isAfter(eventTimeEnd.add(Duration(hours: 1))) &&
+                      DateTime.now().isAfter(eventTimeStart)
+                  ? SizedBox()
                   : FloatingActionButton.extended(
                       backgroundColor: Colors.red[200],
                       icon: Icon(Icons.event),
@@ -111,7 +115,8 @@ class DescPageState extends State<DescPage> {
                         style: TextStyle(color: Colors.white),
                       ),
                       onPressed: () async {
-                        if (DateTime.now().isAfter(eventTimeStart) &&
+                        if (DateTime.now().isAfter(
+                                eventTimeStart.subtract(Duration(hours: 2))) &&
                             DateTime.now().isBefore(eventTimeEnd)) {
                           await FlutterScanBluetooth.startScan(
                                   pairedDevices: false)
@@ -119,7 +124,7 @@ class DescPageState extends State<DescPage> {
                               .whenComplete(() =>
                                   Navigator.of(context).push(MaterialPageRoute(
                                       builder: (context) => MonitoringTab(
-                                            eventKey: widget.eventKey,
+                                            eventKey: eventKey,
                                             eventTitle: widget.eventTitle,
                                             beaconID: beaconID,
                                             major: major,
@@ -186,11 +191,11 @@ class DescListView extends StatelessWidget {
   final List<DocumentSnapshot> descDocuments;
   final String username;
   DescListView({this.descDocuments, this.username});
+
   @override
   Widget build(BuildContext context) {
     String eventDesc = descDocuments[0].data['eventDesc'].toString();
     DateTime eventTimeStart = descDocuments[0].data['timeStart'];
-
     DateTime eventTimeEnd = descDocuments[0].data['timeEnd'];
     String eventLocation = descDocuments[0].data['eventLocation'].toString();
     String adminName = descDocuments[0].data['Admin'].toString();
@@ -210,15 +215,17 @@ class DescListView extends StatelessWidget {
                 imageUrl: imageURL,
               ),
             ),
-            Positioned(
-              child: FavButton(
-                  username: username,
-                  eventTitle: eventTitle,
-                  eventKey: eventKey,
-                  eventDate: eventDate),
-              bottom: 0.0,
-              right: 4.0,
-            )
+            DateTime.now().isAfter(eventTimeEnd.add(Duration(hours: 2)))
+                ? SizedBox()
+                : Positioned(
+                    child: FavButton(
+                        username: username,
+                        eventTitle: eventTitle,
+                        eventKey: eventKey,
+                        eventDate: eventDate),
+                    bottom: 0.0,
+                    right: 4.0,
+                  )
           ]),
           SizedBox(
             height: 8.0,
@@ -245,7 +252,10 @@ class DescListView extends StatelessWidget {
 }
 
 /// I want to make an algorithm for this one,Let's say the user has clicked the **Attend**
-/// Then it will be passed to `ListFor$eventName`, It will be added to the list for THAT attendee.
+/// Then it will be passed to `E-$eventName`, It will be added to the list for THAT attendee.
+///**Example**
+///```dart
+///```
 ///
 class FavButton extends StatefulWidget {
   final String eventTitle, eventKey, username;
@@ -269,15 +279,17 @@ class FavButtonState extends State<FavButton> {
         "Distance": null,
       };
       Map<String, dynamic> setAttendees = {
-        "eventName": widget.eventTitle,
-        "userid": prefs.getString('userid'),
-        "Name": prefs.getString('username'),
-        "status": status,
-        "In": null,
-        "Out": null,
+        widget.eventKey: {
+          "eventName": widget.eventTitle,
+          "userid": prefs.getString('userid'),
+          "Name": prefs.getString('username'),
+          "status": status,
+          "In": null,
+          "Out": null,
+        }
       };
-      DocumentReference attendEvent = Firestore.instance
-          .document('ListFor${widget.eventTitle}/${prefs.getString('userid')}');
+      DocumentReference attendEvent = Firestore.instance.document(
+          '${widget.eventKey}_attendees/${prefs.getString('userid')}');
       String date = DateFormat.yMMMd().format(widget.eventDate);
       Firestore.instance.runTransaction((tx) async {
         DocumentSnapshot snapshot = await tx.get(attendEvent);
@@ -295,27 +307,29 @@ class FavButtonState extends State<FavButton> {
           IOSNotificationDetails iosNotification = IOSNotificationDetails();
           NotificationDetails notifDetails =
               NotificationDetails(androidNotification, iosNotification);
-          await localNotificationsPlugin.schedule(
-              0,
-              widget.eventTitle,
-              "You have an event to attend, please be on time of the event",
-              widget.eventDate,
-              notifDetails);
-          await localNotificationsPlugin.schedule(
-              1,
-              widget.eventTitle,
-              "You have an event to attend today!",
-              widget.eventDate.subtract(Duration(hours: 10)),
-              notifDetails);
+          date != DateFormat.yMMMd().format(DateTime.now())
+              ? localNotificationsPlugin.schedule(
+                  0,
+                  widget.eventTitle,
+                  "You have an event to attend, please be on time of the event",
+                  widget.eventDate,
+                  notifDetails)
+              : await localNotificationsPlugin.schedule(
+                  0,
+                  widget.eventTitle,
+                  "You have an event to attend today!",
+                  widget.eventDate.subtract(Duration(hours: 10)),
+                  notifDetails);
         }
+        ;
+
         print("Attended Event");
       });
     } else {
       prefs.setBool('IsAttending', isAttending);
 
-      DocumentReference deleteAttendees = Firestore.instance
-          .collection('ListFor${widget.eventTitle}')
-          .document(prefs.getString('userid'));
+      DocumentReference deleteAttendees = Firestore.instance.document(
+          "${widget.eventKey}_attendees/${prefs.getString('userid')}");
       deleteAttendees.delete();
       print("Didn't attend");
     }
@@ -332,7 +346,7 @@ class FavButtonState extends State<FavButton> {
   Widget build(BuildContext context) {
     return StreamBuilder(
         stream: Firestore.instance
-            .collection('ListFor${widget.eventTitle}')
+            .collection('${widget.eventKey}_attendees/')
             .where('Name', isEqualTo: widget.username)
             .snapshots(),
         builder: (context, snapshot) {

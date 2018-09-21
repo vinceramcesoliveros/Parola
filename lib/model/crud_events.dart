@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-class DeleteEvent extends Model {
+class ParolaFirebase extends Model {
   Future<void> deleteEvents({String eventKey, String eventName}) async {
     StorageReference deleteRef =
         FirebaseStorage.instance.ref().child("eventImages/$eventKey.jpg");
@@ -13,11 +13,11 @@ class DeleteEvent extends Model {
       print("Deleted: $eventKey");
     });
     await Firestore.instance
-        .collection('ListFor$eventName')
+        .collection('E-$eventKey')
         .document()
         .delete()
         .then((doc) {
-      print('Deleted ListFor$eventName');
+      print('Deleted $eventName');
     });
     await Firestore.instance
         .collection('events')

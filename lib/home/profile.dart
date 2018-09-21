@@ -1,6 +1,6 @@
-import 'package:final_parola/admin/eventAdmin.dart';
 import 'package:final_parola/home/about.dart';
 import 'package:final_parola/home/exit.dart';
+import 'package:final_parola/profile/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -36,18 +36,19 @@ class UserDrawer extends StatelessWidget {
                       title: Text("Read Tutorial"),
                       leading: Icon(Icons.settings),
                       onTap: () {
-                        Navigator.of(context).popAndPushNamed('/introduction');
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            '/introduction', ModalRoute.withName('/home'));
                       }),
                   ListTile(
-                    title: Text("Created Events"),
+                    title: Text("Edit Profile"),
                     leading: Icon(Icons.event_note),
                     onTap: () {
                       Navigator.of(context).pop();
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => AdminEvents(
-                                    adminName: snapshot.data.displayName,
+                              builder: (context) => UserProfile(
+                                    username: snapshot.data.displayName,
                                   )));
                     },
                   ),

@@ -13,6 +13,8 @@
 
 import 'dart:async';
 
+import 'package:beacons/beacons.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/admin/eventAdmin.dart';
 
 import 'package:final_parola/home/home.dart';
@@ -35,9 +37,29 @@ void main() async {
       .then((_) {
     runApp(ParolaScreen());
   });
+  Firestore.instance.enablePersistence(true);
 }
 
 class ParolaScreen extends StatefulWidget {
+  ParolaScreen() {
+    FlutterLocalNotificationsPlugin localNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+    AndroidNotificationDetails androidNotification = AndroidNotificationDetails(
+        'your channel id', 'your channel name', 'your channel description',
+        importance: Importance.Max, priority: Priority.High);
+    IOSNotificationDetails iosNotification = IOSNotificationDetails();
+    NotificationDetails notifDetails =
+        NotificationDetails(androidNotification, iosNotification);
+
+    Beacons.backgroundMonitoringEvents().listen((result) async {
+      final BackgroundMonitoringEventType type = result.type;
+      final BeaconRegion region = result.region;
+      final MonitoringState state = result.state;
+      await localNotificationsPlugin.show(
+          0, type.toString(), region.toString(), notifDetails,
+          payload: state.toString());
+    });
+  }
   @override
   ParolaScreenState createState() {
     return new ParolaScreenState();
@@ -135,9 +157,8 @@ class ParolaScreenState extends State<ParolaScreen> {
       model: UserModel(isLoggedIn: isLoggedIn, batteryLevel: batteryLevel),
       child: MaterialApp(
         theme: ThemeData(
-          brightness: Brightness.dark,
+          brightness: Brightness.light,
           textTheme: TextTheme(
-            title: TextStyle(color: Colors.white),
             display4: TextStyle(color: Colors.white),
           ),
           backgroundColor: Colors.green[200],

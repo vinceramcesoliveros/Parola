@@ -8,7 +8,6 @@ import 'package:final_parola/beacon/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MonitoringTab extends ListTab {
@@ -81,6 +80,11 @@ abstract class ListTab extends StatefulWidget {
 }
 
 class _ListTabState extends State<ListTab> {
+  Map<String, dynamic> status = {
+    "Connected": false,
+    "Distance": "Disconnected",
+  };
+  Map<String, dynamic> setAttendees = {};
   List<ListTabResult> _results = [];
   StreamSubscription<ListTabResult> _subscription;
   bool _running = false;
@@ -96,7 +100,6 @@ class _ListTabState extends State<ListTab> {
 
   void initState() {
     super.initState();
-    // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     var initializationSettingsAndroid =
         new AndroidInitializationSettings('app_icon');
     var initializationSettingsIOS = new IOSInitializationSettings();
@@ -161,26 +164,7 @@ class _ListTabState extends State<ListTab> {
         _results.clear();
         isConnected = false;
       });
-      Future.delayed(Duration(minutes: 1), () async {
-        DocumentReference attendeesRef = Firestore.instance
-            .document("EventAttendees/${widget.title}_${widget.eventKey}");
-        SharedPreferences prefs = await SharedPreferences.getInstance();
 
-        Map<String, dynamic> status = {
-          "Connected": false,
-          "Distance": "Disconnected",
-        };
-        Map<String, dynamic> setAttendees = {
-          "status": status,
-          "userid": "${prefs.getString('userid')}"
-        };
-        Firestore.instance.runTransaction((transAttendees) async {
-          DocumentSnapshot snapshot = await transAttendees.get(attendeesRef);
-          if (snapshot.exists) {
-            await transAttendees.update(attendeesRef, setAttendees);
-          }
-        });
-      });
       await _cancelNotification();
       _subscription?.cancel();
     }
@@ -193,10 +177,10 @@ class _ListTabState extends State<ListTab> {
       _subscription = widget.stream(region).listen((result) async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         DocumentReference attendeesRef = Firestore.instance.document(
-            "${widget.eventKey}_${widget.title}/${prefs.getString('userid')}");
+            "${widget.eventKey}_attendees/${prefs.getString('userid')}");
 
-        DocumentReference userRef = Firestore.instance.document(
-            "attended_${prefs.getString('userid')}/${widget.eventKey}");
+        DocumentReference userRef =
+            Firestore.instance.document("users/${prefs.getString('userid')}");
 
         setState(() {
           if (result.text != null) {
@@ -211,26 +195,42 @@ class _ListTabState extends State<ListTab> {
                     isSuccessful: false,
                     distance: null));
           }
-          Map<String, dynamic> status = {
+          status = {
             "Connected": result.isSuccessful,
             "Distance": result.distance,
           };
-          Map<String, dynamic> setAttendees = {
-            "eventName": widget.title,
-            "userid": prefs.getString('userid'),
-            "Name": prefs.getString('username'),
-            "status": status,
-            "In": widget.eventTimeStart
-                    .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
-                ? "Late"
-                : "Attended",
+          setAttendees = {
+           widget.eventKey: {
+              "eventName": widget.title,
+              "userid": prefs.getString('userid'),
+              "Name": prefs.getString('username'),
+              "status": status,
+              "In": widget.eventTimeStart
+                      .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
+                  ? "Late"
+                  : "Attended",
+            }
+          };
+          setAttendees = {
+            widget.eventKey: {
+              "eventName": widget.title,
+              "userid": prefs.getString('userid'),
+              "Name": prefs.getString('username'),
+              "status": status,
+              "In": widget.eventTimeStart
+                      .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
+                  ? "Late"
+                  : "Attended",
+            }
           };
           Map<String, dynamic> outAttendance = {
-            "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
-                    widget.eventTimeEnd.isBefore(
-                         widget.eventTimeEnd.add(Duration(minutes: 10)))
-                ? "Completed"
-                : "Half-completed"
+            widget.eventKey: {
+              "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
+                      widget.eventTimeEnd.isBefore(
+                          widget.eventTimeEnd.add(Duration(minutes: 10)))
+                  ? "Completed"
+                  : "Half-completed"
+            }
           };
           result.distance < 3.0
               ? _showOngoingNotification(
@@ -245,8 +245,8 @@ class _ListTabState extends State<ListTab> {
               Firestore.instance.runTransaction((transAttendees) async {
                 DocumentSnapshot snapshot =
                     await transAttendees.get(attendeesRef);
-                if (snapshot.exists) {
-                  await transAttendees.update(attendeesRef, setAttendees);
+                if (!snapshot.exists) {
+                  await transAttendees.set(attendeesRef, setAttendees);
                   Fluttertoast.showToast(
                       msg: "You have been signed as ATTENDED",
                       gravity: ToastGravity.BOTTOM);

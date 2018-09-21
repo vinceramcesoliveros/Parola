@@ -56,7 +56,7 @@ class ListOfEvents extends StatelessWidget {
         String eventKey = eventRef[index].documentID.toString();
         String eventDate = eventRef[index].data['eventDate'].toString();
         return ScopedModel(
-          model: DeleteEvent(),
+          model: ParolaFirebase(),
           child: Card(
             color: Colors.green[300],
             shape: RoundedRectangleBorder(
@@ -68,7 +68,6 @@ class ListOfEvents extends StatelessWidget {
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => DescPage(
-                              eventKey: eventKey,
                               eventTitle: eventName,
                               username: prefs.getString('username'),
                             )),
@@ -77,7 +76,7 @@ class ListOfEvents extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  ScopedModelDescendant<DeleteEvent>(
+                  ScopedModelDescendant<ParolaFirebase>(
                       rebuildOnChange: false,
                       builder: (context, child, model) {
                         return ListTile(
@@ -96,6 +95,7 @@ class ListOfEvents extends StatelessWidget {
                                           "Are you sure want to Delete $eventName ?"),
                                       actions: <Widget>[
                                         RaisedButton(
+                                            color: Colors.red[200],
                                             child: Text(
                                               "Delete Event",
                                               style: Theme.of(context)

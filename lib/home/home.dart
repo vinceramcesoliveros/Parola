@@ -56,7 +56,6 @@ class _HomePageState extends State<HomePage> {
         await tx.set(userRef, userData);
         print("User Added");
       } else {
-        await tx.update(userRef, userData);
         print("User already added");
       }
     });

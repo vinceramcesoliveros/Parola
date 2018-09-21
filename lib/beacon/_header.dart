@@ -30,8 +30,8 @@ class _HeaderState extends State<Header> {
       BeaconRegion region =
           BeaconRegion(identifier: widget.regionIdentifier, ids: [
         widget.beaconID.toString(),
-        int.parse(widget.major, radix: 16)?.toString() ?? '',
-        int.parse(widget.minor, radix: 16)?.toString() ?? '',
+        int.parse(widget.major, radix: 16)?.toString() ?? null,
+        int.parse(widget.minor, radix: 16)?.toString() ?? null,
         // '23A01AF0-232A-4518-9C0E-323FB773F5EF',
         // int.parse('ACE6', radix: 16).toString(),
         // int.parse('51F0', radix: 16).toString()
