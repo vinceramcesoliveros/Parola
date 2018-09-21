@@ -252,11 +252,8 @@ class DescListView extends StatelessWidget {
 }
 
 /// I want to make an algorithm for this one,Let's say the user has clicked the **Attend**
-/// Then it will be passed to `E-$eventName`, It will be added to the list for THAT attendee.
-///**Example**
-///```dart
-///```
-///
+/// Then it will be passed to `${widget.eventKey}_attendees`, It will be added to the list for THAT attendee.
+
 class FavButton extends StatefulWidget {
   final String eventTitle, eventKey, username;
   final DateTime eventDate;
@@ -347,7 +344,7 @@ class FavButtonState extends State<FavButton> {
     return StreamBuilder(
         stream: Firestore.instance
             .collection('${widget.eventKey}_attendees/')
-            .where('Name', isEqualTo: widget.username)
+            .where("[${widget.eventKey}.Name", isEqualTo: widget.username)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return Text("Loading...");

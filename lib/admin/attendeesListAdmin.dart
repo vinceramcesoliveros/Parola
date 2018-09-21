@@ -15,13 +15,13 @@ class AttendeesLists extends StatelessWidget {
       ),
       body: StreamBuilder(
           stream: Firestore.instance
-              .collection('${eventKey}_$eventName')
+              .collection('${eventKey}_attendees')
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData)
               return Center(child: CircularProgressIndicator());
             return AttendeesListsDocuments(
-                lists: snapshot.data.documents, eventName: eventName);
+                lists: snapshot.data.documents, eventKey: eventKey);
           }),
     );
   }
@@ -29,14 +29,14 @@ class AttendeesLists extends StatelessWidget {
 
 class AttendeesListsDocuments extends StatelessWidget {
   final List<DocumentSnapshot> lists;
-  final String eventName;
-  AttendeesListsDocuments({this.lists, this.eventName});
+  final String eventKey;
+  AttendeesListsDocuments({this.lists, this.eventKey});
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: lists.length,
       itemBuilder: (context, index) {
-        String name = lists[index].data["Name"].toString();
+        String name = lists[index].data['$eventKey']["Name"].toString();
         String attendanceIN = lists[index].data['In'].toString();
         String attendanceOut = lists[index].data['Out']?.toString();
         return Card(

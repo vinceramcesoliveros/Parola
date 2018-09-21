@@ -200,18 +200,6 @@ class _ListTabState extends State<ListTab> {
             "Distance": result.distance,
           };
           setAttendees = {
-           widget.eventKey: {
-              "eventName": widget.title,
-              "userid": prefs.getString('userid'),
-              "Name": prefs.getString('username'),
-              "status": status,
-              "In": widget.eventTimeStart
-                      .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
-                  ? "Late"
-                  : "Attended",
-            }
-          };
-          setAttendees = {
             widget.eventKey: {
               "eventName": widget.title,
               "userid": prefs.getString('userid'),
@@ -241,23 +229,21 @@ class _ListTabState extends State<ListTab> {
 
           if (widget.eventTimeStart
               .isBefore(widget.eventTimeStart.add(Duration(seconds: 10)))) {
-            Future.delayed(duration, () async {
-              Firestore.instance.runTransaction((transAttendees) async {
-                DocumentSnapshot snapshot =
-                    await transAttendees.get(attendeesRef);
-                if (!snapshot.exists) {
-                  await transAttendees.set(attendeesRef, setAttendees);
-                  Fluttertoast.showToast(
-                      msg: "You have been signed as ATTENDED",
-                      gravity: ToastGravity.BOTTOM);
-                }
-              });
-              Firestore.instance.runTransaction((tx) async {
-                DocumentSnapshot snapshot = await tx.get(userRef);
-                if (snapshot.exists) {
-                  await tx.update(userRef, setAttendees);
-                }
-              });
+            Firestore.instance.runTransaction((transAttendees) async {
+              DocumentSnapshot snapshot =
+                  await transAttendees.get(attendeesRef);
+              if (!snapshot.exists) {
+                await transAttendees.set(attendeesRef, setAttendees);
+                Fluttertoast.showToast(
+                    msg: "You have been signed as ATTENDED",
+                    gravity: ToastGravity.BOTTOM);
+              }
+            });
+            Firestore.instance.runTransaction((tx) async {
+              DocumentSnapshot snapshot = await tx.get(userRef);
+              if (snapshot.exists) {
+                await tx.update(userRef, setAttendees);
+              }
             });
           } else if (widget.eventTimeEnd
               .isAfter(widget.eventTimeEnd.add(Duration(minutes: 5)))) {
@@ -267,6 +253,8 @@ class _ListTabState extends State<ListTab> {
                     await transAttendees.get(attendeesRef);
                 if (snapshot.exists) {
                   await transAttendees.update(attendeesRef, outAttendance);
+                  Navigator.of(context).pop();
+                  _onStop();
                 }
               });
             });

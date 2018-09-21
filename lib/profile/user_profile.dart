@@ -125,11 +125,12 @@ class _EditProfileState extends State<EditProfile> {
                                 };
                                 await FirebaseAuth.instance
                                     .updateProfile(updateInfo)
-                                    .then((e) => Firestore.instance
-                                        .collection('users')
-                                        .document(prefs.getString('userid'))
-                                        .updateData(updateName))
-                                    .whenComplete(() => Navigator.pop(context));
+                                    .then((e) {
+                                  Firestore.instance
+                                      .collection('users')
+                                      .document(prefs.getString('userid'))
+                                      .updateData(updateName);
+                                }).whenComplete(() => Navigator.pop(context));
                               })
                         ],
                       ))
