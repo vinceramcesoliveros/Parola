@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:final_parola/events/date_time.dart';
@@ -56,19 +57,6 @@ class EventPageState extends State<EventPage> {
     beaconController.dispose();
   }
 
-  Future<void> showUploadTask() async {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(
-        duration: Duration(seconds: 5),
-        content: Row(
-          children: <Widget>[
-            CircularProgressIndicator(),
-            SizedBox(
-              width: 8.0,
-            ),
-            Text("Creating Event...")
-          ],
-        )));
-  }
 
   Future<Null> addEvent() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -111,7 +99,7 @@ class EventPageState extends State<EventPage> {
     }).then((result) {
       printForms();
       print("Added to the Database");
-      Navigator.of(context).pop();
+      Navigator.popAndPushNamed(context, '/home');
     });
   }
 
@@ -179,11 +167,33 @@ class EventPageState extends State<EventPage> {
                 style: TextStyle(color: Colors.white),
               ),
               onPressed: () async {
-                await uploadFile(_image.path).whenComplete(() async {
-                  submitEvent();
-                }).whenComplete(() {
-                  addEvent();
-                });
+                beaconController.text != null
+                    ? await uploadFile(_image.path).whenComplete(() async {
+                        submitEvent();
+                      }).whenComplete(() {
+                        addEvent();
+                        Fluttertoast.showToast(
+                            msg: "Successfully created event!");
+                        Navigator.pop(context);
+                      }).catchError((e) {
+                        showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                  title: Text("Failed"),
+                                  content: Text(
+                                      "Failed to upload $eventName, the connection has timed out"),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                      child: Text("Okay"),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                    )
+                                  ],
+                                ));
+                      })
+                    : Fluttertoast.showToast(
+                        msg: "Please fill all requirements in the field");
               },
             )
           : null,
@@ -314,12 +324,12 @@ class EventPageState extends State<EventPage> {
                             decoration: InputDecoration(
                                 labelText: "Minor",
                                 labelStyle: Theme.of(context).textTheme.body1)),
-                      )
+                      ),
+                      SizedBox(
+                        height: 16.0,
+                      ),
                     ],
                   ),
-                ),
-                SizedBox(
-                  height: 16.0,
                 ),
                 Center(
                   child: RaisedButton(

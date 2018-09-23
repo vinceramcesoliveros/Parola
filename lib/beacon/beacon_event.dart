@@ -84,6 +84,7 @@ class _ListTabState extends State<ListTab> {
     "Connected": false,
     "Distance": "Disconnected",
   };
+  Map<String, dynamic> outAttendance = new Map();
   Map<String, dynamic> setAttendees = {};
   List<ListTabResult> _results = [];
   StreamSubscription<ListTabResult> _subscription;
@@ -153,7 +154,7 @@ class _ListTabState extends State<ListTab> {
     NotificationDetails platformChannelSpecifics = new NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(
-        1, successful, status, platformChannelSpecifics);
+        1, "Disconnected", "Beacon out of range", platformChannelSpecifics);
   }
 
   @override
@@ -179,8 +180,8 @@ class _ListTabState extends State<ListTab> {
         DocumentReference attendeesRef = Firestore.instance.document(
             "${widget.eventKey}_attendees/${prefs.getString('userid')}");
 
-        DocumentReference userRef =
-            Firestore.instance.document("users/${prefs.getString('userid')}");
+        DocumentReference userRef = Firestore.instance.document(
+            "event_attended_${prefs.getString('userid')}/${widget.eventKey}");
 
         setState(() {
           if (result.text != null) {
@@ -200,73 +201,69 @@ class _ListTabState extends State<ListTab> {
             "Distance": result.distance,
           };
           setAttendees = {
-            widget.eventKey: {
-              "eventName": widget.title,
-              "userid": prefs.getString('userid'),
-              "Name": prefs.getString('username'),
-              "status": status,
-              "In": widget.eventTimeStart
-                      .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
-                  ? "Late"
-                  : "Attended",
-            }
+            "eventID": widget.eventKey,
+            "eventName": widget.title,
+            "userid": prefs.getString('userid'),
+            "username": prefs.getString('username'),
+            "status": status,
+            "In": widget.eventTimeStart
+                    .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
+                ? "Late"
+                : "Attended",
           };
-          Map<String, dynamic> outAttendance = {
-            widget.eventKey: {
-              "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
-                      widget.eventTimeEnd.isBefore(
-                          widget.eventTimeEnd.add(Duration(minutes: 10)))
-                  ? "Completed"
-                  : "Half-completed"
-            }
+          outAttendance = {
+            "eventID": widget.eventKey,
+            "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
+                    widget.eventTimeEnd.isBefore(
+                        widget.eventTimeEnd.add(Duration(minutes: 10)))
+                ? "Completed"
+                : "Half-completed"
           };
-          result.distance < 3.0
+          result.distance < 7.0
               ? _showOngoingNotification(
                   successful:
-                      result.distance < 3.0 ? 'Connected' : 'Disconnected',
+                      result.distance < 7.0 ? 'Connected' : 'Disconnected',
                   status: result.text)
               : _showStatusNotifcation();
-
-          if (widget.eventTimeStart
-              .isBefore(widget.eventTimeStart.add(Duration(seconds: 10)))) {
+        });
+        if (widget.eventTimeStart
+            .isBefore(widget.eventTimeStart.add(Duration(seconds: 10)))) {
+          Firestore.instance.runTransaction((transAttendees) async {
+            DocumentSnapshot snapshot = await transAttendees.get(attendeesRef);
+            if (!snapshot.exists) {
+              await transAttendees.set(attendeesRef, setAttendees);
+              Fluttertoast.showToast(
+                  msg: "You have been signed as ATTENDED",
+                  gravity: ToastGravity.BOTTOM);
+            }
+          });
+          Firestore.instance.runTransaction((tx) async {
+            DocumentSnapshot snapshot = await tx.get(userRef);
+            if (snapshot.exists) {
+              await tx.update(userRef, setAttendees);
+            }
+          });
+        } else if (widget.eventTimeEnd
+            .isAfter(widget.eventTimeEnd.add(Duration(minutes: 5)))) {
+          Future.delayed(duration, () async {
             Firestore.instance.runTransaction((transAttendees) async {
               DocumentSnapshot snapshot =
                   await transAttendees.get(attendeesRef);
-              if (!snapshot.exists) {
-                await transAttendees.set(attendeesRef, setAttendees);
-                Fluttertoast.showToast(
-                    msg: "You have been signed as ATTENDED",
-                    gravity: ToastGravity.BOTTOM);
-              }
-            });
-            Firestore.instance.runTransaction((tx) async {
-              DocumentSnapshot snapshot = await tx.get(userRef);
               if (snapshot.exists) {
-                await tx.update(userRef, setAttendees);
+                await transAttendees.update(attendeesRef, outAttendance);
+                Navigator.of(context).pop();
+                _onStop();
               }
             });
-          } else if (widget.eventTimeEnd
-              .isAfter(widget.eventTimeEnd.add(Duration(minutes: 5)))) {
-            Future.delayed(duration, () async {
-              Firestore.instance.runTransaction((transAttendees) async {
-                DocumentSnapshot snapshot =
-                    await transAttendees.get(attendeesRef);
-                if (snapshot.exists) {
-                  await transAttendees.update(attendeesRef, outAttendance);
-                  Navigator.of(context).pop();
-                  _onStop();
-                }
-              });
-            });
+          });
 
-            Firestore.instance.runTransaction((tx) async {
-              DocumentSnapshot snapshot = await tx.get(userRef);
-              if (snapshot.exists) {
-                await tx.update(userRef, outAttendance);
-              }
-            });
-          }
-        });
+          Firestore.instance.runTransaction((tx) async {
+            DocumentSnapshot snapshot = await tx.get(userRef);
+            if (snapshot.exists) {
+              await tx.update(userRef, outAttendance);
+            }
+          });
+        }
       });
       _subscription.onDone(() async {
         setState(() {
