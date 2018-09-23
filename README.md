@@ -4,30 +4,20 @@
 [![Coverage Status](https://coveralls.io/repos/github/ram231/Parola/badge.svg?branch=master)](https://coveralls.io/github/ram231/Parola?branch=master)
 
 
-Solely working on this project by myself, no help, no feedback, nothing else.
+## September 23 notes .
 
-
-### August 5 Notes.
 - ✅ Login to Home Page
-- ❌ Content of the Home Page
+- ✅ Content of the Home Page
 - ✅ Will use Firestore instead of Firebase Realtime Database
-- ❌ Event Page
-- ❌ Create Event
-- ❌ Scan Page
-- ❌ Description of Event Page
-- ❌ Fixing Beacons
+- ✅ Event Page
+- ✅ Create Event
+- ✅ Scan Page
+- ✅ Description of Event Page
+- ✅ Fixing Beacons
 
-### August 7 Notes
-- Re-organized the files to follow the principle of **"100 lines of code"**
-- Still struggling for Data modeling in the Cloud firestore
+### Wishlist 
 
-### August 8 Notes
-- Added Connectivity, to ensure that if a user has no internet connection, it will give a toast that it has no internet connection
-- Added Images for the Event. Still under construction. Please bear with my effort.
+- Upcoming Events
+- ATTENDANCE LISTS
+- PROPERLY UPDATE EACH COLLECTION IN CLOUD FIRESTORE
 
-### August 15 Notes
-- Added Flutter Bluetooth just to test out the connection of the beacon.
-- Reinvent the architecture for enabling beacon, I should minimize the usage of SetState method.
-
-### August 24 Notes
-- This will be the Beacon Identification for testing Parola.

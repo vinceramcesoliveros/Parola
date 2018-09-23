@@ -41,25 +41,6 @@ void main() async {
 }
 
 class ParolaScreen extends StatefulWidget {
-  ParolaScreen() {
-    FlutterLocalNotificationsPlugin localNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-    AndroidNotificationDetails androidNotification = AndroidNotificationDetails(
-        'your channel id', 'your channel name', 'your channel description',
-        importance: Importance.Max, priority: Priority.High);
-    IOSNotificationDetails iosNotification = IOSNotificationDetails();
-    NotificationDetails notifDetails =
-        NotificationDetails(androidNotification, iosNotification);
-
-    Beacons.backgroundMonitoringEvents().listen((result) async {
-      final BackgroundMonitoringEventType type = result.type;
-      final BeaconRegion region = result.region;
-      final MonitoringState state = result.state;
-      await localNotificationsPlugin.show(
-          0, type.toString(), region.toString(), notifDetails,
-          payload: state.toString());
-    });
-  }
   @override
   ParolaScreenState createState() {
     return new ParolaScreenState();
@@ -167,7 +148,6 @@ class ParolaScreenState extends State<ParolaScreen> {
           scaffoldBackgroundColor: parolaColor,
         ),
         title: 'Parola',
-        // showPerformanceOverlay: true,
         debugShowCheckedModeBanner: false,
         home: ScopedModelDescendant<UserModel>(
           rebuildOnChange: false,

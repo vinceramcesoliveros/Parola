@@ -14,12 +14,13 @@ class AttendeesLists extends StatelessWidget {
         backgroundColor: Colors.green[200],
       ),
       body: StreamBuilder(
+          initialData: 0,
           stream: Firestore.instance
               .collection('${eventKey}_attendees')
               .snapshots(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData)
-              return Center(child: CircularProgressIndicator());
+            if (snapshot.hasData == null && !snapshot.hasData)
+              return Center(child: Text("Loading..."));
             return AttendeesListsDocuments(
                 lists: snapshot.data.documents, eventKey: eventKey);
           }),
@@ -36,7 +37,7 @@ class AttendeesListsDocuments extends StatelessWidget {
     return ListView.builder(
       itemCount: lists.length,
       itemBuilder: (context, index) {
-        String name = lists[index].data['$eventKey']["Name"].toString();
+        String name = lists[index].data["Name"].toString();
         String attendanceIN = lists[index].data['In'].toString();
         String attendanceOut = lists[index].data['Out']?.toString();
         return Card(
@@ -48,9 +49,11 @@ class AttendeesListsDocuments extends StatelessWidget {
             ButtonTheme.bar(
               child: ButtonBar(
                 children: <Widget>[
-                  Text(attendanceIN),
-                  Icon(attendanceIN != "Absent" ? Icons.check : Icons.close),
-                  Text(attendanceOut ?? "Absent"),
+                  Text(attendanceIN ?? "Not attended"),
+                  Icon(attendanceIN != "Absent" || attendanceIN != null
+                      ? Icons.check
+                      : Icons.close),
+                  Text(attendanceOut ?? "Not Attended"),
                   Icon(attendanceOut != null ? Icons.check : Icons.close)
                 ],
               ),

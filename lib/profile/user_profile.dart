@@ -16,37 +16,7 @@ class UserProfile extends StatelessWidget {
           elevation: 0.0,
           backgroundColor: Colors.green[400],
         ),
-        body: ListView.builder(
-          itemBuilder: (context, index) {
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  flex: 2,
-                  child: new UserCard(),
-                ),
-                Expanded(
-                  flex: 4,
-                  child: StreamBuilder(
-                    stream: Firestore.instance
-                        .collection('attended_$username')
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      List<DocumentSnapshot> eventSnapshot =
-                          snapshot.data.documents;
-                      if (!snapshot.hasData)
-                        return Center(child: Text('No events attended'));
-                      return ListTile(
-                          title:
-                              Text(eventSnapshot[index].data[''].toString()));
-                    },
-                  ),
-                )
-              ],
-            );
-          },
-        ));
+        body: UserCard());
   }
 }
 
@@ -57,26 +27,30 @@ class UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: StreamBuilder(
-        stream: FirebaseAuth.instance.currentUser().asStream(),
-        builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
-          if (!snapshot.hasData) return CircularProgressIndicator();
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Center(
-                child: ClipOval(
-                  clipBehavior: Clip.hardEdge,
-                  child: CachedNetworkImage(imageUrl: snapshot.data.photoUrl),
+    return SingleChildScrollView(
+      child: Card(
+        child: StreamBuilder(
+          
+          stream: FirebaseAuth.instance.currentUser().asStream(),
+          builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
+            if (snapshot.hasData == null && !snapshot.hasData)
+              return Text("Loading...");
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Center(
+                  child: ClipOval(
+                    clipBehavior: Clip.hardEdge,
+                    child: CachedNetworkImage(imageUrl: snapshot.data.photoUrl),
+                  ),
                 ),
-              ),
-              Text(snapshot.data.displayName,
-                  style: Theme.of(context).textTheme.display1),
-              EditProfile(),
-            ],
-          );
-        },
+                Text(snapshot.data.displayName,
+                    style: Theme.of(context).textTheme.display1),
+                EditProfile(),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -88,7 +62,34 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
+  List<String> eventListName = List();
   TextEditingController nameController = new TextEditingController();
+  @override
+  void initState() {
+    queryAllEvents();
+    super.initState();
+  }
+
+  Future<Null> queryAllEvents() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Firestore.instance
+        .collection('events')
+        .snapshots()
+        .listen((data) => data.documents.forEach((doc) {
+              Firestore.instance
+                  .collection('${doc.documentID}_attendees')
+                  .where('userid', isEqualTo: prefs.getString('userid'))
+                  .snapshots()
+                  .listen((eventData) {
+                eventData.documents.forEach((eventDoc) {
+                  eventListName.add(eventDoc['eventID']);
+                  print(eventDoc['eventName']);
+                });
+                // eventListName.add(eventData.documents[0].data['eventName']);
+              });
+            }));
+  }
+
   @override
   Widget build(BuildContext context) {
     return RaisedButton(
@@ -130,6 +131,18 @@ class _EditProfileState extends State<EditProfile> {
                                       .collection('users')
                                       .document(prefs.getString('userid'))
                                       .updateData(updateName);
+                                  Firestore.instance
+                                      .collection(
+                                          'event_attended_${prefs.getString('username')}')
+                                      .document(prefs.getString('userid'))
+                                      .updateData(updateName);
+                                  eventListName.forEach((doc) {
+                                    Firestore.instance
+                                        .collection(doc)
+                                        .document(
+                                            '${prefs.getString('userid')}')
+                                        .updateData(updateName);
+                                  });
                                 }).whenComplete(() => Navigator.pop(context));
                               })
                         ],

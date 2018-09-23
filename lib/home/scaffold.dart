@@ -47,7 +47,11 @@ class MyScaffoldState extends State<MyScaffold> {
     queryEvents();
     super.initState();
   }
+   void dispose(){
 
+     super.dispose();
+     
+   }
   Future<Null> queryEvents() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     username = prefs.getString('username');
@@ -89,9 +93,7 @@ class MyScaffoldState extends State<MyScaffold> {
           ),
           onPressed: () => Navigator.of(context).pushNamed('/event'),
         ),
-        floatingActionButtonLocation: currentIndex == 0
-            ? FloatingActionButtonLocation.centerDocked
-            : FloatingActionButtonLocation.endFloat,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         drawer: UserDrawer(),
         body: currentPage,
         bottomNavigationBar: BottomNavigationBar(

@@ -29,7 +29,7 @@ class _HeaderState extends State<Header> {
     } else {
       BeaconRegion region =
           BeaconRegion(identifier: widget.regionIdentifier, ids: [
-        widget.beaconID.toString(),
+        widget.beaconID.toString().toLowerCase(),
         int.parse(widget.major, radix: 16)?.toString() ?? null,
         int.parse(widget.minor, radix: 16)?.toString() ?? null,
         // '23A01AF0-232A-4518-9C0E-323FB773F5EF',
@@ -39,7 +39,7 @@ class _HeaderState extends State<Header> {
       widget.onStart(region);
     }
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Padding(

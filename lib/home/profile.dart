@@ -4,6 +4,7 @@ import 'package:final_parola/profile/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserDrawer extends StatelessWidget {
   @override
@@ -13,7 +14,8 @@ class UserDrawer extends StatelessWidget {
       child: StreamBuilder(
           stream: FirebaseAuth.instance.currentUser().asStream(),
           builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
-            if (!snapshot.hasData) return CircularProgressIndicator();
+            if (snapshot.data.displayName == null && !snapshot.hasData)
+              return Text("Loading...");
             return Drawer(
               semanticLabel: "Open Settings",
               elevation: 0.0,
@@ -21,8 +23,8 @@ class UserDrawer extends StatelessWidget {
                 children: <Widget>[
                   UserAccountsDrawerHeader(
                     decoration: BoxDecoration(color: Colors.green[400]),
-                    accountName: Text(snapshot.data.displayName),
-                    accountEmail: Text(snapshot.data.email),
+                    accountName: Text(snapshot.data.displayName ?? ''),
+                    accountEmail: Text(snapshot.data.email ?? ''),
                     currentAccountPicture: ClipOval(
                       child: CachedNetworkImage(
                         fit: BoxFit.cover,
@@ -42,13 +44,16 @@ class UserDrawer extends StatelessWidget {
                   ListTile(
                     title: Text("Edit Profile"),
                     leading: Icon(Icons.event_note),
-                    onTap: () {
+                    onTap: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
                       Navigator.of(context).pop();
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => UserProfile(
-                                    username: snapshot.data.displayName,
+                                    username: snapshot.data.displayName ??
+                                        prefs.getString('username'),
                                   )));
                     },
                   ),

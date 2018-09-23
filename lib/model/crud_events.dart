@@ -8,23 +8,24 @@ class ParolaFirebase extends Model {
   Future<void> deleteEvents({String eventKey, String eventName}) async {
     StorageReference deleteRef =
         FirebaseStorage.instance.ref().child("eventImages/$eventKey.jpg");
-
+    Firestore.instance.enablePersistence(true);
     await deleteRef.delete().then((del) {
       print("Deleted: $eventKey");
     });
-    await Firestore.instance
-        .collection('E-$eventKey')
-        .document()
+    Firestore.instance
+        .collection('events')
+        .document('$eventKey')
         .delete()
         .then((doc) {
       print('Deleted $eventName');
-    });
-    await Firestore.instance
-        .collection('events')
-        .document(eventKey)
-        .delete()
-        .then((doc) {
-      print("Deleted $eventName");
+    }).whenComplete(() {
+      Firestore.instance
+          .collection('${eventKey}_attendees')
+          .document()
+          .delete()
+          .then((doc) {
+        print("Deleted");
+      });
     });
     notifyListeners();
   }

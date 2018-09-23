@@ -65,9 +65,7 @@
 
 		<!--<service android:name="com.sensoro.beacon.kit.BeaconService"/>-->
 		<!--<service android:name="com.sensoro.beacon.kit.IntentProcessorService"/>-->
-<service
-    android:name="io.flutter.plugins.androidalarmmanager.AlarmService"
-    android:exported="false"/>
+
         
     <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
 <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">

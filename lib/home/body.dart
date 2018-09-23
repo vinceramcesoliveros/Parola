@@ -12,21 +12,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 class HomeBodyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ScopedModel<EventModel>(
-      model: EventModel(),
-      child: ScopedModelDescendant<EventModel>(
-        builder: (context, child, model) => StreamBuilder(
-            stream: model.events,
-            builder:
-                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (!snapshot.hasData)
-                return SpinKitThreeBounce(color: Colors.green[200]);
-              return EventListView(
-                eventDocuments: snapshot.data.documents,
-              );
-            }),
-      ),
-    );
+    return StreamBuilder(
+        stream: Firestore.instance.collection('events').snapshots(),
+        builder: (BuildContext context, snapshot) {
+          if (snapshot.hasData == null && !snapshot.hasData)
+            return SpinKitThreeBounce(color: Colors.green[200]);
+          return EventListView(
+            eventDocuments: snapshot.data.documents,
+          );
+        });
   }
 }
 
@@ -45,7 +39,6 @@ class EventListView extends StatelessWidget {
         String eventTitle = eventDocuments[index].data['eventName'].toString();
         DateTime eventDate = eventDocuments[index].data['eventDate'];
         String eventPic = eventDocuments[index].data['eventPicURL'].toString();
-        String eventKey = eventDocuments[index].documentID.toString();
         return Card(
           shape: BeveledRectangleBorder(
               borderRadius: BorderRadius.only(
@@ -57,22 +50,13 @@ class EventListView extends StatelessWidget {
             child: ListTile(
               title: Text(eventTitle),
               subtitle: Text("${DateFormat.yMMMd().format(eventDate)}"),
-              leading: CircleAvatar(
-                maxRadius: 32.0,
-                backgroundColor: Colors.green[300],
-                child: AspectRatio(
-                  aspectRatio: 1.0,
-                  child: CachedNetworkImage(
-                    imageUrl: eventPic,
-                  ),
-                ),
-              ),
+              leading: new EventImage(eventPic: eventPic),
               onTap: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 String username = prefs.getString('username');
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                        builder: (context) => DescPage( 
+                        builder: (context) => DescPage(
                               eventTitle: eventTitle,
                               username: username,
                             )),
@@ -82,6 +66,29 @@ class EventListView extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class EventImage extends StatelessWidget {
+  const EventImage({
+    Key key,
+    @required this.eventPic,
+  }) : super(key: key);
+
+  final String eventPic;
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      maxRadius: 32.0,
+      backgroundColor: Colors.green[300],
+      child: AspectRatio(
+        aspectRatio: 1.0,
+        child: CachedNetworkImage(
+          imageUrl: eventPic,
+        ),
+      ),
     );
   }
 }

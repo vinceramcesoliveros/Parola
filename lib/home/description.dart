@@ -24,6 +24,27 @@ class DescPage extends StatefulWidget {
 }
 
 class DescPageState extends State<DescPage> {
+  Future<Null> startBluetooth() async {
+    await FlutterScanBluetooth.startScan();
+  }
+
+  DateTime timeEnd, timeStart, eventDate;
+
+  List<DocumentSnapshot> eventDesc = List();
+  String description,
+      eventName,
+      eventLocation,
+      major,
+      minor,
+      beaconUUID,
+      eventKey;
+  @override
+  void initState() {
+    // TODO: implement initState
+    startBluetooth();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final descQuery = Firestore.instance
@@ -39,22 +60,27 @@ class DescPageState extends State<DescPage> {
             StreamBuilder(
               stream: descQuery,
               builder: (context, snapshot) {
-                List<DocumentSnapshot> eventDesc = snapshot.data.documents;
-                String description = eventDesc[0].data['eventDesc'].toString();
-                String eventName = eventDesc[0].data['eventName'].toString();
-                String eventLocation =
-                    eventDesc[0].data['eventLocation'].toString();
-                DateTime timeEnd = eventDesc[0].data['timeEnd'];
-                DateTime timeStart = eventDesc[0].data['timeStart'];
-                DateTime eventDate = eventDesc[0].data['eventDate'];
-                String major = eventDesc[0].data['Major'].toString();
-                String minor = eventDesc[0].data['Minor'].toString();
-                String beaconUUID = eventDesc[0].data['beaconUUID'].toString();
-                String eventKey = eventDesc[0].documentID.toString();
-                if (!snapshot.hasData)
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
+                eventDesc = snapshot.data.documents;
+                description = eventDesc[0].data['eventDesc'].toString();
+                eventName = eventDesc[0].data['eventName'].toString();
+
+                eventLocation = eventDesc[0].data['eventLocation'].toString();
+
+                timeEnd = eventDesc[0].data['timeEnd'];
+                timeStart = eventDesc[0].data['timeStart'];
+                eventDate = eventDesc[0].data['eventDate'];
+
+                major = eventDesc[0].data['Major'].toString();
+
+                minor = eventDesc[0].data['Minor'].toString();
+
+                beaconUUID = eventDesc[0].data['beaconUUID'].toString();
+
+                eventKey = eventDesc[0].documentID.toString();
+
+                if (snapshot.hasData == null && !snapshot.hasData)
+                  return Center(child: Text("Loading..."));
+                if (snapshot.hasError) return Text("Loading...");
                 return eventDesc[0].data['Admin'] == widget.username
                     ? IconButton(
                         icon: Icon(FontAwesomeIcons.solidEdit),
@@ -102,10 +128,13 @@ class DescPageState extends State<DescPage> {
                   major = eventDesc[0].data['Major'].toString(),
                   minor = eventDesc[0].data['Minor'].toString(),
                   eventKey = eventDesc[0].documentID.toString();
-              if (!snapshot.hasData) return SizedBox();
+
+              if (snapshot.hasData == null && !snapshot.hasData)
+                return Text("Loading...");
               return DateTime.now()
                           .isAfter(eventTimeEnd.add(Duration(hours: 1))) &&
-                      DateTime.now().isAfter(eventTimeStart)
+                      DateTime.now()
+                          .isBefore(eventTimeStart.add(Duration(hours: 1)))
                   ? SizedBox()
                   : FloatingActionButton.extended(
                       backgroundColor: Colors.red[200],
@@ -176,8 +205,8 @@ class DescBody extends StatelessWidget {
     return StreamBuilder(
       stream: descQuery,
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
-          return Center(child: CircularProgressIndicator());
+        if (snapshot.hasData == null && !snapshot.hasData)
+          return Center(child: Text("Loading..."));
         return DescListView(
           descDocuments: snapshot.data.documents,
           username: username,
@@ -215,7 +244,7 @@ class DescListView extends StatelessWidget {
                 imageUrl: imageURL,
               ),
             ),
-            DateTime.now().isAfter(eventTimeEnd.add(Duration(hours: 2)))
+            DateTime.now().isAfter(eventTimeEnd.add(Duration(hours: 1)))
                 ? SizedBox()
                 : Positioned(
                     child: FavButton(
@@ -269,30 +298,32 @@ class FavButtonState extends State<FavButton> {
   Future<bool> eventAttendance() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    if (isAttending) {
+    if (isAttending == true) {
       prefs.setBool('IsAttending', isAttending);
       Map<String, dynamic> status = {
         "Connected": false,
         "Distance": null,
       };
+
+      /// Will be registered as an attendee in that event
       Map<String, dynamic> setAttendees = {
-        widget.eventKey: {
-          "eventName": widget.eventTitle,
-          "userid": prefs.getString('userid'),
-          "Name": prefs.getString('username'),
-          "status": status,
-          "In": null,
-          "Out": null,
-        }
+        'eventID': widget.eventKey,
+        "eventName": widget.eventTitle,
+        "userid": prefs.getString('userid'),
+        "username": prefs.getString('username'),
+        "status": status,
+        "In": null,
+        "Out": null,
       };
       DocumentReference attendEvent = Firestore.instance.document(
           '${widget.eventKey}_attendees/${prefs.getString('userid')}');
       String date = DateFormat.yMMMd().format(widget.eventDate);
+      Firestore.instance.batch().updateData(attendEvent, setAttendees);
       Firestore.instance.runTransaction((tx) async {
         DocumentSnapshot snapshot = await tx.get(attendEvent);
         if (!snapshot.exists) {
           await tx.set(attendEvent, setAttendees);
-          Fluttertoast.showToast(
+          await Fluttertoast.showToast(
               msg: "You will be notified at $date",
               gravity: ToastGravity.BOTTOM,
               toastLength: Toast.LENGTH_LONG);
@@ -314,11 +345,10 @@ class FavButtonState extends State<FavButton> {
               : await localNotificationsPlugin.schedule(
                   0,
                   widget.eventTitle,
-                  "You have an event to attend today!",
+                  "You have an event to attend!",
                   widget.eventDate.subtract(Duration(hours: 10)),
                   notifDetails);
         }
-        ;
 
         print("Attended Event");
       });
@@ -343,8 +373,8 @@ class FavButtonState extends State<FavButton> {
   Widget build(BuildContext context) {
     return StreamBuilder(
         stream: Firestore.instance
-            .collection('${widget.eventKey}_attendees/')
-            .where("[${widget.eventKey}.Name", isEqualTo: widget.username)
+            .collection('${widget.eventKey}_attendees')
+            .where("Name", isEqualTo: widget.username)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return Text("Loading...");
@@ -364,7 +394,7 @@ class FavButtonState extends State<FavButton> {
                 ],
               ),
               onPressed: () {
-                this.setState(() {
+                setState(() {
                   isAttending = true;
                   eventAttendance();
                 });
@@ -384,7 +414,7 @@ class FavButtonState extends State<FavButton> {
                 ],
               ),
               onPressed: () {
-                this.setState(() {
+                setState(() {
                   isAttending = false;
                   eventAttendance();
                 });

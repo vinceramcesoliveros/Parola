@@ -25,33 +25,36 @@ class _IntroductionPageState extends State<IntroductionPage> {
             TextStyle titleStyle = Theme.of(context).textTheme.title;
             List<PageViewModel> pageList = [
               PageViewModel(
-                  iconImageAssetPath: 'assets/iconLighthouse.png',
-                  pageColor: Colors.grey[400],
-                  mainImage: Image.asset(
-                    'assets/lighthouse_app.png',
-                    fit: BoxFit.fill,
-                    height: MediaQuery.of(context).size.shortestSide,
-                    width: MediaQuery.of(context).size.longestSide,
-                  ),
-                  title: Text(
-                    "Welcome to Parola",
-                    style: titleStyle,
-                  ),
-                  body: Text(
-                      "Parola - came from a Filipino word  for 'Lighthouse'")),
+                iconImageAssetPath: 'assets/iconLighthouse.png',
+                pageColor: Colors.grey[400],
+                mainImage: Image.asset(
+                  'assets/lighthouse_app.png',
+                  fit: BoxFit.fill,
+                  height: MediaQuery.of(context).size.shortestSide,
+                  width: MediaQuery.of(context).size.longestSide,
+                ),
+                title: Text(
+                  "Welcome to Parola",
+                  style: titleStyle,
+                ),
+                body: Column(children: <Widget>[
+                  Text(
+                      'Hi ${model.user.displayName}! If it\'s not your real name, you can change it in the settings')
+                ]),
+              ),
               PageViewModel(
-                pageColor: model.batteryLevel >= 50
+                pageColor: model.batteryLevel >= 20
                     ? Colors.green[300]
                     : Colors.red[200],
                 iconImageAssetPath: 'assets/icons8-empty-battery-50.png',
-                mainImage: model.batteryLevel >= 50
+                mainImage: model.batteryLevel >= 20
                     ? Image.asset('assets/battery_charge.png')
                     : Image.asset('assets/lowbat.png'),
                 title: Text(
                   "Battery Life",
                   style: titleStyle,
                 ),
-                body: model.batteryLevel >= 50
+                body: model.batteryLevel >= 20
                     ? Text(
                         "Your battery Life is ${model.batteryLevel}%, Make sure to have plenty of energy left!",
                       )
