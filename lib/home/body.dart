@@ -1,25 +1,28 @@
 import 'package:final_parola/home/description.dart';
-import 'package:final_parola/model/event_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeBodyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: Firestore.instance.collection('events').snapshots(),
+    return StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance
+            .collection('events')
+            .orderBy('timeStart', descending: true)
+            .snapshots(),
         builder: (BuildContext context, snapshot) {
-          if (snapshot.hasData == null && !snapshot.hasData)
+          if (!snapshot.hasData) {
             return SpinKitThreeBounce(color: Colors.green[200]);
-          return EventListView(
-            eventDocuments: snapshot.data.documents,
-          );
+          } else {
+            return EventListView(
+              eventDocuments: snapshot.data.documents,
+            );
+          }
         });
   }
 }
@@ -48,8 +51,8 @@ class EventListView extends StatelessWidget {
           elevation: 16.0,
           child: GestureDetector(
             child: ListTile(
-              title: Text(eventTitle),
-              subtitle: Text("${DateFormat.yMMMd().format(eventDate)}"),
+              title: Text(eventDocuments[index].data['eventName'].toString()),
+              subtitle: Text(DateFormat.yMMMd().format(eventDate)),
               leading: new EventImage(eventPic: eventPic),
               onTap: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -57,7 +60,9 @@ class EventListView extends StatelessWidget {
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => DescPage(
-                              eventTitle: eventTitle,
+                              eventTitle: eventDocuments[index]
+                                  .data['eventName']
+                                  .toString(),
                               username: username,
                             )),
                     (p) => true);
@@ -87,6 +92,7 @@ class EventImage extends StatelessWidget {
         aspectRatio: 1.0,
         child: CachedNetworkImage(
           imageUrl: eventPic,
+          placeholder: CircularProgressIndicator(),
         ),
       ),
     );

@@ -5,7 +5,6 @@ import 'package:final_parola/events/date_time.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditEventPage extends StatefulWidget {
@@ -51,7 +50,7 @@ class _EditEventPageState extends State<EditEventPage> {
         timeEnd = widget.timeEnd,
         timeStart = widget.timeStart;
     Future<Null> editEvent() async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
 
       DateTime finalStartDate = new DateTime(eventDate.year, eventDate.month,
           eventDate.day, timeStart.hour, timeStart.minute);

@@ -21,24 +21,30 @@ class UpcomingEventBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: Firestore.instance
-          .collection('events')
-          .where('eventDate', isEqualTo: DateTime.now())
-          .snapshots(),
+      stream: Firestore.instance.collection('events').snapshots(),
       builder: (context, snapshot) {
         List<DocumentSnapshot> eventListDocuments = snapshot.data.documents;
-        return ListView.builder(
-          itemCount: snapshot.data.documents.length,
-          itemBuilder: (context, index) {
-            DateTime eventDate = eventListDocuments[index].data['timeStart'];
-            String eventName =
-                eventListDocuments[index].data['eventName'].toString();
-            ListTile(
-              title: Text(eventName),
-              subtitle: Text(DateFormat.yMMMd().format(eventDate).toString()),
-            );
-          },
-        );
+        if (!snapshot.hasData) {
+          return Center(
+                  child: Text("No events Today"));
+        } else {
+          return ListView.builder(
+            itemCount: snapshot.data.documents.length,
+            itemBuilder: (context, index) {
+              DateTime eventDate = eventListDocuments[index].data['timeStart'];
+              String eventName =
+                  eventListDocuments[index].data['eventName'].toString();
+              if (DateFormat.yMMMd().format(eventDate) ==
+                  DateFormat.yMMMd().format(DateTime.now())) {
+                return ListTile(
+                  title: Text(eventName),
+                  subtitle:
+                      Text(DateFormat.yMMMd().format(eventDate).toString()),
+                );
+              }
+            },
+          );
+        }
       },
     );
   }

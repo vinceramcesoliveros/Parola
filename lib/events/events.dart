@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:final_parola/home/organization.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,8 @@ import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:path_provider/path_provider.dart';
 
 class EventPage extends StatefulWidget {
+  final String userid;
+  EventPage({this.userid});
   @override
   EventPageState createState() {
     return new EventPageState();
@@ -56,7 +59,6 @@ class EventPageState extends State<EventPage> {
     super.dispose();
     beaconController.dispose();
   }
-
 
   Future<Null> addEvent() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -134,25 +136,6 @@ class EventPageState extends State<EventPage> {
         child: Text("CSD"),
         value: "csd",
       ),
-      DropdownMenuItem(
-        child: FlatButton(
-            child: Text("Add New"),
-            onPressed: () async => await showDialog(
-                context: context,
-                builder: (context) => SimpleDialog(
-                      contentPadding: EdgeInsets.fromLTRB(0.0, 24.0, 0.0, 0.0),
-                      title: Text("Add Organization"),
-                      children: <Widget>[
-                        SimpleDialogOption(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text("Add"),
-                        )
-                      ],
-                    ))),
-        value: "add new",
-      )
     ];
     return Scaffold(
       key: _scaffoldKey,
@@ -170,7 +153,7 @@ class EventPageState extends State<EventPage> {
                 beaconController.text != null
                     ? await uploadFile(_image.path).whenComplete(() async {
                         submitEvent();
-                      }).whenComplete(() {
+                      }).then((e) {
                         addEvent();
                         Fluttertoast.showToast(
                             msg: "Successfully created event!");
@@ -276,10 +259,54 @@ class EventPageState extends State<EventPage> {
                       ),
                       Expanded(
                         flex: 1,
-                        child: DropdownButton(
-                            hint: Text("Select Organization"),
-                            items: orgMenu,
-                            onChanged: (val) {}),
+                        child: StreamBuilder(
+                            stream: Firestore.instance
+                                .collection('organization')
+                                .where('owner', isEqualTo: widget.userid)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              List<DocumentSnapshot> orgSnapshots =
+                                  snapshot.data.documents;
+                              if (!snapshot.hasData)
+                                return DropdownButton(
+                                    onChanged: null, items: []);
+                              return DropdownButton(
+                                  hint: Text("Select Organization"),
+                                  items: orgSnapshots.isNotEmpty
+                                      ? orgSnapshots
+                                          .map((DocumentSnapshot value) {
+                                          return DropdownMenuItem<
+                                              DocumentSnapshot>(
+                                            child: Text(value.data['orgName']),
+                                            value: value.data['orgName'],
+                                          );
+                                        }).toList()
+                                      : [
+                                          // orgSnapshots.isEmpty ? ListView.builder(itemBuilder:(context,index){
+                                          //   return  DropdownMenuItem(child: Text(""),);
+                                          // }):
+                                          // }): DropdownMenuItem(child: Text("Empty")),
+                                          DropdownMenuItem(
+                                              child: FlatButton(
+                                                  child: Text("Add New"),
+                                                  onPressed: () async {
+                                                    SharedPreferences prefs =
+                                                        await SharedPreferences
+                                                            .getInstance();
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                OrganizationLists(
+                                                                    userid: prefs
+                                                                        .getString(
+                                                                            'userid'))));
+                                                  }))
+                                        ],
+                                  onChanged: (val) {
+                                    orgMenu = val;
+                                  });
+                            }),
                       )
                     ],
                   ),

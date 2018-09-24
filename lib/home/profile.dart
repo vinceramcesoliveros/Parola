@@ -1,5 +1,7 @@
 import 'package:final_parola/home/about.dart';
+import 'package:final_parola/home/eventBody.dart';
 import 'package:final_parola/home/exit.dart';
+import 'package:final_parola/login/login.dart';
 import 'package:final_parola/profile/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,11 +13,10 @@ class UserDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.longestSide / 3,
-      child: StreamBuilder(
+      child: StreamBuilder<FirebaseUser>(
           stream: FirebaseAuth.instance.currentUser().asStream(),
           builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
-            if (snapshot.data.displayName == null && !snapshot.hasData)
-              return Text("Loading...");
+            if (!snapshot.hasData) return Text("Loading...");
             return Drawer(
               semanticLabel: "Open Settings",
               elevation: 0.0,
@@ -36,25 +37,50 @@ class UserDrawer extends StatelessWidget {
                   ),
                   ListTile(
                       title: Text("Read Tutorial"),
-                      leading: Icon(Icons.settings),
+                      leading: Icon(Icons.inbox),
                       onTap: () {
                         Navigator.of(context).pushNamedAndRemoveUntil(
                             '/introduction', ModalRoute.withName('/home'));
                       }),
                   ListTile(
-                    title: Text("Edit Profile"),
+                    title: Text("Events"),
                     leading: Icon(Icons.event_note),
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => EventBodyPage()));
+                    },
+                  ),
+                  ListTile(
+                    title: Text("Edit Profile"),
+                    leading: Icon(Icons.person),
                     onTap: () async {
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
                       Navigator.of(context).pop();
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => UserProfile(
-                                    username: snapshot.data.displayName ??
-                                        prefs.getString('username'),
-                                  )));
+                      snapshot.data.displayName == null
+                          ? showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: Text("Warning"),
+                                    content: Text(
+                                        "You need to sign in again for verification"),
+                                    actions: <Widget>[
+                                      FlatButton(
+                                        child: Text("Okay"),
+                                        onPressed: () =>
+                                            Navigator.pushReplacementNamed(
+                                                context, '/login'),
+                                      )
+                                    ],
+                                  ),
+                            )
+                          : Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UserProfile(
+                                        username: snapshot.data.displayName ??
+                                            prefs.getString('username'),
+                                      )));
                     },
                   ),
                   ExitParola(),

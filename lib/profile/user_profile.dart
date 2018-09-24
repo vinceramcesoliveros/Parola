@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,41 +18,84 @@ class UserProfile extends StatelessWidget {
           elevation: 0.0,
           backgroundColor: Colors.green[400],
         ),
-        body: UserCard());
+        body: UserCard(
+          username: username,
+        ));
   }
 }
 
 class UserCard extends StatelessWidget {
-  const UserCard({
+  final String username;
+
+  UserCard({
+    this.username,
     Key key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Card(
-        child: StreamBuilder(
-          
-          stream: FirebaseAuth.instance.currentUser().asStream(),
-          builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
-            if (snapshot.hasData == null && !snapshot.hasData)
-              return Text("Loading...");
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Center(
-                  child: ClipOval(
-                    clipBehavior: Clip.hardEdge,
-                    child: CachedNetworkImage(imageUrl: snapshot.data.photoUrl),
-                  ),
-                ),
-                Text(snapshot.data.displayName,
-                    style: Theme.of(context).textTheme.display1),
-                EditProfile(),
-              ],
-            );
-          },
-        ),
+      child: Column(
+        children: <Widget>[
+          Card(
+            child: StreamBuilder(
+              stream: FirebaseAuth.instance.currentUser().asStream(),
+              builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
+                if (!snapshot.hasData)
+                  return Text("Loading...");
+                else {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Center(
+                        child: ClipOval(
+                          clipBehavior: Clip.hardEdge,
+                          child: CachedNetworkImage(
+                              imageUrl: snapshot.data.photoUrl),
+                        ),
+                      ),
+                      Text(snapshot.data.displayName,
+                          style: Theme.of(context).textTheme.display1),
+                      EditProfile(),
+                    ],
+                  );
+                }
+              },
+            ),
+          ),
+          SizedBox(
+            height: 8.0,
+          ),
+          Card(
+            child: StreamBuilder(
+                stream: Firestore.instance
+                    .collection('organization')
+                    .where('owner', isEqualTo: username)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  List<DocumentSnapshot> orgSnapshot = snapshot.data.documents;
+                  if (!snapshot.hasData) return CircularProgressIndicator();
+                  return orgSnapshot.isEmpty
+                      ? Text(
+                          "No Organization",
+                          style: Theme.of(context).textTheme.display1,
+                        )
+                      : Column(
+                          children: <Widget>[
+                            Text(
+                              "Organization",
+                              style: Theme.of(context).textTheme.display1,
+                            ),
+                            Text(
+                              snapshot.data.documents[0].data['orgName']
+                                  .toString(),
+                              style: Theme.of(context).textTheme.title,
+                            )
+                          ],
+                        );
+                }),
+          )
+        ],
       ),
     );
   }
@@ -63,7 +108,11 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   List<String> eventListName = List();
-  TextEditingController nameController = new TextEditingController();
+  TextEditingController firstNameController = new TextEditingController();
+
+  TextEditingController lastNameController = new TextEditingController();
+
+  TextEditingController middleNameController = new TextEditingController();
   @override
   void initState() {
     queryAllEvents();
@@ -106,9 +155,17 @@ class _EditProfileState extends State<EditProfile> {
                     title: Text("Edit Profile"),
                     children: <Widget>[
                       TextFormField(
-                          controller: nameController,
+                          controller: firstNameController,
+                          decoration: InputDecoration.collapsed(
+                              hintText: "First Name")),
+                      TextFormField(
+                          controller: lastNameController,
+                          decoration: InputDecoration.collapsed(
+                              hintText: "Middle Name")),
+                      TextFormField(
+                          controller: middleNameController,
                           decoration:
-                              InputDecoration.collapsed(hintText: "Name")),
+                              InputDecoration.collapsed(hintText: "Last Name")),
                       ButtonTheme.bar(
                           child: ButtonBar(
                         children: <Widget>[
@@ -118,11 +175,14 @@ class _EditProfileState extends State<EditProfile> {
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 UserUpdateInfo updateInfo = UserUpdateInfo();
-                                updateInfo.displayName = nameController.text;
-                                prefs.setString(
-                                    'username', nameController.text);
+                                updateInfo.displayName =
+                                    "${firstNameController.text} ${middleNameController.text} ${lastNameController.text}";
+                                prefs.setString('username',
+                                    "${firstNameController.text} ${middleNameController.text} ${lastNameController.text}");
                                 Map<String, dynamic> updateName = {
-                                  "username": nameController.text
+                                  "firstName": firstNameController.text,
+                                  "lastName": lastNameController.text,
+                                  "middleName": middleNameController.text
                                 };
                                 await FirebaseAuth.instance
                                     .updateProfile(updateInfo)
