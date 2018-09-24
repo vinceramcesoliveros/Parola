@@ -24,11 +24,7 @@ dependencies:
   flutter_local_notifications:
   flutter_masked_text:
   splashscreen:
-  fluro:
-  flutter_offline:  
   flutter_spinkit:
-  flutter_blue:
-  flutter_search_bar:
   fluttertoast:
   path_provider:
   

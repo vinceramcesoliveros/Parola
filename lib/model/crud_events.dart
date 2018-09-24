@@ -9,24 +9,32 @@ class ParolaFirebase extends Model {
     StorageReference deleteRef =
         FirebaseStorage.instance.ref().child("eventImages/$eventKey.jpg");
     Firestore.instance.enablePersistence(true);
+    final eventKeyAttendees = Firestore.instance
+        .collection('${eventKey.toString()}_attendees')
+        .snapshots();
+    final eventAttendees =
+        Firestore.instance.collection('${eventKey.toString()}_attendees');
+    final eventKeys =
+        Firestore.instance.collection('events').document('$eventKey');
     await deleteRef.delete().then((del) {
       print("Deleted: $eventKey");
     });
-    Firestore.instance
-        .collection('events')
-        .document('$eventKey')
-        .delete()
-        .then((doc) {
-      print('Deleted $eventName');
-    }).whenComplete(() {
-      Firestore.instance
-          .collection('${eventKey}_attendees')
-          .document()
-          .delete()
-          .then((doc) {
-        print("Deleted");
+
+    eventKeyAttendees.listen((data) {
+      data.documents.forEach((documents) {
+        return eventAttendees
+            .document(documents.documentID)
+            .delete()
+            .then((doc) {
+          print("Deleted $eventKey");
+        }).whenComplete(() {
+          eventKeys.delete().then((doc) {
+            print('Deleted $eventKey from events');
+          });
+        });
       });
     });
+
     notifyListeners();
   }
 }

@@ -73,13 +73,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.14.11"
-  connectivity:
-    dependency: transitive
-    description:
-      name: connectivity
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.1"
   convert:
     dependency: transitive
     description:
@@ -129,32 +122,11 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
-  fixnum:
-    dependency: transitive
-    description:
-      name: fixnum
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.10.8"
-  fluro:
-    dependency: "direct main"
-    description:
-      name: fluro
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.3.4"
   flutter:
     dependency: "direct main"
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_blue:
-    dependency: "direct main"
-    description:
-      name: flutter_blue
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.4.0"
   flutter_cache_manager:
     dependency: transitive
     description:
@@ -185,13 +157,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.0"
-  flutter_offline:
-    dependency: "direct main"
-    description:
-      name: flutter_offline
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.0"
   flutter_scan_bluetooth:
     dependency: "direct main"
     description:
@@ -199,13 +164,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.6"
-  flutter_search_bar:
-    dependency: "direct main"
-    description:
-      name: flutter_search_bar
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.6"
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -301,7 +259,7 @@ packages:
       name: intro_views_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.4"
+    version: "2.3.0"
   io:
     dependency: transitive
     description:
@@ -421,13 +379,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.6"
-  protobuf:
-    dependency: transitive
-    description:
-      name: protobuf
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.9.1"
   pub_semver:
     dependency: transitive
     description:
@@ -551,7 +502,7 @@ packages:
       name: synchronized
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.5.1+1"
+    version: "1.5.3"
   term_glyph:
     dependency: transitive
     description:
@@ -623,5 +574,5 @@ packages:
     source: hosted
     version: "2.1.15"
 sdks:
-  dart: ">=2.0.0-dev.68.0 <3.0.0"
+  dart: ">=2.0.0 <3.0.0"
   flutter: ">=0.2.4 <2.0.0"

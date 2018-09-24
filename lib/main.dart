@@ -13,7 +13,6 @@
 
 import 'dart:async';
 
-import 'package:beacons/beacons.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/admin/eventAdmin.dart';
 

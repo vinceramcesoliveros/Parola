@@ -31,27 +31,18 @@ class MyScaffoldState extends State<MyScaffold> {
   //               value: "eventLocation", child: Text("Sort by Location"))
   //         ])
 
-  HomeBodyPage homeBodyPage;
-  EventBodyPage eventBodyPage;
-  List<Widget> pages;
   List<String> eventLists = new List();
-  Widget currentPage;
-  int currentIndex = 0;
   String username;
   @override
   void initState() {
-    homeBodyPage = HomeBodyPage();
-    eventBodyPage = EventBodyPage();
-    pages = [homeBodyPage, eventBodyPage];
-    currentPage = homeBodyPage;
     queryEvents();
     super.initState();
   }
-   void dispose(){
 
-     super.dispose();
-     
-   }
+  void dispose() {
+    super.dispose();
+  }
+
   Future<Null> queryEvents() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     username = prefs.getString('username');
@@ -68,7 +59,7 @@ class MyScaffoldState extends State<MyScaffold> {
         backgroundColor: Colors.green[200],
         appBar: AppBar(
           brightness: Brightness.light,
-          title: currentIndex == 0 ? Text("Home") : Text("Events"),
+          title: Text("Home"),
           elevation: 4.0,
           backgroundColor: Colors.green[300],
           centerTitle: true,
@@ -93,28 +84,9 @@ class MyScaffoldState extends State<MyScaffold> {
           ),
           onPressed: () => Navigator.of(context).pushNamed('/event'),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         drawer: UserDrawer(),
-        body: currentPage,
-        bottomNavigationBar: BottomNavigationBar(
-          iconSize: 32.0,
-          fixedColor: Colors.green[700],
-          currentIndex: currentIndex,
-          onTap: (current) {
-            setState(() {
-              currentIndex = current;
-              currentPage = pages[current];
-            });
-          },
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              title: Text("Home"),
-            ),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.event_available), title: Text("Events"))
-          ],
-        ),
+        body: HomeBodyPage(),
       ),
     );
   }

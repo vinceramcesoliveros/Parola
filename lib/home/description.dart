@@ -41,7 +41,7 @@ class DescPageState extends State<DescPage> {
   @override
   void initState() {
     // TODO: implement initState
-    startBluetooth();
+
     super.initState();
   }
 
@@ -78,41 +78,42 @@ class DescPageState extends State<DescPage> {
 
                 eventKey = eventDesc[0].documentID.toString();
 
-                if (snapshot.hasData == null && !snapshot.hasData)
+                if (!snapshot.hasData) {
                   return Center(child: Text("Loading..."));
-                if (snapshot.hasError) return Text("Loading...");
-                return eventDesc[0].data['Admin'] == widget.username
-                    ? IconButton(
-                        icon: Icon(FontAwesomeIcons.solidEdit),
-                        onPressed: () async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          if (eventDesc[0].data['Admin'] ==
-                              prefs.getString('username')) {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => EditEventPage(
-                                    eventKey: eventKey,
-                                    eventName: eventName,
-                                    description: description,
-                                    eventLocation: eventLocation,
-                                    eventDate: eventDate,
-                                    timeStart: timeStart,
-                                    timeEnd: timeEnd,
-                                    beacon: beaconUUID,
-                                    major: major,
-                                    minor: minor)));
-                          } else {
-                            Fluttertoast.showToast(
-                              msg:
-                                  "You don't have permission to edit the event",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIos: 1,
-                            );
-                          }
-                        },
-                      )
-                    : Text("");
+                } else {
+                  return eventDesc[0].data['Admin'] == widget.username
+                      ? IconButton(
+                          icon: Icon(FontAwesomeIcons.solidEdit),
+                          onPressed: () async {
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            if (eventDesc[0].data['Admin'] ==
+                                prefs.getString('username')) {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => EditEventPage(
+                                      eventKey: eventKey,
+                                      eventName: eventName,
+                                      description: description,
+                                      eventLocation: eventLocation,
+                                      eventDate: eventDate,
+                                      timeStart: timeStart,
+                                      timeEnd: timeEnd,
+                                      beacon: beaconUUID,
+                                      major: major,
+                                      minor: minor)));
+                            } else {
+                              Fluttertoast.showToast(
+                                msg:
+                                    "You don't have permission to edit the event",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIos: 1,
+                              );
+                            }
+                          },
+                        )
+                      : Text("");
+                }
               },
             )
           ],
@@ -129,60 +130,62 @@ class DescPageState extends State<DescPage> {
                   minor = eventDesc[0].data['Minor'].toString(),
                   eventKey = eventDesc[0].documentID.toString();
 
-              if (snapshot.hasData == null && !snapshot.hasData)
+              if (!snapshot.hasData)
                 return Text("Loading...");
-              return DateTime.now()
-                          .isAfter(eventTimeEnd.add(Duration(hours: 1))) &&
-                      DateTime.now()
-                          .isBefore(eventTimeStart.add(Duration(hours: 1)))
-                  ? SizedBox()
-                  : FloatingActionButton.extended(
-                      backgroundColor: Colors.red[200],
-                      icon: Icon(Icons.event),
-                      label: Text(
-                        "Attend Event",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      onPressed: () async {
-                        if (DateTime.now().isAfter(
-                                eventTimeStart.subtract(Duration(hours: 2))) &&
-                            DateTime.now().isBefore(eventTimeEnd)) {
-                          await FlutterScanBluetooth.startScan(
-                                  pairedDevices: false)
-                              .catchError((e) => print(e))
-                              .whenComplete(() =>
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => MonitoringTab(
-                                            eventKey: eventKey,
-                                            eventTitle: widget.eventTitle,
-                                            beaconID: beaconID,
-                                            major: major,
-                                            minor: minor,
-                                            eventDateStart: eventDate,
-                                            eventTimeStart: eventTimeStart,
-                                            eventTimeEnd: eventTimeEnd,
-                                          ))));
-                        } else {
-                          print("Event is not open yet");
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                                  title: Text("CLOSED"),
-                                  content: Text(
-                                      "The event may not be available at the moment"),
-                                  actions: <Widget>[
-                                    FlatButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(),
-                                      child: Text("Okay"),
-                                    )
-                                  ],
-                                ),
-                          );
-                        }
-                        // onPressed: () {
-                        //   //Directs to to ConnectBeacon if the date is today.
-                      });
+              else {
+                return DateTime.now()
+                            .isAfter(eventTimeEnd.add(Duration(hours: 1))) &&
+                        DateTime.now()
+                            .isBefore(eventTimeStart.add(Duration(hours: 1)))
+                    ? SizedBox()
+                    : FloatingActionButton.extended(
+                        backgroundColor: Colors.red[200],
+                        icon: Icon(Icons.event),
+                        label: Text(
+                          "Attend Event",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () async {
+                          if (DateTime.now().isAfter(eventTimeStart
+                                  .subtract(Duration(minutes: 30))) &&
+                              DateTime.now().isBefore(eventTimeEnd)) {
+                            await FlutterScanBluetooth.startScan(
+                                    pairedDevices: false)
+                                .catchError((e) => print(e))
+                                .whenComplete(() => Navigator.of(context)
+                                    .push(MaterialPageRoute(
+                                        builder: (context) => MonitoringTab(
+                                              eventKey: eventKey,
+                                              eventTitle: widget.eventTitle,
+                                              beaconID: beaconID,
+                                              major: major,
+                                              minor: minor,
+                                              eventDateStart: eventDate,
+                                              eventTimeStart: eventTimeStart,
+                                              eventTimeEnd: eventTimeEnd,
+                                            ))));
+                          } else {
+                            print("Event is not open yet");
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: Text("CLOSED"),
+                                    content: Text(
+                                        "The event may not be available at the moment"),
+                                    actions: <Widget>[
+                                      FlatButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        child: Text("Okay"),
+                                      )
+                                    ],
+                                  ),
+                            );
+                          }
+                          // onPressed: () {
+                          //   //Directs to to ConnectBeacon if the date is today.
+                        });
+              }
             }),
         body: DescBody(
           eventTitle: widget.eventTitle,
@@ -205,12 +208,15 @@ class DescBody extends StatelessWidget {
     return StreamBuilder(
       stream: descQuery,
       builder: (context, snapshot) {
-        if (snapshot.hasData == null && !snapshot.hasData)
+        final List<DocumentSnapshot> docs = snapshot.data.documents;
+        if (!snapshot.hasData && snapshot.hasError && docs.isNotEmpty)
           return Center(child: Text("Loading..."));
-        return DescListView(
-          descDocuments: snapshot.data.documents,
-          username: username,
-        );
+        else {
+          return DescListView(
+            descDocuments: snapshot.data.documents,
+            username: username,
+          );
+        }
       },
     );
   }
@@ -242,6 +248,7 @@ class DescListView extends StatelessWidget {
               aspectRatio: 16.0 / 9.0,
               child: CachedNetworkImage(
                 imageUrl: imageURL,
+                placeholder: CircularProgressIndicator(),
               ),
             ),
             DateTime.now().isAfter(eventTimeEnd.add(Duration(hours: 1)))
@@ -292,6 +299,7 @@ class FavButton extends StatefulWidget {
 
 class FavButtonState extends State<FavButton> {
   bool isAttending = false;
+  int notif = 0;
 
   FlutterLocalNotificationsPlugin localNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -337,13 +345,13 @@ class FavButtonState extends State<FavButton> {
               NotificationDetails(androidNotification, iosNotification);
           date != DateFormat.yMMMd().format(DateTime.now())
               ? localNotificationsPlugin.schedule(
-                  0,
+                  notif++,
                   widget.eventTitle,
                   "You have an event to attend, please be on time of the event",
                   widget.eventDate,
                   notifDetails)
               : await localNotificationsPlugin.schedule(
-                  0,
+                  notif++,
                   widget.eventTitle,
                   "You have an event to attend!",
                   widget.eventDate.subtract(Duration(hours: 10)),
@@ -374,11 +382,12 @@ class FavButtonState extends State<FavButton> {
     return StreamBuilder(
         stream: Firestore.instance
             .collection('${widget.eventKey}_attendees')
-            .where("Name", isEqualTo: widget.username)
+            .where("username", isEqualTo: widget.username)
             .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return Text("Loading...");
-          if (snapshot.data.documents.isEmpty) {
+          List<DocumentSnapshot> hasAttended = snapshot.data.documents;
+          if (!snapshot.hasData) return CircularProgressIndicator();
+          if (hasAttended.isEmpty) {
             return RaisedButton(
               color: Colors.green[200],
               child: Row(
@@ -394,7 +403,7 @@ class FavButtonState extends State<FavButton> {
                 ],
               ),
               onPressed: () {
-                setState(() {
+                this.setState(() {
                   isAttending = true;
                   eventAttendance();
                 });
@@ -414,7 +423,7 @@ class FavButtonState extends State<FavButton> {
                 ],
               ),
               onPressed: () {
-                setState(() {
+                this.setState(() {
                   isAttending = false;
                   eventAttendance();
                 });

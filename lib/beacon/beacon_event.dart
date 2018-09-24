@@ -217,7 +217,7 @@ class _ListTabState extends State<ListTab> {
                     widget.eventTimeEnd.isBefore(
                         widget.eventTimeEnd.add(Duration(minutes: 10)))
                 ? "Completed"
-                : "Half-completed"
+                : "Absent"
           };
           result.distance < 7.0
               ? _showOngoingNotification(

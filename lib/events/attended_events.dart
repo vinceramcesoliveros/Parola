@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,40 +47,42 @@ class AttendedEventBodyState extends State<AttendedEventBody> {
           .snapshots(),
       builder: (context, snapshot) {
         List<DocumentSnapshot> attendedEvents = snapshot.data.documents;
-
-        if (snapshot.hasData == null && !snapshot.hasData)
+        if (snapshot.data.documents.isEmpty)
+          return Center(child: Text("No events attended"));
+        if (!snapshot.hasData) {
           return Text("Loading...");
-
-        if (snapshot.hasError) return Text("Loading...");
-        return ListView.builder(
-          itemBuilder: (context, index) {
-            String attendanceIn = attendedEvents[index].data['In'];
-            String attendanceOut =
-                attendedEvents[index].data['Out'].toString() ?? "UNATTENDED";
-            String eventName =
-                attendedEvents[index].data['eventName'].toString();
-            return ListView.builder(
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text("${index + 1} $eventName"),
-                  subtitle: Row(
-                    children: <Widget>[
-                      Text(
-                        "In:$attendanceIn",
-                      ),
-                      Icon(
-                          attendanceIn != "Absent" ? Icons.check : Icons.close),
-                      Text("OUT: $attendanceOut"),
-                      Icon(attendanceOut != "Half-Completed"
-                          ? Icons.check
-                          : Icons.close)
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        );
+        } else {
+          return ListView.builder(
+            itemBuilder: (context, index) {
+              String attendanceIn = attendedEvents[index].data['In'];
+              String attendanceOut =
+                  attendedEvents[index].data['Out'].toString() ?? "UNATTENDED";
+              String eventName =
+                  attendedEvents[index].data['eventName'].toString();
+              return ListView.builder(
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text("${index + 1} $eventName"),
+                    subtitle: Row(
+                      children: <Widget>[
+                        Text(
+                          "In:$attendanceIn",
+                        ),
+                        Icon(attendanceIn != "Absent"
+                            ? Icons.check
+                            : Icons.close),
+                        Text("OUT: $attendanceOut"),
+                        Icon(attendanceOut != "Half-Completed"
+                            ? Icons.check
+                            : Icons.close)
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        }
       },
     );
   }
