@@ -264,10 +264,10 @@ class _EditAttendeesState extends State<EditAttendees> {
                   RadioListTile(
                       title: Text("Excused"),
                       value: "Excused",
-                      groupValue: attendOut,
+                      groupValue: attendIn,
                       onChanged: (String val) {
                         setState(() {
-                          attendOut = val;
+                          attendIn = val;
                         });
                       }),
                   Text(
