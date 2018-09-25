@@ -1,19 +1,18 @@
 import 'dart:async';
-import 'dart:core';
 
-import 'package:beacons/beacons.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/beacon/_header.dart';
 import 'package:final_parola/beacon/result.dart';
 import 'package:flutter/material.dart';
+import 'package:beacons/beacons.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MonitoringTab extends ListTab {
+class OMonitoringTab extends ListTab {
   final String eventTitle, major, minor, beaconID, eventKey;
   final DateTime eventDateStart, eventTimeStart, eventTimeEnd;
-  MonitoringTab(
+  OMonitoringTab(
       {this.eventTitle,
       this.beaconID,
       this.major,
@@ -105,20 +104,6 @@ class _ListTabState extends State<ListTab> {
         selectNotification: onSelectNotification);
   }
 
-  Future<Null> signInAttendees(
-      {@required Duration duration,
-      @required DocumentReference attendees,
-      @required DocumentReference userRef}) async {
-    Fluttertoast.showToast(msg: "You are signed as attended");
-  }
-
-  Future<Null> signOutAttendees(
-      {@required Duration duration,
-      @required DocumentReference attendees,
-      @required DocumentReference userRef}) async {
-    Fluttertoast.showToast(msg: "Attendance Out!");
-  }
-
   Future onSelectNotification(String payload) async {
     if (payload != null) {
       debugPrint("notification payload:" + payload);
@@ -195,24 +180,28 @@ class _ListTabState extends State<ListTab> {
                   isSuccessful: false,
                   distance: null));
         }
-        Map<String, dynamic> setAttendees = {
+        // Map<String, dynamic> status = {
+        //   "Connected": result.isSuccessful,
+        //   "Distance": result.distance,
+        // };
+        // Map<String, dynamic> setAttendees = {
+        //   "status": status,
+        //   "In": widget.eventTimeStart
+        //           .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
+        //       ? "Late"
+        //       : "Present",
+        // };
+
+        Map<String, dynamic> outAttendance = {
           "eventName": widget.title,
           "userid": prefs.getString('userid'),
           "username": prefs.getString('username'),
-          "In": widget.eventTimeStart
-                  .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
-              ? "Late"
-              : "Present",
+          "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
+                  widget.eventTimeEnd
+                      .isBefore(widget.eventTimeEnd.add(Duration(minutes: 10)))
+              ? "Present"
+              : "Absent"
         };
-
-        // outAttendance = {
-        //   "eventID": widget.eventKey,
-        //   "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
-        //           widget.eventTimeEnd
-        //               .isBefore(widget.eventTimeEnd.add(Duration(minutes: 10)))
-        //       ? "Completed"
-        //       : "Absent"
-        // };
         result.distance < 7.0
             ? _showOngoingNotification(
                 successful:
@@ -225,9 +214,9 @@ class _ListTabState extends State<ListTab> {
         DocumentReference userRef = Firestore.instance.document(
             "event_attended_${prefs.getString('userid')}/${widget.eventKey}");
 
-        attendeesRef.updateData(setAttendees).then((e) {
-          userRef.setData(setAttendees, merge: true).then((e) {
-            print("Added to Attended Events");
+        attendeesRef.updateData(outAttendance).then((e) {
+          userRef.setData(outAttendance, merge: true).then((e) {
+            print("Attendance Out");
           });
         }).whenComplete(() {
           Fluttertoast.showToast(msg: "Attendance Out!");

@@ -17,6 +17,21 @@ class AttendeesLists extends StatefulWidget {
 }
 
 class AttendeesListsState extends State<AttendeesLists> {
+  List<String> attendeesLists = new List();
+
+  Future<Null> queryEvents() async {
+    Firestore.instance
+        .collection('${widget.eventKey}_attendees')
+        .snapshots()
+        .listen((data) => data.documents
+            .forEach((doc) => attendeesLists.add(doc["username"])));
+  }
+
+  void initState() {
+    queryEvents();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,6 +39,18 @@ class AttendeesListsState extends State<AttendeesLists> {
         title: Text("List of Attendees"),
         centerTitle: true,
         backgroundColor: Colors.green[200],
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                  context: context,
+                  delegate: AttendeeSearchQuery(
+                      attendeesLists: attendeesLists,
+                      eventKey: widget.eventKey));
+            },
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         label: Text("Add missing attendees"),
@@ -70,6 +97,7 @@ class AttendeesListsDocuments extends StatelessWidget {
           color: Colors.white,
           child: Column(children: [
             ListTile(
+              leading: Icon(Icons.person),
               trailing: IconButton(
                   icon: Icon(Icons.edit),
                   onPressed: () => Navigator.of(context).push(MaterialPageRoute(
@@ -102,5 +130,69 @@ class AttendeesListsDocuments extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class AttendeeSearchQuery extends SearchDelegate<String> {
+  final List<String> attendeesLists;
+  final String eventKey;
+  AttendeeSearchQuery({this.attendeesLists, this.eventKey});
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+          icon: Icon(Icons.clear),
+          onPressed: () {
+            query = "";
+          })
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+        icon: AnimatedIcon(
+            icon: AnimatedIcons.menu_arrow, progress: transitionAnimation),
+        onPressed: () {
+          close(context, null);
+        });
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return Center(child: Text(query));
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final searchQuery = attendeesLists.isEmpty
+        ? attendeesLists
+        : attendeesLists.where((p) => p.startsWith(query)).toSet().toList();
+    return attendeesLists == null
+        ? ListTile(
+            title: Text("Search Attendee"),
+          )
+        : ListView.builder(
+            itemCount: searchQuery.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                onTap: () async {
+                  query = searchQuery[0];
+                  showResults(context);
+                },
+                title: RichText(
+                    text: TextSpan(
+                        text: searchQuery[index].substring(0, query.length),
+                        style: TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.bold),
+                        children: [
+                      TextSpan(
+                          text: searchQuery[index].substring(query.length),
+                          style: TextStyle(color: Colors.white70))
+                    ])),
+                leading: Icon(Icons.person),
+              );
+            },
+          );
   }
 }

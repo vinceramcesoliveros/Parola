@@ -43,7 +43,7 @@ class AttendedEventBodyState extends State<AttendedEventBody> {
     return StreamBuilder(
       stream: Firestore.instance
           .collection("event_attended_$userid")
-          .where('Name', isEqualTo: widget.user)
+          .where("userid", isEqualTo: userid)
           .snapshots(),
       builder: (context, snapshot) {
         List<DocumentSnapshot> attendedEvents = snapshot.data.documents;
@@ -72,7 +72,7 @@ class AttendedEventBodyState extends State<AttendedEventBody> {
                             ? Icons.check
                             : Icons.close),
                         Text("OUT: $attendanceOut"),
-                        Icon(attendanceOut != "Half-Completed"
+                        Icon(attendanceOut != "Absent"
                             ? Icons.check
                             : Icons.close)
                       ],
