@@ -171,6 +171,7 @@ class EditAttendees extends StatefulWidget {
 class _EditAttendeesState extends State<EditAttendees> {
   GlobalKey<FormState> keyAttendee = GlobalKey<FormState>();
   String name, attendOut, attendIn, eventKey, id;
+
   Future<Null> setAttendees() async {
     Map<String, String> setAttendee = {
       "username": name,
@@ -178,11 +179,18 @@ class _EditAttendeesState extends State<EditAttendees> {
       "Out": attendOut,
       "eventKey": widget.eventKey
     };
+
+    final eventAttendeesQuery = Firestore.instance
+        .collection('events_attended_${widget.id}')
+        .document(widget.eventKey);
     final setQuery = Firestore.instance
         .collection('${widget.eventKey}_attendees')
         .document(widget.id);
     setQuery.updateData(setAttendee).then((e) {
       print("UPDATED");
+      eventAttendeesQuery.updateData(setAttendee).then((e) {
+        print("update attendee");
+      });
     });
   }
 

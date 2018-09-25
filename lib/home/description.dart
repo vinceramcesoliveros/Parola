@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:final_parola/beacon/beacon_event.dart';
+import 'package:final_parola/beacon/beacon_event_out.dart';
 import 'package:final_parola/events/edit_events.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -134,7 +135,7 @@ class DescPageState extends State<DescPage> {
                 return Text("Loading...");
               else {
                 return DateTime.now()
-                            .isAfter(eventTimeEnd.add(Duration(hours: 1))) &&
+                            .isAfter(eventTimeEnd.add(Duration(minutes: 30))) &&
                         DateTime.now()
                             .isBefore(eventTimeStart.add(Duration(hours: 1)))
                     ? SizedBox()
@@ -142,7 +143,11 @@ class DescPageState extends State<DescPage> {
                         backgroundColor: Colors.red[200],
                         icon: Icon(Icons.event),
                         label: Text(
-                          "Attend Event",
+                          DateTime.now().isAfter(eventTimeStart
+                                      .subtract(Duration(minutes: 30))) &&
+                                  DateTime.now().isBefore(eventTimeEnd)
+                              ? "Attendance IN"
+                              : "Attendance Out",
                           style: TextStyle(color: Colors.white),
                         ),
                         onPressed: () async {
@@ -155,6 +160,22 @@ class DescPageState extends State<DescPage> {
                                 .whenComplete(() => Navigator.of(context)
                                     .push(MaterialPageRoute(
                                         builder: (context) => MonitoringTab(
+                                              eventKey: eventKey,
+                                              eventTitle: widget.eventTitle,
+                                              beaconID: beaconID,
+                                              major: major,
+                                              minor: minor,
+                                              eventDateStart: eventDate,
+                                              eventTimeStart: eventTimeStart,
+                                              eventTimeEnd: eventTimeEnd,
+                                            ))));
+                          } else if (DateTime.now().isAfter(eventTimeEnd)) {
+                            await FlutterScanBluetooth.startScan(
+                                    pairedDevices: false)
+                                .catchError((e) => print(e))
+                                .whenComplete(() => Navigator.of(context)
+                                    .push(MaterialPageRoute(
+                                        builder: (context) => OMonitoringTab(
                                               eventKey: eventKey,
                                               eventTitle: widget.eventTitle,
                                               beaconID: beaconID,
@@ -308,10 +329,6 @@ class FavButtonState extends State<FavButton> {
 
     if (isAttending == true) {
       prefs.setBool('IsAttending', isAttending);
-      Map<String, dynamic> status = {
-        "Connected": false,
-        "Distance": null,
-      };
 
       /// Will be registered as an attendee in that event
       Map<String, dynamic> setAttendees = {
@@ -319,7 +336,6 @@ class FavButtonState extends State<FavButton> {
         "eventName": widget.eventTitle,
         "userid": prefs.getString('userid'),
         "username": prefs.getString('username'),
-        "status": status,
         "In": null,
         "Out": null,
       };
