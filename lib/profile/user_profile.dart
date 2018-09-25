@@ -66,35 +66,6 @@ class UserCard extends StatelessWidget {
           SizedBox(
             height: 8.0,
           ),
-          Card(
-            child: StreamBuilder(
-                stream: Firestore.instance
-                    .collection('organization')
-                    .where('owner', isEqualTo: username)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  List<DocumentSnapshot> orgSnapshot = snapshot.data.documents;
-                  if (!snapshot.hasData) return CircularProgressIndicator();
-                  return orgSnapshot.isEmpty
-                      ? Text(
-                          "No Organization",
-                          style: Theme.of(context).textTheme.display1,
-                        )
-                      : Column(
-                          children: <Widget>[
-                            Text(
-                              "Organization",
-                              style: Theme.of(context).textTheme.display1,
-                            ),
-                            Text(
-                              snapshot.data.documents[0].data['orgName']
-                                  .toString(),
-                              style: Theme.of(context).textTheme.title,
-                            )
-                          ],
-                        );
-                }),
-          )
         ],
       ),
     );

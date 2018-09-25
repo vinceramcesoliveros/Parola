@@ -27,20 +27,20 @@ class _AddAttendeesState extends State<AddAttendees> {
     Firestore.instance.batch().setData(addUser, setAttendee);
   }
 
+  void addAttendees() {
+    final form = keyAttendee.currentState;
+    if (form.validate()) {
+      form.save();
+      print(name + attendIn + attendOut);
+      setAttendees().whenComplete(() {
+        Fluttertoast.showToast(msg: "Added $name");
+        Navigator.pop(context);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    void addAttendees() {
-      final form = keyAttendee.currentState;
-      if (form.validate()) {
-        form.save();
-        print(name + attendIn + attendOut);
-        setAttendees().whenComplete(() {
-          Fluttertoast.showToast(msg: "Added $name");
-          Navigator.pop(context);
-        });
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green[400],
