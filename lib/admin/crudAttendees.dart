@@ -24,7 +24,9 @@ class _AddAttendeesState extends State<AddAttendees> {
         .collection('${widget.eventKey}_attendees')
         .document();
 
-    Firestore.instance.batch().setData(addUser, setAttendee);
+    addUser.setData(setAttendee).then((e) {
+      print("ADDED");
+    });
   }
 
   void addAttendees() {
@@ -100,10 +102,10 @@ class _AddAttendeesState extends State<AddAttendees> {
                   RadioListTile(
                       title: Text("Excused"),
                       value: "Excused",
-                      groupValue: attendOut,
+                      groupValue: attendIn,
                       onChanged: (String val) {
                         setState(() {
-                          attendOut = val;
+                          attendIn = val;
                         });
                       }),
                   Text(
@@ -174,12 +176,14 @@ class _EditAttendeesState extends State<EditAttendees> {
       "username": name,
       "In": attendIn,
       "Out": attendOut,
+      "eventKey": widget.eventKey
     };
     final setQuery = Firestore.instance
         .collection('${widget.eventKey}_attendees')
         .document(widget.id);
-
-    Firestore.instance.batch().updateData(setQuery, setAttendee);
+    setQuery.updateData(setAttendee).then((e) {
+      print("UPDATED");
+    });
   }
 
   @override
@@ -257,10 +261,10 @@ class _EditAttendeesState extends State<EditAttendees> {
                   RadioListTile(
                       title: Text("Excused"),
                       value: "Excused",
-                      groupValue: attendOut,
+                      groupValue: attendIn,
                       onChanged: (String val) {
                         setState(() {
-                          attendOut = val;
+                          attendIn = val;
                         });
                       }),
                   Text(

@@ -103,7 +103,6 @@ class _EditProfileState extends State<EditProfile> {
                   .listen((eventData) {
                 eventData.documents.forEach((eventDoc) {
                   eventListName.add(eventDoc['eventID']);
-                  print(eventDoc['eventName']);
                 });
                 // eventListName.add(eventData.documents[0].data['eventName']);
               });

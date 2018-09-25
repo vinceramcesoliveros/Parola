@@ -32,6 +32,8 @@ class EditEventPage extends StatefulWidget {
 }
 
 class _EditEventPageState extends State<EditEventPage> {
+  TimeOfDay eventTimeStart = const TimeOfDay(minute: 0, hour: 0);
+  TimeOfDay eventTimeEnd = const TimeOfDay(minute: 0, hour: 0);
   @override
   Widget build(BuildContext context) {
     String eventName = widget.eventName,
@@ -40,8 +42,6 @@ class _EditEventPageState extends State<EditEventPage> {
         beacon = widget.beacon,
         eventLocation = widget.eventLocation,
         description = widget.description;
-    TimeOfDay eventTimeStart = const TimeOfDay(minute: 0, hour: 0);
-    TimeOfDay eventTimeEnd = const TimeOfDay(minute: 0, hour: 0);
 
     MaskedTextController beaconController = MaskedTextController(
         mask: '@@@@@@@@-@@@@-@@@@-@@@@-@@@@@@@@@@@@', text: beacon);
