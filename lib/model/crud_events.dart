@@ -16,9 +16,11 @@ class ParolaFirebase extends Model {
         Firestore.instance.collection('${eventKey.toString()}_attendees');
     final eventKeys =
         Firestore.instance.collection('events').document('$eventKey');
-    await deleteRef.delete().then((del) {
-      print("Deleted: $eventKey");
-    });
+    await deleteRef.getDownloadURL() == null
+        ? print("No file")
+        : deleteRef.delete().then((del) {
+            print("Deleted: $eventKey");
+          });
 
     eventKeyAttendees.listen((data) {
       data.documents.forEach((documents) {
@@ -27,7 +29,6 @@ class ParolaFirebase extends Model {
             .delete()
             .then((doc) {
           print("Deleted $eventKey");
-        }).whenComplete(() {
           eventKeys.delete().then((doc) {
             print('Deleted $eventKey from events');
           });

@@ -42,7 +42,7 @@ class MonitoringTab extends ListTab {
       String text;
       if (result.isSuccessful == true) {
         text = result.beacons.isNotEmpty
-            ? "You are ${result.beacons.first.distance < 3.0 ? 'Connected' : 'Too far'} from $eventTitle "
+            ? "You are ${result.beacons.first.distance < 5.0 ? 'Connected' : 'Too far'} from $eventTitle "
             : 'You are Disconnected from $eventTitle';
       } else {
         text = result.beacons.isNotEmpty == false
@@ -52,7 +52,7 @@ class MonitoringTab extends ListTab {
 
       return new ListTabResult(
           text: text,
-          isSuccessful: result.beacons.first.distance < 3.0 ? true : false,
+          isSuccessful: result.beacons.first.distance < 5.0 ? true : false,
           distance: result.beacons.first.distance);
     });
   }
@@ -157,121 +157,144 @@ class _ListTabState extends State<ListTab> {
         1, "Disconnected", "Beacon out of range", platformChannelSpecifics);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    void _onStop() async {
+  void _onStop() async {
+    setState(() {
+      _running = false;
+      _results.clear();
+      isConnected = false;
+    });
+
+    await _cancelNotification();
+    _subscription?.cancel();
+  }
+
+  void _onStart(BeaconRegion region) {
+    setState(() {
+      _running = true;
+    });
+    _subscription = widget.stream(region).listen((result) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        if (result.text != null) {
+          _results.clear();
+          _results.insert(0, result);
+        } else {
+          _results.clear();
+          _results.insert(
+              0,
+              ListTabResult(
+                  text: "Failed to Connect",
+                  isSuccessful: false,
+                  distance: null));
+          updateAttendees();
+        }
+
+        status = {
+          "Connected": result.isSuccessful,
+          "Distance": result.distance,
+        };
+        setAttendees = {
+          "eventID": widget.eventKey,
+          "eventName": widget.title,
+          "userid": prefs.getString('userid'),
+          "username": prefs.getString('username'),
+          "status": status,
+          "In": widget.eventTimeStart
+                  .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
+              ? "Late"
+              : "Attended",
+        };
+        outAttendance = {
+          "eventID": widget.eventKey,
+          "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
+                  widget.eventTimeEnd
+                      .isBefore(widget.eventTimeEnd.add(Duration(minutes: 10)))
+              ? "Completed"
+              : "Absent"
+        };
+        result.distance < 7.0
+            ? _showOngoingNotification(
+                successful:
+                    result.distance < 7.0 ? 'Connected' : 'Disconnected',
+                status: result.text)
+            : _showStatusNotifcation();
+      });
+    });
+    _subscription.onDone(() async {
       setState(() {
         _running = false;
-        _results.clear();
-        isConnected = false;
       });
+    });
+  }
 
-      await _cancelNotification();
-      _subscription?.cancel();
+  void updateAttendees() async {
+    Duration duration = Duration(seconds: 30);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    DocumentReference attendeesRef = Firestore.instance
+        .document("${widget.eventKey}_attendees/${prefs.getString('userid')}");
+
+    DocumentReference userRef = Firestore.instance.document(
+        "event_attended_${prefs.getString('userid')}/${widget.eventKey}");
+
+    if (widget.eventTimeStart
+        .isBefore(widget.eventTimeStart.add(Duration(seconds: 10)))) {
+      signInAttendees(
+          duration: duration, attendees: attendeesRef, userRef: userRef);
+    } else if (widget.eventTimeEnd
+        .isAfter(widget.eventTimeEnd.add(Duration(minutes: 5)))) {
+      signOutAttendees(
+          duration: duration, attendees: attendeesRef, userRef: userRef);
     }
+  }
 
-    void _onStart(BeaconRegion region) {
-      Duration duration = Duration(seconds: 30);
-      setState(() {
-        _running = true;
-      });
-      _subscription = widget.stream(region).listen((result) async {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        DocumentReference attendeesRef = Firestore.instance.document(
-            "${widget.eventKey}_attendees/${prefs.getString('userid')}");
-
-        DocumentReference userRef = Firestore.instance.document(
-            "event_attended_${prefs.getString('userid')}/${widget.eventKey}");
-
-        setState(() {
-          if (result.text != null) {
-            _results.clear();
-            _results.insert(0, result);
-          } else {
-            _results.clear();
-            _results.insert(
-                0,
-                ListTabResult(
-                    text: "Failed to Connect",
-                    isSuccessful: false,
-                    distance: null));
-          }
-          status = {
-            "Connected": result.isSuccessful,
-            "Distance": result.distance,
-          };
-          setAttendees = {
-            "eventID": widget.eventKey,
-            "eventName": widget.title,
-            "userid": prefs.getString('userid'),
-            "username": prefs.getString('username'),
-            "status": status,
-            "In": widget.eventTimeStart
-                    .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
-                ? "Late"
-                : "Attended",
-          };
-          outAttendance = {
-            "eventID": widget.eventKey,
-            "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
-                    widget.eventTimeEnd.isBefore(
-                        widget.eventTimeEnd.add(Duration(minutes: 10)))
-                ? "Completed"
-                : "Absent"
-          };
-          result.distance < 7.0
-              ? _showOngoingNotification(
-                  successful:
-                      result.distance < 7.0 ? 'Connected' : 'Disconnected',
-                  status: result.text)
-              : _showStatusNotifcation();
-        });
-        if (widget.eventTimeStart
-            .isBefore(widget.eventTimeStart.add(Duration(seconds: 10)))) {
-          Firestore.instance.runTransaction((transAttendees) async {
-            DocumentSnapshot snapshot = await transAttendees.get(attendeesRef);
-            if (!snapshot.exists) {
-              await transAttendees.set(attendeesRef, setAttendees);
-              Fluttertoast.showToast(
-                  msg: "You have been signed as ATTENDED",
-                  gravity: ToastGravity.BOTTOM);
-            }
-          });
-          Firestore.instance.runTransaction((tx) async {
-            DocumentSnapshot snapshot = await tx.get(userRef);
-            if (snapshot.exists) {
-              await tx.update(userRef, setAttendees);
-            }
-          });
-        } else if (widget.eventTimeEnd
-            .isAfter(widget.eventTimeEnd.add(Duration(minutes: 5)))) {
-          Future.delayed(duration, () async {
-            Firestore.instance.runTransaction((transAttendees) async {
-              DocumentSnapshot snapshot =
-                  await transAttendees.get(attendeesRef);
-              if (snapshot.exists) {
-                await transAttendees.update(attendeesRef, outAttendance);
-                Navigator.of(context).pop();
-                _onStop();
-              }
-            });
-          });
-
-          Firestore.instance.runTransaction((tx) async {
-            DocumentSnapshot snapshot = await tx.get(userRef);
-            if (snapshot.exists) {
-              await tx.update(userRef, outAttendance);
-            }
-          });
+  void signInAttendees(
+      {@required Duration duration,
+      @required DocumentReference attendees,
+      @required DocumentReference userRef}) async {
+    Future.delayed(duration, () async {
+      Firestore.instance.runTransaction((transAttendees) async {
+        DocumentSnapshot snapshot = await transAttendees.get(attendees);
+        if (!snapshot.exists) {
+          await transAttendees.set(attendees, setAttendees);
+          Fluttertoast.showToast(
+              msg: "You have been signed as ATTENDED",
+              gravity: ToastGravity.BOTTOM);
         }
       });
-      _subscription.onDone(() async {
-        setState(() {
-          _running = false;
-        });
-      });
-    }
+    });
+    Firestore.instance.runTransaction((tx) async {
+      DocumentSnapshot snapshot = await tx.get(userRef);
+      if (snapshot.exists) {
+        await tx.update(userRef, setAttendees);
+      }
+    });
+  }
 
+  void signOutAttendees(
+      {@required Duration duration,
+      @required DocumentReference attendees,
+      @required DocumentReference userRef}) async {
+    Future.delayed(duration, () async {
+      Firestore.instance.runTransaction((transAttendees) async {
+        DocumentSnapshot snapshot = await transAttendees.get(attendees);
+        if (snapshot.exists) {
+          await transAttendees.update(attendees, outAttendance);
+          Navigator.of(context).pop();
+          _onStop();
+        }
+      });
+    });
+
+    Firestore.instance.runTransaction((tx) async {
+      DocumentSnapshot snapshot = await tx.get(userRef);
+      if (snapshot.exists) {
+        await tx.update(userRef, outAttendance);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
         _onStop();

@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:final_parola/model/user_model.dart';
 import 'package:flutter/material.dart';
 
 import 'package:scoped_model/scoped_model.dart';
 import 'package:intro_views_flutter/Models/page_view_model.dart';
 import 'package:intro_views_flutter/intro_views_flutter.dart';
+import 'package:device_info/device_info.dart';
+import 'package:flutter/services.dart';
 
 class IntroductionPage extends StatefulWidget {
   @override
@@ -75,9 +79,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
                     style: titleStyle,
                     textAlign: TextAlign.center,
                   ),
-                  body: Text(
-                    "Just turn on your bluetooth when you want to connect to the beacon you want to connect.",
-                  )),
+                  body: Text("Your device must be compatible to Bluetooth LE")),
             ];
             return IntroViewsFlutter(
               pageList,
