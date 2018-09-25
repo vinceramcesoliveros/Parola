@@ -72,7 +72,7 @@ class AttendedEventBodyState extends State<AttendedEventBody> {
                             ? Icons.check
                             : Icons.close),
                         Text("OUT: $attendanceOut"),
-                        Icon(attendanceOut != "Half-Completed"
+                        Icon(attendanceOut != "Absent"
                             ? Icons.check
                             : Icons.close)
                       ],

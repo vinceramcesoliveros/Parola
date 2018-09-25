@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:final_parola/home/organization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -67,34 +68,51 @@ class UserCard extends StatelessWidget {
             height: 8.0,
           ),
           Card(
-            child: StreamBuilder(
-                stream: Firestore.instance
-                    .collection('organization')
-                    .where('owner', isEqualTo: username)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  List<DocumentSnapshot> orgSnapshot = snapshot.data.documents;
-                  if (!snapshot.hasData) return CircularProgressIndicator();
-                  return orgSnapshot.isEmpty
-                      ? Text(
-                          "No Organization",
-                          style: Theme.of(context).textTheme.display1,
-                        )
-                      : Column(
-                          children: <Widget>[
-                            Text(
-                              "Organization",
-                              style: Theme.of(context).textTheme.display1,
-                            ),
-                            Text(
-                              snapshot.data.documents[0].data['orgName']
-                                  .toString(),
-                              style: Theme.of(context).textTheme.title,
+            child: Column(
+              children: <Widget>[
+                StreamBuilder(
+                    stream: Firestore.instance
+                        .collection('organization')
+                        .where('owner', isEqualTo: username)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      List<DocumentSnapshot> orgSnapshot =
+                          snapshot.data.documents;
+                      if (snapshot.hasError) return CircularProgressIndicator();
+
+                      return orgSnapshot.isNotEmpty
+                          ? Column(
+                              children: <Widget>[
+                                Text(
+                                  "Organization",
+                                  style: Theme.of(context).textTheme.display1,
+                                ),
+                                Text(
+                                  snapshot.data.documents[0].data['orgName']
+                                      .toString(),
+                                  style: Theme.of(context).textTheme.title,
+                                )
+                              ],
                             )
-                          ],
-                        );
-                }),
-          )
+                          : Text(
+                              "No Organization",
+                              style: Theme.of(context).textTheme.display1,
+                            );
+                    }),
+                RaisedButton(
+                    child: Text("Add Organization"),
+                    shape: StadiumBorder(),
+                    onPressed: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => AddOrganization(
+                                userid: prefs.getString('userid'),
+                              )));
+                    })
+              ],
+            ),
+          ),
         ],
       ),
     );

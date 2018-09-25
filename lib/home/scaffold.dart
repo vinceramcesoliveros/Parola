@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/home/body.dart';
 import 'package:final_parola/home/description.dart';
-import 'package:final_parola/home/eventBody.dart';
 import 'package:final_parola/home/profile.dart';
 import 'package:final_parola/model/event_model.dart';
 import 'package:flutter/material.dart';

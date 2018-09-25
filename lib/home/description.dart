@@ -11,7 +11,6 @@ import 'package:flutter_scan_bluetooth/flutter_scan_bluetooth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 class DescPage extends StatefulWidget {
   final String eventTitle, username;
 
@@ -258,6 +257,7 @@ class DescListView extends StatelessWidget {
                         username: username,
                         eventTitle: eventTitle,
                         eventKey: eventKey,
+                        
                         eventDate: eventDate),
                     bottom: 0.0,
                     right: 4.0,
@@ -390,7 +390,7 @@ class FavButtonState extends State<FavButton> {
           if (hasAttended.isEmpty) {
             return RaisedButton(
               color: Colors.green[200],
-              child: Row(
+              child: Row( 
                 children: <Widget>[
                   Icon(
                     Icons.favorite_border,

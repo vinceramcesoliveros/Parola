@@ -131,12 +131,7 @@ class EventPageState extends State<EventPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
-    List<DropdownMenuItem<String>> orgMenu = [
-      DropdownMenuItem(
-        child: Text("CSD"),
-        value: "csd",
-      ),
-    ];
+    String orgChoice;
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomPadding: false,
@@ -267,18 +262,17 @@ class EventPageState extends State<EventPage> {
                             builder: (context, snapshot) {
                               List<DocumentSnapshot> orgSnapshots =
                                   snapshot.data.documents;
-                              if (!snapshot.hasData)
-                                return DropdownButton(
-                                    onChanged: null, items: []);
+                              if (!snapshot.hasData) return Text("");
                               return DropdownButton(
                                   hint: Text("Select Organization"),
                                   items: orgSnapshots.isNotEmpty
                                       ? orgSnapshots
                                           .map((DocumentSnapshot value) {
-                                          return DropdownMenuItem<
-                                              DocumentSnapshot>(
-                                            child: Text(value.data['orgName']),
-                                            value: value.data['orgName'],
+                                          return DropdownMenuItem(
+                                            child: Text(value.data['OrgName']
+                                                .toString()),
+                                            value: value.data['OrgName']
+                                                .toString(),
                                           );
                                         }).toList()
                                       : [
@@ -297,14 +291,16 @@ class EventPageState extends State<EventPage> {
                                                         context,
                                                         MaterialPageRoute(
                                                             builder: (context) =>
-                                                                OrganizationLists(
+                                                                AddOrganization(
                                                                     userid: prefs
                                                                         .getString(
                                                                             'userid'))));
                                                   }))
                                         ],
                                   onChanged: (val) {
-                                    orgMenu = val;
+                                    setState(() {
+                                      orgChoice = val;
+                                    });
                                   });
                             }),
                       )

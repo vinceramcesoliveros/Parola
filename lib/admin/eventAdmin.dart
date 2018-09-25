@@ -55,8 +55,14 @@ class ListOfEvents extends StatelessWidget {
         String eventName = eventRef[index].data['eventName'].toString();
         String eventKey = eventRef[index].documentID.toString();
         String eventDate = eventRef[index].data['eventDate'].toString();
+
+        DateTime eventEnd = eventRef[index].data['timeEnd'];
         return new EventDetails(
-            eventName: eventName, eventDate: eventDate, eventKey: eventKey);
+          eventName: eventName,
+          eventDate: eventDate,
+          eventKey: eventKey,
+          eventEnd: eventEnd,
+        );
       },
     );
   }
@@ -65,6 +71,7 @@ class ListOfEvents extends StatelessWidget {
 class EventDetails extends StatelessWidget {
   const EventDetails({
     Key key,
+    @required this.eventEnd,
     @required this.eventName,
     @required this.eventDate,
     @required this.eventKey,
@@ -73,6 +80,7 @@ class EventDetails extends StatelessWidget {
   final String eventName;
   final String eventDate;
   final String eventKey;
+  final DateTime eventEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +103,10 @@ class EventDetails extends StatelessWidget {
                 (p) => true);
           },
           child: new EventViewDetails(
-              eventName: eventName, eventDate: eventDate, eventKey: eventKey),
+              eventName: eventName,
+              eventDate: eventDate,
+              eventKey: eventKey,
+              eventEnd: eventEnd),
         ),
       ),
     );
@@ -105,6 +116,7 @@ class EventDetails extends StatelessWidget {
 class EventViewDetails extends StatelessWidget {
   const EventViewDetails({
     Key key,
+    @required this.eventEnd,
     @required this.eventName,
     @required this.eventDate,
     @required this.eventKey,
@@ -113,6 +125,7 @@ class EventViewDetails extends StatelessWidget {
   final String eventName;
   final String eventDate;
   final String eventKey;
+  final DateTime eventEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +151,7 @@ class EventViewDetails extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         builder: (context) => AttendeesLists(
+                              eventEnd: eventEnd,
                               eventKey: eventKey,
                               eventName: eventName,
                             )));

@@ -8,7 +8,6 @@ class ParolaFirebase extends Model {
   Future<void> deleteEvents({String eventKey, String eventName}) async {
     StorageReference deleteRef =
         FirebaseStorage.instance.ref().child("eventImages/$eventKey.jpg");
-    Firestore.instance.enablePersistence(true);
     final eventKeyAttendees = Firestore.instance
         .collection('${eventKey.toString()}_attendees')
         .snapshots();
@@ -16,20 +15,20 @@ class ParolaFirebase extends Model {
         Firestore.instance.collection('${eventKey.toString()}_attendees');
     final eventKeys =
         Firestore.instance.collection('events').document('$eventKey');
+
     await deleteRef.delete().then((del) {
       print("Deleted: $eventKey");
-    });
-
-    eventKeyAttendees.listen((data) {
-      data.documents.forEach((documents) {
-        return eventAttendees
-            .document(documents.documentID)
-            .delete()
-            .then((doc) {
-          print("Deleted $eventKey");
-        }).whenComplete(() {
-          eventKeys.delete().then((doc) {
-            print('Deleted $eventKey from events');
+    }).whenComplete(() {
+      eventKeyAttendees.listen((data) async {
+        data.documents.forEach((documents) {
+          return eventAttendees
+              .document(documents.documentID)
+              .delete()
+              .then((doc) {
+            print("Deleted $eventKey");
+            eventKeys.delete().then((doc) {
+              print('Deleted $eventKey from events');
+            });
           });
         });
       });

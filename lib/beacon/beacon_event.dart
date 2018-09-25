@@ -171,7 +171,7 @@ class _ListTabState extends State<ListTab> {
     }
 
     void _onStart(BeaconRegion region) {
-      Duration duration = Duration(seconds: 30);
+      Duration duration = Duration(seconds: 3);
       setState(() {
         _running = true;
       });
@@ -206,17 +206,20 @@ class _ListTabState extends State<ListTab> {
             "userid": prefs.getString('userid'),
             "username": prefs.getString('username'),
             "status": status,
-            "In": widget.eventTimeStart
-                    .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
-                ? "Late"
-                : "Attended",
+            "In": DateTime.now()
+                    .isBefore(widget.eventTimeStart.add(Duration(minutes: 15)))
+                ? "Attended"
+                : DateTime.now().isAfter(
+                        widget.eventTimeStart.add(Duration(minutes: 15)))
+                    ? "Late"
+                    : "Absent",
           };
           outAttendance = {
             "eventID": widget.eventKey,
             "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
                     widget.eventTimeEnd.isBefore(
                         widget.eventTimeEnd.add(Duration(minutes: 10)))
-                ? "Completed"
+                ? "Present"
                 : "Absent"
           };
           result.distance < 7.0
@@ -227,7 +230,7 @@ class _ListTabState extends State<ListTab> {
               : _showStatusNotifcation();
         });
         if (widget.eventTimeStart
-            .isBefore(widget.eventTimeStart.add(Duration(seconds: 10)))) {
+            .isBefore(widget.eventTimeStart.add(Duration(seconds: 5)))) {
           Firestore.instance.runTransaction((transAttendees) async {
             DocumentSnapshot snapshot = await transAttendees.get(attendeesRef);
             if (!snapshot.exists) {
@@ -251,8 +254,8 @@ class _ListTabState extends State<ListTab> {
                   await transAttendees.get(attendeesRef);
               if (snapshot.exists) {
                 await transAttendees.update(attendeesRef, outAttendance);
-                Navigator.of(context).pop();
                 _onStop();
+                Navigator.of(context).pop();
               }
             });
           });
