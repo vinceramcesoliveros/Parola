@@ -29,7 +29,7 @@ class EventPageState extends State<EventPage> {
   TimeOfDay eventTimeEnd = const TimeOfDay(minute: 0, hour: 0);
   String eventName, eventDesc, beaconUUID, major, minor, eventLocation, path;
   final GlobalKey<FormState> eventKey = new GlobalKey<FormState>();
-  int eventID = Random.secure().nextInt(10000000);
+  int eventID = Random().nextInt(10000000);
   File _image;
 
   MaskedTextController beaconController =
@@ -252,58 +252,6 @@ class EventPageState extends State<EventPage> {
                           },
                         ),
                       ),
-                      Expanded(
-                        flex: 1,
-                        child: StreamBuilder(
-                            stream: Firestore.instance
-                                .collection('organization')
-                                .where('owner', isEqualTo: widget.userid)
-                                .snapshots(),
-                            builder: (context, snapshot) {
-                              List<DocumentSnapshot> orgSnapshots =
-                                  snapshot.data.documents;
-                              if (!snapshot.hasData) return Text("");
-                              return DropdownButton(
-                                  hint: Text("Select Organization"),
-                                  items: orgSnapshots.isNotEmpty
-                                      ? orgSnapshots
-                                          .map((DocumentSnapshot value) {
-                                          return DropdownMenuItem(
-                                            child: Text(value.data['OrgName']
-                                                .toString()),
-                                            value: value.data['OrgName']
-                                                .toString(),
-                                          );
-                                        }).toList()
-                                      : [
-                                          // orgSnapshots.isEmpty ? ListView.builder(itemBuilder:(context,index){
-                                          //   return  DropdownMenuItem(child: Text(""),);
-                                          // }):
-                                          // }): DropdownMenuItem(child: Text("Empty")),
-                                          DropdownMenuItem(
-                                              child: FlatButton(
-                                                  child: Text("Add New"),
-                                                  onPressed: () async {
-                                                    SharedPreferences prefs =
-                                                        await SharedPreferences
-                                                            .getInstance();
-                                                    Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                AddOrganization(
-                                                                    userid: prefs
-                                                                        .getString(
-                                                                            'userid'))));
-                                                  }))
-                                        ],
-                                  onChanged: (val) {
-                                    setState(() {
-                                      orgChoice = val;
-                                    });
-                                  });
-                            }),
-                      )
                     ],
                   ),
                 ),
