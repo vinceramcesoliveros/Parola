@@ -52,9 +52,8 @@ class AttendeesListsState extends State<AttendeesLists> {
           )
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        label: Text("Add missing attendees"),
-        icon: Icon(Icons.add),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
         onPressed: () {
           Navigator.push(
               context,
@@ -69,7 +68,7 @@ class AttendeesListsState extends State<AttendeesLists> {
               .collection('${widget.eventKey}_attendees')
               .snapshots(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) {
+            if (!snapshot.hasData || snapshot.data.documents == null) {
               return Center(child: Text("Loading..."));
             } else {
               return AttendeesListsDocuments(

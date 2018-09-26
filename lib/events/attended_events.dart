@@ -31,7 +31,7 @@ class AttendedEventBody extends StatefulWidget {
 }
 
 class AttendedEventBodyState extends State<AttendedEventBody> {
-  String userid = '';
+  String userid;
   List<String> eventLists = new List();
   Future<String> queryEvents({String id}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -39,20 +39,26 @@ class AttendedEventBodyState extends State<AttendedEventBody> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    queryEvents(id: userid);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: Firestore.instance
-          .collection("event_attended_$userid")
+          .collection("event_attended_${widget.eventKey}")
           .where("userid", isEqualTo: userid)
           .snapshots(),
       builder: (context, snapshot) {
         List<DocumentSnapshot> attendedEvents = snapshot.data.documents;
-        if (snapshot.data.documents.isEmpty)
-          return Center(child: Text("No events attended"));
-        if (!snapshot.hasData) {
+        if (!snapshot?.hasData) {
           return Text("Loading...");
         } else {
           return ListView.builder(
+            itemCount: attendedEvents.length,
             itemBuilder: (context, index) {
               String attendanceIn = attendedEvents[index].data['In'];
               String attendanceOut =
@@ -62,21 +68,21 @@ class AttendedEventBodyState extends State<AttendedEventBody> {
               return ListView.builder(
                 itemBuilder: (context, index) {
                   return ListTile(
-                    title: Text("${index + 1} $eventName"),
-                    subtitle: Row(
-                      children: <Widget>[
-                        Text(
-                          "In:$attendanceIn",
-                        ),
-                        Icon(attendanceIn != "Absent"
-                            ? Icons.check
-                            : Icons.close),
-                        Text("OUT: $attendanceOut"),
-                        Icon(attendanceOut != "Absent"
-                            ? Icons.check
-                            : Icons.close)
-                      ],
-                    ),
+                    title: Text("${index + 1}. $eventName"),
+                    // subtitle: Row(
+                    //   children: <Widget>[
+                    //     Text(
+                    //       "In:$attendanceIn",
+                    //     ),
+                    //     Icon(attendanceIn != "Absent"
+                    //         ? Icons.check
+                    //         : Icons.close),
+                    //     Text("OUT: $attendanceOut"),
+                    //     Icon(attendanceOut != "Absent"
+                    //         ? Icons.check
+                    //         : Icons.close)
+                    //   ],
+                    // ),
                   );
                 },
               );

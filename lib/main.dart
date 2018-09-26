@@ -66,7 +66,7 @@ class ParolaScreenState extends State<ParolaScreen> {
     this.setState(() {
       _auth.onAuthStateChanged.firstWhere((user) => isLoggedIn = user != null);
 
-      if (prefs.getString('userud') != null) {
+      if (prefs.getString('username') != null) {
         isLoggedIn = true;
         print("Shared Prefs: " + prefs.getString('username'));
       } else {

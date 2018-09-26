@@ -27,6 +27,8 @@ class EventPageState extends State<EventPage> {
   DateTime eventDateStart = new DateTime.now();
   TimeOfDay eventTimeStart = const TimeOfDay(minute: 0, hour: 0);
   TimeOfDay eventTimeEnd = const TimeOfDay(minute: 0, hour: 0);
+
+  String organization;
   String eventName, eventDesc, beaconUUID, major, minor, eventLocation, path;
   final GlobalKey<FormState> eventKey = new GlobalKey<FormState>();
   final int eventID = Random.secure().nextInt(100000);
@@ -91,7 +93,9 @@ class EventPageState extends State<EventPage> {
       "beaconUUID": beaconUUID.toLowerCase(),
       "Major": major,
       "Minor": minor,
-      'Admin': admin
+      'Admin': admin,
+      "userid": prefs.getString('userid'),
+      "organization": organization
     };
     final DocumentReference ref = Firestore.instance
         .collection('events')
@@ -280,6 +284,36 @@ class EventPageState extends State<EventPage> {
                       SizedBox(
                         width: 8.0,
                       ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
+                          maxLength: 36,
+                          decoration: InputDecoration(
+                              labelText: "Organization",
+                              labelStyle: Theme.of(context).textTheme.body1),
+                          onSaved: (str) => organization = str,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 8.0,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
                       Expanded(
                         flex: 1,
                         child: TextFormField(
@@ -300,9 +334,6 @@ class EventPageState extends State<EventPage> {
                             decoration: InputDecoration(
                                 labelText: "Minor",
                                 labelStyle: Theme.of(context).textTheme.body1)),
-                      ),
-                      SizedBox(
-                        height: 16.0,
                       ),
                     ],
                   ),

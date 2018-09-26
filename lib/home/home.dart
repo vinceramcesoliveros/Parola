@@ -28,51 +28,12 @@ class _HomePageState extends State<HomePage> {
           apiKey: 'AIzaSyC5oO96yzVWTdgDZWG44GZ7kATMq603tSA'));
   @override
   void initState() {
-    _storeUser();
     super.initState();
   }
 
   @override
   void dispose() {
     super.dispose();
-  }
-
-  Future<Null> _storeUser() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final DocumentReference userRef =
-        Firestore.instance.document("users/${prefs.getString("userid")}");
-    Map<String, String> userData = {
-      "username": prefs.getString("username") ?? '',
-      "email": prefs.getString("useremail") ?? '',
-      "photoURL": prefs.getString("userphotoURL") ?? '',
-    };
-    // print("height:${MediaQuery.of(context).size.height}");
-    // print("width:${MediaQuery.of(context).size.width}");
-    // print("Longest Side: ${MediaQuery.of(context).size.longestSide}");
-    // print("Shortest Side: ${MediaQuery.of(context).size.shortestSide}");
-    // Firestore.instance.runTransaction((tx) async {
-    //   DocumentSnapshot snapshot = await tx.get(userRef);
-    //   if (!snapshot.exists) {
-    //     await tx.set(userRef, userData);
-    //     print("User Added");
-    //   } else {
-    //     print("User already added");
-    //   }
-    // });
-    final Future<QuerySnapshot> query = Firestore.instance
-        .collection("users")
-        .where("username", isEqualTo: prefs.getString("username"))
-        .limit(1)
-        .getDocuments();
-    query.then((doc) async {
-      String useremail = doc.documents[0].data['email'].toString();
-      useremail != prefs.getString("useremail")
-          ? await userRef
-              .setData(userData) // Check if the userID has duplicate data
-              .whenComplete(() => print("User added"))
-              .catchError((e) => print(e))
-          : print("user is already added!");
-    });
   }
 
   @override

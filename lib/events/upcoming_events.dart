@@ -9,7 +9,7 @@ class UpcomingEvents extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text("My Events"),
+          title: Text("Upcoming Events"),
           centerTitle: true,
           backgroundColor: Colors.green[200]),
       body: UpcomingEventBody(),
@@ -25,8 +25,7 @@ class UpcomingEventBody extends StatelessWidget {
       builder: (context, snapshot) {
         List<DocumentSnapshot> eventListDocuments = snapshot.data.documents;
         if (!snapshot.hasData) {
-          return Center(
-                  child: Text("No events Today"));
+          return Center(child: Text("No events Today"));
         } else {
           return ListView.builder(
             itemCount: snapshot.data.documents.length,
@@ -36,10 +35,12 @@ class UpcomingEventBody extends StatelessWidget {
                   eventListDocuments[index].data['eventName'].toString();
               if (DateFormat.yMMMd().format(eventDate) ==
                   DateFormat.yMMMd().format(DateTime.now())) {
-                return ListTile(
-                  title: Text(eventName),
-                  subtitle:
-                      Text(DateFormat.yMMMd().format(eventDate).toString()),
+                return Card(
+                  child: ListTile(
+                    title: Text(eventName),
+                    subtitle:
+                        Text(DateFormat.yMMMd().format(eventDate).toString()),
+                  ),
                 );
               }
             },

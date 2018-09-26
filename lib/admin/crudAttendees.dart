@@ -177,11 +177,11 @@ class _EditAttendeesState extends State<EditAttendees> {
       "username": name,
       "In": attendIn,
       "Out": attendOut,
-      "eventKey": widget.eventKey
+      "eventID": widget.eventKey
     };
 
     final eventAttendeesQuery = Firestore.instance
-        .collection('events_attended_${widget.id}')
+        .collection('event_attended_${widget.id}')
         .document(widget.eventKey);
     final setQuery = Firestore.instance
         .collection('${widget.eventKey}_attendees')

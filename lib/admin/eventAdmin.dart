@@ -8,8 +8,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminEvents extends StatelessWidget {
-  final String adminName;
-  AdminEvents({this.adminName});
+  final String userid;
+  AdminEvents({this.userid});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +26,7 @@ class AdminEvents extends StatelessWidget {
             child: StreamBuilder(
               stream: Firestore.instance
                   .collection('events')
-                  .where('Admin', isEqualTo: adminName)
+                  .where('userid', isEqualTo: userid)
                   .snapshots(),
               builder: (context, freshSnap) {
                 if (!freshSnap.hasData)

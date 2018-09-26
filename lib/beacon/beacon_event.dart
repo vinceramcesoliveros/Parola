@@ -199,6 +199,7 @@ class _ListTabState extends State<ListTab> {
           "eventName": widget.title,
           "userid": prefs.getString('userid'),
           "username": prefs.getString('username'),
+          "Time In": FieldValue.serverTimestamp(),
           "In": widget.eventTimeStart
                   .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
               ? "Late"
@@ -224,13 +225,17 @@ class _ListTabState extends State<ListTab> {
 
         DocumentReference userRef = Firestore.instance.document(
             "event_attended_${prefs.getString('userid')}/${widget.eventKey}");
-
+        userRef
+            .setData(
+          setAttendees,
+        )
+            .then((e) {
+          print("Added to Attended Events");
+        });
         attendeesRef.updateData(setAttendees).then((e) {
-          userRef.setData(setAttendees, merge: true).then((e) {
-            print("Added to Attended Events");
-          });
+          print("Added to in");
         }).whenComplete(() {
-          Fluttertoast.showToast(msg: "Attendance Out!");
+          Fluttertoast.showToast(msg: "Attendance In!");
           _onStop();
           Navigator.pop(context);
         });

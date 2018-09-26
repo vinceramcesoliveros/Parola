@@ -135,7 +135,7 @@ class DescPageState extends State<DescPage> {
                 return Text("Loading...");
               else {
                 return DateTime.now()
-                            .isAfter(eventTimeEnd.add(Duration(minutes: 30))) &&
+                            .isAfter(eventTimeEnd.add(Duration(minutes: 5))) &&
                         DateTime.now()
                             .isBefore(eventTimeStart.add(Duration(hours: 1)))
                     ? SizedBox()

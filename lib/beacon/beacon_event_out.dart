@@ -196,6 +196,7 @@ class _ListTabState extends State<ListTab> {
           "eventName": widget.title,
           "userid": prefs.getString('userid'),
           "username": prefs.getString('username'),
+          "Time Out": FieldValue.serverTimestamp(),
           "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
                   widget.eventTimeEnd
                       .isBefore(widget.eventTimeEnd.add(Duration(minutes: 10)))
@@ -213,12 +214,10 @@ class _ListTabState extends State<ListTab> {
 
         DocumentReference userRef = Firestore.instance.document(
             "event_attended_${prefs.getString('userid')}/${widget.eventKey}");
-
-        attendeesRef.updateData(outAttendance).then((e) {
-          userRef.setData(outAttendance, merge: true).then((e) {
-            print("Attendance Out");
-          });
-        }).whenComplete(() {
+        userRef.setData(outAttendance).then((e) {
+          print("Attendance Out");
+        });
+        attendeesRef.updateData(outAttendance).then((e) {}).whenComplete(() {
           Fluttertoast.showToast(msg: "Attendance Out!");
           _onStop();
           Navigator.pop(context);
