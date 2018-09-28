@@ -7,6 +7,7 @@ import 'package:final_parola/beacon/_header.dart';
 import 'package:final_parola/beacon/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_scan_bluetooth/flutter_scan_bluetooth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -105,20 +106,6 @@ class _ListTabState extends State<ListTab> {
         selectNotification: onSelectNotification);
   }
 
-  Future<Null> signInAttendees(
-      {@required Duration duration,
-      @required DocumentReference attendees,
-      @required DocumentReference userRef}) async {
-    Fluttertoast.showToast(msg: "You are signed as attended");
-  }
-
-  Future<Null> signOutAttendees(
-      {@required Duration duration,
-      @required DocumentReference attendees,
-      @required DocumentReference userRef}) async {
-    Fluttertoast.showToast(msg: "Attendance Out!");
-  }
-
   Future onSelectNotification(String payload) async {
     if (payload != null) {
       debugPrint("notification payload:" + payload);
@@ -151,8 +138,8 @@ class _ListTabState extends State<ListTab> {
       'your channel id',
       'your channel name',
       'your channel description',
-      importance: Importance.Min,
-      priority: Priority.Low,
+      importance: Importance.Default,
+      priority: Priority.Default,
       ongoing: true,
       autoCancel: true,
       playSound: false,
@@ -177,10 +164,14 @@ class _ListTabState extends State<ListTab> {
   }
 
   void _onStart(BeaconRegion region) {
+    Map<String, dynamic> setAttendees = new Map();
     setState(() {
       _running = true;
     });
-    _subscription = widget.stream(region).listen((result) async {
+    _subscription = widget
+        .stream(region)
+        .timeout(Duration(seconds: 10))
+        .listen((result) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
         if (result.text != null) {
@@ -195,13 +186,13 @@ class _ListTabState extends State<ListTab> {
                   isSuccessful: false,
                   distance: null));
         }
-        Map<String, dynamic> setAttendees = {
+        setAttendees = {
           "eventName": widget.title,
           "userid": prefs.getString('userid'),
           "username": prefs.getString('username'),
-          "Time In": FieldValue.serverTimestamp(),
+          "TimeIn": FieldValue.serverTimestamp(),
           "In": widget.eventTimeStart
-                  .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
+                  .isAfter(widget.eventTimeStart.add(Duration(minutes: 5)))
               ? "Late"
               : "Present",
         };
@@ -220,11 +211,13 @@ class _ListTabState extends State<ListTab> {
                     result.distance < 7.0 ? 'Connected' : 'Disconnected',
                 status: result.text)
             : _showStatusNotifcation();
-        DocumentReference attendeesRef = Firestore.instance.document(
-            "${widget.eventKey}_attendees/${prefs.getString('userid')}");
+      });
+      DocumentReference attendeesRef = Firestore.instance.document(
+          "${widget.eventKey}_attendees/${prefs.getString('userid')}");
 
-        DocumentReference userRef = Firestore.instance.document(
-            "event_attended_${prefs.getString('userid')}/${widget.eventKey}");
+      DocumentReference userRef = Firestore.instance.document(
+          "event_attended_${prefs.getString('userid')}/${widget.eventKey}");
+      Future.delayed(Duration(seconds: 3), () {
         userRef
             .setData(
           setAttendees,
@@ -235,6 +228,7 @@ class _ListTabState extends State<ListTab> {
         attendeesRef.updateData(setAttendees).then((e) {
           print("Added to in");
         }).whenComplete(() {
+          FlutterScanBluetooth.stopScan();
           Fluttertoast.showToast(msg: "Attendance In!");
           _onStop();
           Navigator.pop(context);
@@ -244,9 +238,6 @@ class _ListTabState extends State<ListTab> {
     _subscription.onDone(() async {
       setState(() {
         _running = false;
-        Future.delayed(Duration(seconds: 30), () {
-          _onStop();
-        });
       });
     });
   }

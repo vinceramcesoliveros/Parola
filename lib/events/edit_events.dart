@@ -14,10 +14,13 @@ class EditEventPage extends StatefulWidget {
       minor,
       beacon,
       eventLocation,
-      description;
+      description,
+      organization;
+
   final DateTime eventDate, timeStart, timeEnd;
   EditEventPage(
-      {this.eventKey,
+      {this.organization,
+      this.eventKey,
       this.eventName,
       this.description,
       this.eventLocation,
@@ -41,7 +44,8 @@ class _EditEventPageState extends State<EditEventPage> {
         minor = widget.minor,
         beacon = widget.beacon,
         eventLocation = widget.eventLocation,
-        description = widget.description;
+        description = widget.description,
+        organization = widget.organization;
 
     MaskedTextController beaconController = MaskedTextController(
         mask: '@@@@@@@@-@@@@-@@@@-@@@@-@@@@@@@@@@@@', text: beacon);
@@ -66,9 +70,10 @@ class _EditEventPageState extends State<EditEventPage> {
         "beaconUUID": beacon,
         "Major": major,
         "Minor": minor,
+        "organization": organization
       };
       final DocumentReference ref =
-          Firestore.instance.collection('events').document();
+          Firestore.instance.collection('events').document(widget.eventKey);
       Firestore.instance.runTransaction((trans) async {
         await trans.update(ref, eventData);
       }).then((result) {
@@ -188,10 +193,31 @@ class _EditEventPageState extends State<EditEventPage> {
                       Expanded(
                         flex: 2,
                         child: TextFormField(
+                          maxLength: 36,
+                          decoration: InputDecoration(
+                              labelText: "Organization",
+                              labelStyle: Theme.of(context).textTheme.body1),
+                          onSaved: (str) => organization = str,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 8.0,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
                           controller: beaconController,
                           maxLength: 36,
                           decoration: InputDecoration(
-                              hintText: "01234567-89AB-CDEF-012-3456789ABCDE",
                               labelText: "Beacon UUID",
                               labelStyle: Theme.of(context).textTheme.body1),
                           onSaved: (str) => beacon = str,
@@ -200,14 +226,20 @@ class _EditEventPageState extends State<EditEventPage> {
                       SizedBox(
                         width: 8.0,
                       ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
                       Expanded(
                         flex: 1,
                         child: TextFormField(
-                            initialValue: major,
                             maxLength: 4,
                             onSaved: (str) => major = str,
                             decoration: InputDecoration(
-                                hintText: "09AF",
                                 labelText: "Major",
                                 labelStyle: Theme.of(context).textTheme.body1)),
                       ),
@@ -217,14 +249,12 @@ class _EditEventPageState extends State<EditEventPage> {
                       Expanded(
                         flex: 1,
                         child: TextFormField(
-                            initialValue: minor,
                             maxLength: 4,
                             onSaved: (str) => minor = str,
                             decoration: InputDecoration(
-                                hintText: "09AF",
                                 labelText: "Minor",
                                 labelStyle: Theme.of(context).textTheme.body1)),
-                      )
+                      ),
                     ],
                   ),
                 ),

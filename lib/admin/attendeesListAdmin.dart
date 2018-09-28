@@ -3,12 +3,13 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/admin/crudAttendees.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 class AttendeesLists extends StatefulWidget {
   final String eventName;
   final String eventKey;
-  AttendeesLists({this.eventName, this.eventKey});
+  final DateTime endTime;
+  AttendeesLists({this.eventName, this.eventKey, this.endTime});
 
   @override
   AttendeesListsState createState() {
@@ -36,7 +37,7 @@ class AttendeesListsState extends State<AttendeesLists> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("List of Attendees"),
+        title: Text("No. of Attendees: ${attendeesLists.length}"),
         centerTitle: true,
         backgroundColor: Colors.green[200],
         actions: <Widget>[
@@ -49,20 +50,23 @@ class AttendeesListsState extends State<AttendeesLists> {
                       attendeesLists: attendeesLists,
                       eventKey: widget.eventKey));
             },
-          )
+          ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AddAttendees(
-                        eventKey: widget.eventKey,
-                      )));
-        },
-      ),
+      floatingActionButton:
+          DateTime.now().isAfter(widget.endTime.add(Duration(minutes: 30)))
+              ? SizedBox()
+              : FloatingActionButton(
+                  child: Icon(Icons.add),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddAttendees(
+                                  eventKey: widget.eventKey,
+                                )));
+                  },
+                ),
       body: StreamBuilder(
           stream: Firestore.instance
               .collection('${widget.eventKey}_attendees')
@@ -72,7 +76,9 @@ class AttendeesListsState extends State<AttendeesLists> {
               return Center(child: Text("Loading..."));
             } else {
               return AttendeesListsDocuments(
-                  lists: snapshot.data.documents, eventKey: widget.eventKey);
+                  lists: snapshot.data.documents,
+                  eventKey: widget.eventKey,
+                  endTime: widget.endTime);
             }
           }),
     );
@@ -82,7 +88,8 @@ class AttendeesListsState extends State<AttendeesLists> {
 class AttendeesListsDocuments extends StatelessWidget {
   final List<DocumentSnapshot> lists;
   final String eventKey;
-  AttendeesListsDocuments({this.lists, this.eventKey});
+  final DateTime endTime;
+  AttendeesListsDocuments({this.lists, this.eventKey, this.endTime});
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -92,31 +99,44 @@ class AttendeesListsDocuments extends StatelessWidget {
         String name = lists[index].data["username"].toString();
         String attendanceIN = lists[index].data['In']?.toString();
         String attendanceOut = lists[index].data['Out']?.toString();
+        DateTime timeIn = lists[index].data['TimeIn'];
+        DateTime timeOut = lists[index].data['TimeOut'];
         return Card(
           color: Colors.white,
           child: Column(children: [
             ListTile(
               leading: Icon(Icons.person),
-              trailing: IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => EditAttendees(
-                            eventKey: eventKey,
-                            id: id,
-                            name: name,
-                            attendIn: attendanceIN,
-                            attendOut: attendanceOut,
-                          )))),
+              trailing:
+                  DateTime.now().isAfter(endTime.add(Duration(minutes: 30)))
+                      ? SizedBox()
+                      : IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () =>
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => EditAttendees(
+                                        eventKey: eventKey,
+                                        id: id,
+                                        name: name,
+                                        attendIn: attendanceIN,
+                                        attendOut: attendanceOut,
+                                      )))),
               title: Text("${index + 1}. $name"),
             ),
             ButtonTheme.bar(
               child: ButtonBar(
+                alignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Text(attendanceIN == null ? "Pending" : attendanceIN),
+                  Text(attendanceIN == null
+                      ? DateTime.now().isAfter(timeOut)
+                          ? "Absent"
+                          : attendanceIN == "Pending"
+                      : "$attendanceIN - Time In: ${DateFormat.jm().format(timeIn)}"),
                   Icon(attendanceIN == "Absent" || attendanceIN == null
                       ? Icons.close
                       : Icons.check),
-                  Text(attendanceOut == null ? "Pending" : attendanceOut),
+                  Text(attendanceOut == null
+                      ? DateTime.now().isAfter(timeOut) ? "Absent" : "Pending"
+                      : attendanceOut),
                   Icon(
                     attendanceOut == null || attendanceOut == "Absent"
                         ? Icons.close

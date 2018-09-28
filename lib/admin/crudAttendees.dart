@@ -15,10 +15,12 @@ class _AddAttendeesState extends State<AddAttendees> {
   GlobalKey<FormState> keyAttendee = GlobalKey<FormState>();
 
   Future<Null> setAttendees() async {
-    Map<String, String> setAttendee = {
+    Map<String, dynamic> setAttendee = {
       "username": name,
       "In": attendIn,
-      "Out": attendOut
+      "Out": attendOut,
+      "TimeIn": DateTime.now(),
+      "TimeOut": DateTime.now(),
     };
     final addUser = Firestore.instance
         .collection('${widget.eventKey}_attendees')
@@ -173,8 +175,10 @@ class _EditAttendeesState extends State<EditAttendees> {
   String name, attendOut, attendIn, eventKey, id;
 
   Future<Null> setAttendees() async {
-    Map<String, String> setAttendee = {
+    Map<String, dynamic> setAttendee = {
       "username": name,
+      "TimeIn": DateTime.now(),
+      "TimeOut": DateTime.now(),
       "In": attendIn,
       "Out": attendOut,
       "eventID": widget.eventKey

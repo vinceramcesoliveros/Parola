@@ -135,83 +135,117 @@ class DescPageState extends State<DescPage> {
                 return Text("Loading...");
               else {
                 return DateTime.now()
-                            .isAfter(eventTimeEnd.add(Duration(minutes: 5))) &&
-                        DateTime.now()
-                            .isBefore(eventTimeStart.add(Duration(hours: 1)))
+                        .isAfter(eventTimeEnd.add(Duration(minutes: 5)))
                     ? SizedBox()
-                    : FloatingActionButton.extended(
-                        backgroundColor: Colors.red[200],
-                        icon: Icon(Icons.event),
-                        label: Text(
-                          DateTime.now().isAfter(eventTimeStart
-                                      .subtract(Duration(minutes: 30))) &&
-                                  DateTime.now().isBefore(eventTimeEnd)
-                              ? "Attendance IN"
-                              : "Attendance Out",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () async {
-                          if (DateTime.now().isAfter(eventTimeStart
-                                  .subtract(Duration(minutes: 30))) &&
-                              DateTime.now().isBefore(eventTimeEnd)) {
-                            await FlutterScanBluetooth.startScan(
-                                    pairedDevices: false)
-                                .catchError((e) => print(e))
-                                .whenComplete(() => Navigator.of(context)
-                                    .push(MaterialPageRoute(
-                                        builder: (context) => MonitoringTab(
-                                              eventKey: eventKey,
-                                              eventTitle: widget.eventTitle,
-                                              beaconID: beaconID,
-                                              major: major,
-                                              minor: minor,
-                                              eventDateStart: eventDate,
-                                              eventTimeStart: eventTimeStart,
-                                              eventTimeEnd: eventTimeEnd,
-                                            ))));
-                          } else if (DateTime.now().isAfter(eventTimeEnd)) {
-                            await FlutterScanBluetooth.startScan(
-                                    pairedDevices: false)
-                                .catchError((e) => print(e))
-                                .whenComplete(() => Navigator.of(context)
-                                    .push(MaterialPageRoute(
-                                        builder: (context) => OMonitoringTab(
-                                              eventKey: eventKey,
-                                              eventTitle: widget.eventTitle,
-                                              beaconID: beaconID,
-                                              major: major,
-                                              minor: minor,
-                                              eventDateStart: eventDate,
-                                              eventTimeStart: eventTimeStart,
-                                              eventTimeEnd: eventTimeEnd,
-                                            ))));
-                          } else {
-                            print("Event is not open yet");
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                    title: Text("CLOSED"),
-                                    content: Text(
-                                        "The event may not be available at the moment"),
-                                    actions: <Widget>[
-                                      FlatButton(
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(),
-                                        child: Text("Okay"),
-                                      )
-                                    ],
-                                  ),
-                            );
-                          }
-                          // onPressed: () {
-                          //   //Directs to to ConnectBeacon if the date is today.
-                        });
+                    : DateTime.now()
+                            .isAfter(eventTimeStart.add(Duration(minutes: 30)))
+                        ? SizedBox()
+                        : new AttendanceFAB(
+                            eventTimeStart: eventTimeStart,
+                            eventTimeEnd: eventTimeEnd,
+                            eventKey: eventKey,
+                            descPage: widget,
+                            beaconID: beaconID,
+                            major: major,
+                            minor: minor,
+                            eventDate: eventDate);
               }
             }),
         body: DescBody(
           eventTitle: widget.eventTitle,
           username: widget.username,
         ));
+  }
+}
+
+class AttendanceFAB extends StatelessWidget {
+  const AttendanceFAB({
+    Key key,
+    @required this.eventTimeStart,
+    @required this.eventTimeEnd,
+    @required this.eventKey,
+    @required this.descPage,
+    @required this.beaconID,
+    @required this.major,
+    @required this.minor,
+    @required this.eventDate,
+  }) : super(key: key);
+
+  final DateTime eventTimeStart;
+  final DateTime eventTimeEnd;
+  final String eventKey;
+  final DescPage descPage;
+  final String beaconID;
+  final String major;
+  final String minor;
+  final DateTime eventDate;
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton.extended(
+        backgroundColor: Colors.red[200],
+        icon: Icon(Icons.event),
+        label: Text(
+          DateTime.now().isAfter(eventTimeStart.subtract(Duration(minutes: 5)))
+              ? "Attendance IN"
+              : DateTime.now().isAfter(eventTimeEnd)
+                  ? "Attendance Out"
+                  : "Attendance In",
+          style: TextStyle(color: Colors.white),
+        ),
+        onPressed: () async {
+          if (DateTime.now()
+                  .isAfter(eventTimeStart.subtract(Duration(minutes: 5))) &&
+              DateTime.now().isBefore(eventTimeEnd)) {
+            await FlutterScanBluetooth.startScan(pairedDevices: false)
+                .catchError((e) => print(e))
+                .whenComplete(
+                    () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => MonitoringTab(
+                              eventKey: eventKey,
+                              eventTitle: descPage.eventTitle,
+                              beaconID: beaconID,
+                              major: major,
+                              minor: minor,
+                              eventDateStart: eventDate,
+                              eventTimeStart: eventTimeStart,
+                              eventTimeEnd: eventTimeEnd,
+                            ))));
+          } else if (DateTime.now().isAfter(eventTimeEnd)) {
+            await FlutterScanBluetooth.startScan(pairedDevices: false)
+                .catchError((e) => print(e))
+                .whenComplete(
+                    () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => OMonitoringTab(
+                              eventKey: eventKey,
+                              eventTitle: descPage.eventTitle,
+                              beaconID: beaconID,
+                              major: major,
+                              minor: minor,
+                              eventDateStart: eventDate,
+                              eventTimeStart: eventTimeStart,
+                              eventTimeEnd: eventTimeEnd,
+                            ))));
+          } else {
+            print("Event is not open yet");
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                    title: Text("CLOSED"),
+                    content:
+                        Text("The event may not be available at the moment"),
+                    actions: <Widget>[
+                      FlatButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text("Okay"),
+                      )
+                    ],
+                  ),
+            );
+          }
+          // onPressed: () {
+          //   //Directs to to ConnectBeacon if the date is today.
+        });
   }
 }
 
@@ -250,6 +284,7 @@ class DescListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String organization = descDocuments[0].data['organization'].toString();
     String eventDesc = descDocuments[0].data['eventDesc'].toString();
     DateTime eventTimeStart = descDocuments[0].data['timeStart'];
     DateTime eventTimeEnd = descDocuments[0].data['timeEnd'];
@@ -295,13 +330,22 @@ class DescListView extends StatelessWidget {
             height: 8.0,
           ),
           Text(
+            "Organization: $organization",
+            style: Theme.of(context).textTheme.title,
+          ),
+          Text(
             "Location: $eventLocation",
             style: Theme.of(context).textTheme.title,
           ),
           Text(
               "Time: ${DateFormat.jm().format(eventTimeStart)} - ${DateFormat.jm().format(eventTimeEnd)}",
               style: Theme.of(context).textTheme.title),
-          adminName != "null" ? Text("Created by: $adminName") : Text("")
+          SizedBox(),
+          Text(
+            "Event Date: ${DateFormat.yMMMd().format(eventTimeStart)}",
+            style: Theme.of(context).textTheme.title,
+          ),
+          adminName != null ? Text("Created by: $adminName") : Text(""),
         ],
       ),
     );
@@ -336,13 +380,12 @@ class FavButtonState extends State<FavButton> {
         "eventName": widget.eventTitle,
         "userid": prefs.getString('userid'),
         "username": prefs.getString('username'),
-        "In": null,
-        "Out": null,
+        "TimeIn": null,
+        "TimeOut": null,
       };
       DocumentReference attendEvent = Firestore.instance.document(
           '${widget.eventKey}_attendees/${prefs.getString('userid')}');
       String date = DateFormat.yMMMd().format(widget.eventDate);
-      Firestore.instance.batch().updateData(attendEvent, setAttendees);
       Firestore.instance.runTransaction((tx) async {
         DocumentSnapshot snapshot = await tx.get(attendEvent);
         if (!snapshot.exists) {
@@ -439,10 +482,27 @@ class FavButtonState extends State<FavButton> {
                 ],
               ),
               onPressed: () {
-                this.setState(() {
-                  isAttending = false;
-                  eventAttendance();
-                });
+                if (DateTime.now()
+                    .isAfter(widget.eventDate.add(Duration(minutes: 5)))) {
+                  showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                              title: Text("Cannot Cancel ${widget.eventTitle}"),
+                              content: Text(
+                                  "Please contact the admin to cancel your registration"),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: Text("Okay"),
+                                  onPressed: () => Navigator.pop(context),
+                                )
+                              ]));
+                } else {
+                  this.setState(() {
+                    isAttending = false;
+                    eventAttendance();
+                  });
+                }
+
                 // Firestore.instance.runTransaction(transactionHandler)
               },
               shape: StadiumBorder(),

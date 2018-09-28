@@ -1,8 +1,6 @@
-import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class AttendedEvents extends StatelessWidget {
   final String user, eventKey, eventName;
@@ -31,30 +29,18 @@ class AttendedEventBody extends StatefulWidget {
 }
 
 class AttendedEventBodyState extends State<AttendedEventBody> {
-  String userid;
   List<String> eventLists = new List();
-  Future<String> queryEvents({String id}) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return id = prefs.getString('userid');
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    queryEvents(id: userid);
-  }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: Firestore.instance
-          .collection("event_attended_${widget.eventKey}")
-          .where("userid", isEqualTo: userid)
+          .collection("event_attended_${widget.user}")
+          .where("userid", isEqualTo: widget.user)
           .snapshots(),
       builder: (context, snapshot) {
         List<DocumentSnapshot> attendedEvents = snapshot.data.documents;
-        if (!snapshot?.hasData) {
+        if (!snapshot.hasData) {
           return Text("Loading...");
         } else {
           return ListView.builder(
@@ -62,29 +48,18 @@ class AttendedEventBodyState extends State<AttendedEventBody> {
             itemBuilder: (context, index) {
               String attendanceIn = attendedEvents[index].data['In'];
               String attendanceOut =
-                  attendedEvents[index].data['Out'].toString() ?? "UNATTENDED";
+                  attendedEvents[index].data['Out']?.toString() ?? "Absent";
               String eventName =
                   attendedEvents[index].data['eventName'].toString();
-              return ListView.builder(
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text("${index + 1}. $eventName"),
-                    // subtitle: Row(
-                    //   children: <Widget>[
-                    //     Text(
-                    //       "In:$attendanceIn",
-                    //     ),
-                    //     Icon(attendanceIn != "Absent"
-                    //         ? Icons.check
-                    //         : Icons.close),
-                    //     Text("OUT: $attendanceOut"),
-                    //     Icon(attendanceOut != "Absent"
-                    //         ? Icons.check
-                    //         : Icons.close)
-                    //   ],
-                    // ),
-                  );
-                },
+              return Card(
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: Text("${index + 1}. $eventName"),
+                      subtitle: Text("In: $attendanceIn Out: $attendanceOut"),
+                    ),
+                  ],
+                ),
               );
             },
           );

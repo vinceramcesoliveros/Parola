@@ -33,7 +33,7 @@ class EventPageState extends State<EventPage> {
   final GlobalKey<FormState> eventKey = new GlobalKey<FormState>();
   final int eventID = Random.secure().nextInt(100000);
   File _image;
-
+  bool hasOptions = false;
   MaskedTextController beaconController =
       MaskedTextController(mask: '@@@@@@@@-@@@@-@@@@-@@@@-@@@@@@@@@@@@');
   Future getImage() async {
@@ -273,12 +273,11 @@ class EventPageState extends State<EventPage> {
                       Expanded(
                         flex: 2,
                         child: TextFormField(
-                          controller: beaconController,
                           maxLength: 36,
                           decoration: InputDecoration(
-                              labelText: "Beacon UUID",
+                              labelText: "Organization",
                               labelStyle: Theme.of(context).textTheme.body1),
-                          onSaved: (str) => beaconUUID = str,
+                          onSaved: (str) => organization = str,
                         ),
                       ),
                       SizedBox(
@@ -296,11 +295,12 @@ class EventPageState extends State<EventPage> {
                       Expanded(
                         flex: 2,
                         child: TextFormField(
+                          controller: beaconController,
                           maxLength: 36,
                           decoration: InputDecoration(
-                              labelText: "Organization",
+                              labelText: "Beacon UUID",
                               labelStyle: Theme.of(context).textTheme.body1),
-                          onSaved: (str) => organization = str,
+                          onSaved: (str) => beaconUUID = str,
                         ),
                       ),
                       SizedBox(
@@ -315,8 +315,20 @@ class EventPageState extends State<EventPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Expanded(
+                          flex: 3,
+                          child: CheckboxListTile(
+                              activeColor: Colors.green[200],
+                              title: Text("Add Major Minor"),
+                              onChanged: (val) {
+                                setState(() {
+                                  hasOptions = val;
+                                });
+                              },
+                              value: hasOptions)),
+                      Expanded(
                         flex: 1,
                         child: TextFormField(
+                            enabled: hasOptions,
                             maxLength: 4,
                             onSaved: (str) => major = str,
                             decoration: InputDecoration(
@@ -329,6 +341,7 @@ class EventPageState extends State<EventPage> {
                       Expanded(
                         flex: 1,
                         child: TextFormField(
+                            enabled: hasOptions,
                             maxLength: 4,
                             onSaved: (str) => minor = str,
                             decoration: InputDecoration(
