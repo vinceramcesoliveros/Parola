@@ -9,7 +9,7 @@ class AttendeesLists extends StatefulWidget {
   final String eventName;
   final String eventKey;
   final DateTime endTime;
-  AttendeesLists({this.eventName, this.eventKey, this.endTime, DateTime eventEnd});
+  AttendeesLists({this.eventName, this.eventKey, this.endTime});
 
   @override
   AttendeesListsState createState() {

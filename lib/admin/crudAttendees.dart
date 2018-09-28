@@ -15,24 +15,23 @@ class _AddAttendeesState extends State<AddAttendees> {
   GlobalKey<FormState> keyAttendee = GlobalKey<FormState>();
 
   Future<Null> setAttendees() async {
-    Map<String, String> setAttendee = {
+    Map<String, dynamic> setAttendee = {
       "username": name,
       "In": attendIn,
-      "Out": attendOut
+      "Out": attendOut,
+      "TimeIn": DateTime.now(),
+      "TimeOut": DateTime.now(),
     };
     final addUser = Firestore.instance
         .collection('${widget.eventKey}_attendees')
         .document();
 
-    Firestore.instance.runTransaction((tx) async {
-      final users = await tx.get(addUser);
-      if (users.exists) {
-        await tx.set(addUser, setAttendee);
-      }
+    addUser.setData(setAttendee).then((e) {
+      print("ADDED");
     });
   }
 
-  void addAttendees() async {
+  void addAttendees() {
     final form = keyAttendee.currentState;
     if (form.validate()) {
       form.save();
@@ -105,10 +104,10 @@ class _AddAttendeesState extends State<AddAttendees> {
                   RadioListTile(
                       title: Text("Excused"),
                       value: "Excused",
-                      groupValue: attendOut,
+                      groupValue: attendIn,
                       onChanged: (String val) {
                         setState(() {
-                          attendOut = val;
+                          attendIn = val;
                         });
                       }),
                   Text(
@@ -176,17 +175,29 @@ class EditAttendees extends StatefulWidget {
 class _EditAttendeesState extends State<EditAttendees> {
   GlobalKey<FormState> keyAttendee = GlobalKey<FormState>();
   String name, attendOut, attendIn, eventKey, id;
+
   Future<Null> setAttendees() async {
-    Map<String, String> setAttendee = {
+    Map<String, dynamic> setAttendee = {
       "username": name,
+      "TimeIn": DateTime.now(),
+      "TimeOut": DateTime.now(),
       "In": attendIn,
       "Out": attendOut,
+      "eventID": widget.eventKey
     };
+
+    final eventAttendeesQuery = Firestore.instance
+        .collection('event_attended_${widget.id}')
+        .document(widget.eventKey);
     final setQuery = Firestore.instance
         .collection('${widget.eventKey}_attendees')
         .document(widget.id);
-
-    Firestore.instance.batch().updateData(setQuery, setAttendee);
+    setQuery.updateData(setAttendee).then((e) {
+      print("UPDATED");
+      eventAttendeesQuery.updateData(setAttendee).then((e) {
+        print("update attendee");
+      });
+    });
   }
 
   void updateAttendees() {

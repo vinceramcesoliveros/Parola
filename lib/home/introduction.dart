@@ -28,7 +28,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
             TextStyle titleStyle = Theme.of(context).textTheme.title;
             List<PageViewModel> pageList = [
               PageViewModel(
-                iconImageAssetPath: 'assets/iconLighthouse.png',
+                iconImageAssetPath: 'assets/lighthouse_app.png',
                 pageColor: Colors.grey[400],
                 mainImage: Image.asset(
                   'assets/lighthouse_app.png',
@@ -45,6 +45,13 @@ class _IntroductionPageState extends State<IntroductionPage> {
                       'Hi ${model.user.displayName}! If it\'s not your real name, you can change it in the settings')
                 ]),
               ),
+              PageViewModel(
+                  mainImage: Image.asset('assets/beacon_data.png'),
+                  iconImageAssetPath: 'assets/beacon-example31.png',
+                  pageColor: Colors.red[200],
+                  title: Text("We don't steal information about you"),
+                  body: Text(
+                      "Beacons will not collect any information, they\'re just sending data to any near BLE devices")),
               PageViewModel(
                 pageColor: model.batteryLevel >= 20
                     ? Colors.green[300]

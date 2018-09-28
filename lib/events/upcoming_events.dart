@@ -9,7 +9,7 @@ class UpcomingEvents extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text("My Events"),
+          title: Text("Upcoming Events"),
           centerTitle: true,
           backgroundColor: Colors.green[200]),
       body: UpcomingEventBody(),
@@ -36,7 +36,6 @@ class UpcomingEventBody extends StatelessWidget {
               if (DateFormat.yMMMd().format(eventDate) ==
                   DateFormat.yMMMd().format(DateTime.now())) {
                 return Card(
-                  elevation: 8.0,
                   child: ListTile(
                     title: Text(eventName),
                     subtitle:

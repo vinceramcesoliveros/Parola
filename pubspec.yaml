@@ -10,7 +10,7 @@ dependencies:
   firebase_auth: 
   google_sign_in: 
   shared_preferences: 
-  cloud_firestore: ^0.8.0
+  cloud_firestore: 0.8.0
   firebase_core: 
   cached_network_image: 
     git: https://github.com/Cretezy/flutter_cached_network_image.git
@@ -27,8 +27,6 @@ dependencies:
   flutter_spinkit:
   fluttertoast:
   path_provider:
-  timeago:
-  
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
@@ -51,15 +49,18 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-   - assets/bluetooth_icon.png
    - assets/battery_charge.png
    - assets/icons8-bluetooth-24.png
    - assets/icons8-empty-battery-50.png
    - assets/battery_charge.png
    - assets/lowbat.png
-   - assets/lighthouse.png
-   - assets/iconLighthouse.png
    - assets/lighthouse_app.png
+   - assets/beacon_data.png
+   - assets/beacon_mount.png
+   - assets/typeOfBeacon.png
+   - assets/beacon_quantity.png
+   - assets/beacon-example31.png
+   - assets/beaconBrand.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.
 

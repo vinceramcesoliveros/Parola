@@ -10,13 +10,18 @@
 - ✅ Will use Firestore instead of Firebase Realtime Database
 - ✅ Event Page
 - ✅ Create Event
-- ✅ Scan Page
+- ✅ Scan Events using Beacon
 - ✅ Description of Event Page
 - ✅ Fixing Beacons
+- ✅ Upcoming Events
+- ✅ ATTENDANCE LISTS
+- ❌ Organization that doesn't make any sense to me 🤔
 
-### Wishlist 
+### Wishlist
 
-- Upcoming Events
-- ATTENDANCE LISTS
-- PROPERLY UPDATE EACH COLLECTION IN CLOUD FIRESTORE
+- Background Notification for users.
 
+#### Testing
+
+Scanning Beacon Takes only a split second. that means the attendance is really fast. though I don't know about the speed of data that is being transfered.
+As long as I get the **Realtime Updates** from the Firestore and **Offline Support** from Firebase.

@@ -3,13 +3,14 @@ import 'package:final_parola/home/description.dart';
 import 'package:final_parola/model/crud_events.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminEvents extends StatelessWidget {
-  final String adminName;
-  AdminEvents({this.adminName});
+  final String userid;
+  AdminEvents({this.userid});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +27,7 @@ class AdminEvents extends StatelessWidget {
             child: StreamBuilder(
               stream: Firestore.instance
                   .collection('events')
-                  .where('Admin', isEqualTo: adminName)
+                  .where('userid', isEqualTo: userid)
                   .snapshots(),
               builder: (context, freshSnap) {
                 if (!freshSnap.hasData)
@@ -54,15 +55,14 @@ class ListOfEvents extends StatelessWidget {
       itemBuilder: (context, index) {
         String eventName = eventRef[index].data['eventName'].toString();
         String eventKey = eventRef[index].documentID.toString();
-        String eventDate = eventRef[index].data['eventDate'].toString();
-
-        DateTime eventEnd = eventRef[index].data['timeEnd'];
+        String eventDate =
+            DateFormat.yMMMd().format(eventRef[index].data['eventDate']);
+        DateTime endTime = eventRef[index].data['timeEnd'];
         return new EventDetails(
-          eventName: eventName,
-          eventDate: eventDate,
-          eventKey: eventKey,
-          eventEnd: eventEnd,
-        );
+            eventName: eventName,
+            eventDate: eventDate,
+            eventKey: eventKey,
+            endTime: endTime);
       },
     );
   }
@@ -71,12 +71,12 @@ class ListOfEvents extends StatelessWidget {
 class EventDetails extends StatelessWidget {
   const EventDetails({
     Key key,
-    @required this.eventEnd,
+    @required this.endTime,
     @required this.eventName,
     @required this.eventDate,
-    @required this.eventKey,
+    @required this.eventKey, this.eventEnd,
   }) : super(key: key);
-
+  final DateTime endTime;
   final String eventName;
   final String eventDate;
   final String eventKey;
@@ -85,43 +85,42 @@ class EventDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScopedModel(
-      model: ParolaFirebase(),
-      child: Card(
-        color: Colors.green[300],
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(32.0))),
-        elevation: 16.0,
-        child: GestureDetector(
-          onTap: () async {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                    builder: (context) => DescPage(
-                          eventTitle: eventName,
-                          username: prefs.getString('username'),
-                        )),
-                (p) => true);
-          },
-          child: new EventViewDetails(
-              eventName: eventName,
-              eventDate: eventDate,
-              eventKey: eventKey,
-              eventEnd: eventEnd),
-        ),
-      ),
-    );
+        model: ParolaFirebase(),
+        child: Card(
+          color: Colors.green[300],
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          elevation: 16.0,
+          child: GestureDetector(
+            onTap: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                      builder: (context) => DescPage(
+                            eventTitle: eventName,
+                            username: prefs.getString('username'),
+                          )),
+                  (p) => true);
+            },
+            child: new EventViewDetails(
+                eventName: eventName,
+                eventDate: eventDate,
+                eventKey: eventKey,
+                endTime: endTime),
+          ),
+        ));
   }
 }
 
 class EventViewDetails extends StatelessWidget {
   const EventViewDetails({
     Key key,
-    @required this.eventEnd,
+    @required this.endTime,
     @required this.eventName,
     @required this.eventDate,
-    @required this.eventKey,
+    @required this.eventKey, this.eventEnd,
   }) : super(key: key);
-
+  final DateTime endTime;
   final String eventName;
   final String eventDate;
   final String eventKey;
@@ -151,7 +150,7 @@ class EventViewDetails extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         builder: (context) => AttendeesLists(
-                              eventEnd: eventEnd,
+                              endTime: endTime,
                               eventKey: eventKey,
                               eventName: eventName,
                             )));

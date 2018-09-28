@@ -67,52 +67,6 @@ class UserCard extends StatelessWidget {
           SizedBox(
             height: 8.0,
           ),
-          Card(
-            child: Column(
-              children: <Widget>[
-                StreamBuilder(
-                    stream: Firestore.instance
-                        .collection('organization')
-                        .where('owner', isEqualTo: username)
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      List<DocumentSnapshot> orgSnapshot =
-                          snapshot.data.documents;
-                      if (snapshot.hasError) return CircularProgressIndicator();
-
-                      return orgSnapshot.isNotEmpty
-                          ? Column(
-                              children: <Widget>[
-                                Text(
-                                  "Organization",
-                                  style: Theme.of(context).textTheme.display1,
-                                ),
-                                Text(
-                                  snapshot.data.documents[0].data['orgName']
-                                      .toString(),
-                                  style: Theme.of(context).textTheme.title,
-                                )
-                              ],
-                            )
-                          : Text(
-                              "No Organization",
-                              style: Theme.of(context).textTheme.display1,
-                            );
-                    }),
-                RaisedButton(
-                    child: Text("Add Organization"),
-                    shape: StadiumBorder(),
-                    onPressed: () async {
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => AddOrganization(
-                                userid: prefs.getString('userid'),
-                              )));
-                    })
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -150,7 +104,6 @@ class _EditProfileState extends State<EditProfile> {
                   .listen((eventData) {
                 eventData.documents.forEach((eventDoc) {
                   eventListName.add(eventDoc['eventID']);
-                  print(eventDoc['eventName']);
                 });
                 // eventListName.add(eventData.documents[0].data['eventName']);
               });

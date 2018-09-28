@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EventBodyPage extends StatelessWidget {
+  final String userid;
+  EventBodyPage({this.userid});
   final Radius kBorderRadius = Radius.circular(32.0);
   @override
   Widget build(BuildContext context) {
@@ -53,7 +55,7 @@ class EventBodyPage extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AdminEvents(
-                                        adminName: prefs.getString('username'),
+                                        userid: userid,
                                       )));
                         },
                       )
@@ -98,8 +100,8 @@ class EventBodyPage extends StatelessWidget {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => AttendedEvents(
-                                        user: prefs.getString('username'))));
+                                    builder: (context) =>
+                                        AttendedEvents(user: userid)));
                           }),
                     ],
                   ))
@@ -141,8 +143,8 @@ class EventBodyPage extends StatelessWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => UpcomingEvents(
-                                      user: prefs.getString('username'))));
+                                  builder: (context) =>
+                                      UpcomingEvents(user: userid)));
                         },
                       )
                     ],

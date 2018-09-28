@@ -15,6 +15,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/admin/eventAdmin.dart';
+import 'package:final_parola/home/create_event_tutorial.dart';
 
 import 'package:final_parola/home/home.dart';
 import 'package:final_parola/home/introduction.dart';
@@ -65,7 +66,7 @@ class ParolaScreenState extends State<ParolaScreen> {
     this.setState(() {
       _auth.onAuthStateChanged.firstWhere((user) => isLoggedIn = user != null);
 
-      if (prefs.getString('userud') != null) {
+      if (prefs.getString('username') != null) {
         isLoggedIn = true;
         print("Shared Prefs: " + prefs.getString('username'));
       } else {
@@ -173,7 +174,8 @@ class ParolaScreenState extends State<ParolaScreen> {
           '/event': (context) => EventPage(),
           '/homePage': (context) => MyScaffold(),
           '/introduction': (context) => IntroductionPage(),
-          '/admin': (context) => AdminEvents()
+          '/admin': (context) => AdminEvents(),
+          '/event_tutorial': (context) => EventTutorial()
         },
       ),
     );

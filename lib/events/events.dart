@@ -27,11 +27,13 @@ class EventPageState extends State<EventPage> {
   DateTime eventDateStart = new DateTime.now();
   TimeOfDay eventTimeStart = const TimeOfDay(minute: 0, hour: 0);
   TimeOfDay eventTimeEnd = const TimeOfDay(minute: 0, hour: 0);
+
+  String organization;
   String eventName, eventDesc, beaconUUID, major, minor, eventLocation, path;
   final GlobalKey<FormState> eventKey = new GlobalKey<FormState>();
-  int eventID = Random().nextInt(10000000);
+  final int eventID = Random.secure().nextInt(100000);
   File _image;
-
+  bool hasOptions = false;
   MaskedTextController beaconController =
       MaskedTextController(mask: '@@@@@@@@-@@@@-@@@@-@@@@-@@@@@@@@@@@@');
   Future getImage() async {
@@ -89,9 +91,11 @@ class EventPageState extends State<EventPage> {
       "timeEnd": finalEndDate,
       "eventPicURL": path,
       "beaconUUID": beaconUUID.toLowerCase(),
-      "Major": major,
-      "Minor": minor,
-      'Admin': admin
+      "Major": hasOptions == false ? null : major,
+      "Minor": hasOptions == false ? null : minor,
+      'Admin': admin,
+      "userid": prefs.getString('userid'),
+      "organization": organization
     };
     final DocumentReference ref = Firestore.instance
         .collection('events')
@@ -148,6 +152,7 @@ class EventPageState extends State<EventPage> {
                 beaconController.text != null
                     ? await uploadFile(_image.path).whenComplete(() async {
                         submitEvent();
+                        Fluttertoast.showToast(msg:"Uploading...");
                       }).then((e) {
                         addEvent();
                         Fluttertoast.showToast(
@@ -264,6 +269,28 @@ class EventPageState extends State<EventPage> {
                       Expanded(
                         flex: 2,
                         child: TextFormField(
+                          maxLength: 36,
+                          decoration: InputDecoration(
+                              labelText: "Organization",
+                              labelStyle: Theme.of(context).textTheme.body1),
+                          onSaved: (str) => organization = str,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 8.0,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
                           controller: beaconController,
                           maxLength: 36,
                           decoration: InputDecoration(
@@ -275,9 +302,29 @@ class EventPageState extends State<EventPage> {
                       SizedBox(
                         width: 8.0,
                       ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Expanded(
+                          flex: 3,
+                          child: CheckboxListTile(
+                              activeColor: Colors.green[200],
+                              title: Text("Add Major Minor"),
+                              onChanged: (val) {
+                                setState(() {
+                                  hasOptions = val;
+                                });
+                              },
+                              value: hasOptions)),
                       Expanded(
                         flex: 1,
                         child: TextFormField(
+                            enabled: hasOptions,
                             maxLength: 4,
                             onSaved: (str) => major = str,
                             decoration: InputDecoration(
@@ -290,14 +337,12 @@ class EventPageState extends State<EventPage> {
                       Expanded(
                         flex: 1,
                         child: TextFormField(
+                            enabled: hasOptions,
                             maxLength: 4,
                             onSaved: (str) => minor = str,
                             decoration: InputDecoration(
                                 labelText: "Minor",
                                 labelStyle: Theme.of(context).textTheme.body1)),
-                      ),
-                      SizedBox(
-                        height: 16.0,
                       ),
                     ],
                   ),

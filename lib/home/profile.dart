@@ -45,9 +45,14 @@ class UserDrawer extends StatelessWidget {
                   ListTile(
                     title: Text("Events"),
                     leading: Icon(Icons.event_note),
-                    onTap: () {
+                    onTap: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      print(snapshot.data.uid);
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => EventBodyPage()));
+                          builder: (context) => EventBodyPage(
+                              userid: snapshot.data.uid ??
+                                  prefs.getString('userid'))));
                     },
                   ),
                   ListTile(

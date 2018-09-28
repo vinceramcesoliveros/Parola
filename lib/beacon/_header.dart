@@ -12,7 +12,8 @@ class Header extends StatefulWidget {
       this.major,
       this.minor})
       : super(key: key);
-  final String beaconID, major, minor;
+  final String beaconID;
+  final major, minor;
   final String regionIdentifier;
   final bool running;
   final ValueChanged<BeaconRegion> onStart;
@@ -27,19 +28,25 @@ class _HeaderState extends State<Header> {
     if (widget.running) {
       widget.onStop();
     } else {
+      List<dynamic> ids = [];
+      ids.add(widget.beaconID.toLowerCase());
+      if (widget.major != "null") {
+        ids.add(widget.major);
+        if (widget.minor != "null") {
+          ids.add(widget.minor);
+        }
+      }
       BeaconRegion region =
-          BeaconRegion(identifier: widget.regionIdentifier, ids: [
-        widget.beaconID.toString().toLowerCase(),
-        int.parse(widget.major, radix: 16)?.toString() ?? null,
-        int.parse(widget.minor, radix: 16)?.toString() ?? null,
-        // '23A01AF0-232A-4518-9C0E-323FB773F5EF',
-        // int.parse('ACE6', radix: 16).toString(),
-        // int.parse('51F0', radix: 16).toString()
-      ]);
+          BeaconRegion(identifier: widget.regionIdentifier, ids: ids
+              // '23A01AF0-232A-4518-9C0E-323FB773F5EF',
+              // int.parse('ACE6', radix: 16).toString(),
+              // int.parse('51F0', radix: 16).toString()
+              );
+      region = BeaconRegionIBeacon.from(region);
       widget.onStart(region);
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Padding(
