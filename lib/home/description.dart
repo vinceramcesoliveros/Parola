@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:final_parola/beacon/beacon_event.dart';
+import 'package:final_parola/beacon/beacon_event_out.dart';
 import 'package:final_parola/events/edit_events.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

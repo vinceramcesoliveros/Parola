@@ -88,7 +88,7 @@ class EventPageState extends State<EventPage> {
       "timeStart": finalStartDate,
       "timeEnd": finalEndDate,
       "eventPicURL": path,
-      "beaconUUID": beaconUUID,
+      "beaconUUID": beaconUUID.toLowerCase(),
       "Major": major,
       "Minor": minor,
       'Admin': admin

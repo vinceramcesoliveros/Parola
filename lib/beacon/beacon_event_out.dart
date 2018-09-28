@@ -1,20 +1,18 @@
 import 'dart:async';
-import 'dart:core';
 
-import 'package:beacons/beacons.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/beacon/_header.dart';
 import 'package:final_parola/beacon/result.dart';
 import 'package:flutter/material.dart';
+import 'package:beacons/beacons.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_scan_bluetooth/flutter_scan_bluetooth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MonitoringTab extends ListTab {
+class OMonitoringTab extends ListTab {
   final String eventTitle, major, minor, beaconID, eventKey;
   final DateTime eventDateStart, eventTimeStart, eventTimeEnd;
-  MonitoringTab(
+  OMonitoringTab(
       {this.eventTitle,
       this.beaconID,
       this.major,
@@ -43,7 +41,7 @@ class MonitoringTab extends ListTab {
       String text;
       if (result.isSuccessful == true) {
         text = result.beacons.isNotEmpty
-            ? "You are ${result.beacons.first.distance < 7.0 ? 'Connected' : 'Too far'} from $eventTitle "
+            ? "You are ${result.beacons.first.distance < 5.0 ? 'Connected' : 'Too far'} from $eventTitle "
             : 'You are Disconnected from $eventTitle';
       } else {
         text = result.beacons.isNotEmpty == false
@@ -53,7 +51,7 @@ class MonitoringTab extends ListTab {
 
       return new ListTabResult(
           text: text,
-          isSuccessful: result.beacons.first.distance < 7.0 ? true : false,
+          isSuccessful: result.beacons.first.distance < 5.0 ? true : false,
           distance: result.beacons.first.distance);
     });
   }
@@ -138,8 +136,8 @@ class _ListTabState extends State<ListTab> {
       'your channel id',
       'your channel name',
       'your channel description',
-      importance: Importance.Default,
-      priority: Priority.Default,
+      importance: Importance.Min,
+      priority: Priority.Low,
       ongoing: true,
       autoCancel: true,
       playSound: false,
@@ -164,7 +162,6 @@ class _ListTabState extends State<ListTab> {
   }
 
   void _onStart(BeaconRegion region) {
-    Map<String, dynamic> setAttendees = new Map();
     setState(() {
       _running = true;
     });
@@ -183,50 +180,46 @@ class _ListTabState extends State<ListTab> {
                   isSuccessful: false,
                   distance: null));
         }
-        setAttendees = {
+        // Map<String, dynamic> status = {
+        //   "Connected": result.isSuccessful,
+        //   "Distance": result.distance,
+        // };
+        // Map<String, dynamic> setAttendees = {
+        //   "status": status,
+        //   "In": widget.eventTimeStart
+        //           .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
+        //       ? "Late"
+        //       : "Present",
+        // };
+
+        Map<String, dynamic> outAttendance = {
           "eventName": widget.title,
           "userid": prefs.getString('userid'),
           "username": prefs.getString('username'),
-          "TimeIn": FieldValue.serverTimestamp(),
-          "In": widget.eventTimeStart
-                  .isAfter(widget.eventTimeStart.add(Duration(minutes: 5)))
-              ? "Late"
-              : "Present",
+          "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
+                  widget.eventTimeEnd
+                      .isBefore(widget.eventTimeEnd.add(Duration(minutes: 10)))
+              ? "Present"
+              : "Absent"
         };
-
-        // outAttendance = {
-        //   "eventID": widget.eventKey,
-        //   "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
-        //           widget.eventTimeEnd
-        //               .isBefore(widget.eventTimeEnd.add(Duration(minutes: 10)))
-        //       ? "Completed"
-        //       : "Absent"
-        // };
         result.distance < 7.0
             ? _showOngoingNotification(
                 successful:
                     result.distance < 7.0 ? 'Connected' : 'Disconnected',
                 status: result.text)
             : _showStatusNotifcation();
-      });
-      DocumentReference attendeesRef = Firestore.instance.document(
-          "${widget.eventKey}_attendees/${prefs.getString('userid')}");
+        DocumentReference attendeesRef = Firestore.instance.document(
+            "${widget.eventKey}_attendees/${prefs.getString('userid')}");
 
-      DocumentReference userRef = Firestore.instance.document(
-          "event_attended_${prefs.getString('userid')}/${widget.eventKey}");
-      Future.delayed(Duration(seconds: 3), () {
-        userRef
-            .setData(
-          setAttendees,
-        )
-            .then((e) {
-          print("Added to Attended Events");
-        });
-        attendeesRef.updateData(setAttendees).then((e) {
-          print("Added to in");
+        DocumentReference userRef = Firestore.instance.document(
+            "event_attended_${prefs.getString('userid')}/${widget.eventKey}");
+
+        attendeesRef.updateData(outAttendance).then((e) {
+          userRef.setData(outAttendance, merge: true).then((e) {
+            print("Attendance Out");
+          });
         }).whenComplete(() {
-          FlutterScanBluetooth.stopScan();
-          Fluttertoast.showToast(msg: "Attendance In!");
+          Fluttertoast.showToast(msg: "Attendance Out!");
           _onStop();
           Navigator.pop(context);
         });
@@ -235,6 +228,9 @@ class _ListTabState extends State<ListTab> {
     _subscription.onDone(() async {
       setState(() {
         _running = false;
+        Future.delayed(Duration(seconds: 30), () {
+          _onStop();
+        });
       });
     });
   }
