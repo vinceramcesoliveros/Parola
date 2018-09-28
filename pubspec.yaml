@@ -10,7 +10,7 @@ dependencies:
   firebase_auth: 
   google_sign_in: 
   shared_preferences: 
-  cloud_firestore: 
+  cloud_firestore: ^0.8.0
   firebase_core: 
   cached_network_image: 
     git: https://github.com/Cretezy/flutter_cached_network_image.git

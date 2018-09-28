@@ -83,8 +83,7 @@ class UserDrawer extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => UserProfile(
-                                        username: snapshot.data.displayName ??
-                                            prefs.getString('username'),
+                                        username: snapshot.data.displayName
                                       )));
                     },
                   ),

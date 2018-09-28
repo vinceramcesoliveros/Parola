@@ -74,12 +74,13 @@ class EventDetails extends StatelessWidget {
     @required this.endTime,
     @required this.eventName,
     @required this.eventDate,
-    @required this.eventKey,
+    @required this.eventKey, this.eventEnd,
   }) : super(key: key);
   final DateTime endTime;
   final String eventName;
   final String eventDate;
   final String eventKey;
+  final DateTime eventEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -117,12 +118,13 @@ class EventViewDetails extends StatelessWidget {
     @required this.endTime,
     @required this.eventName,
     @required this.eventDate,
-    @required this.eventKey,
+    @required this.eventKey, this.eventEnd,
   }) : super(key: key);
   final DateTime endTime;
   final String eventName;
   final String eventDate;
   final String eventKey;
+  final DateTime eventEnd;
 
   @override
   Widget build(BuildContext context) {

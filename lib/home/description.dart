@@ -347,6 +347,7 @@ class DescListView extends StatelessWidget {
                         username: username,
                         eventTitle: eventTitle,
                         eventKey: eventKey,
+                        
                         eventDate: eventDate),
                     bottom: 0.0,
                     right: 4.0,
@@ -482,7 +483,7 @@ class FavButtonState extends State<FavButton> {
           if (hasAttended.isEmpty) {
             return RaisedButton(
               color: Colors.green[200],
-              child: Row(
+              child: Row( 
                 children: <Widget>[
                   Icon(
                     Icons.favorite_border,

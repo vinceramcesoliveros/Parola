@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:final_parola/model/user_model.dart';
 import 'package:flutter/material.dart';
 
 import 'package:scoped_model/scoped_model.dart';
 import 'package:intro_views_flutter/Models/page_view_model.dart';
 import 'package:intro_views_flutter/intro_views_flutter.dart';
+import 'package:flutter/services.dart';
 
 class IntroductionPage extends StatefulWidget {
   @override

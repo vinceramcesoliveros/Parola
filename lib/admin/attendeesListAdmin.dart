@@ -96,7 +96,8 @@ class AttendeesListsDocuments extends StatelessWidget {
     return ListView.builder(
       itemCount: lists.length,
       itemBuilder: (context, index) {
-        String id = lists[index].documentID.toString();
+        String id = lists[index].data['eventID'].toString();
+        String distance = lists[index].data['Distance']?.toString();
         String name = lists[index].data["username"].toString();
         String attendanceIN = lists[index].data['In']?.toString();
         String attendanceOut = lists[index].data['Out']?.toString();

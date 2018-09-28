@@ -153,7 +153,9 @@ class _AddAttendeesState extends State<AddAttendees> {
                   Center(
                       child: RaisedButton(
                           child: Text("Add Attendee"),
-                          onPressed: addAttendees,
+                          onPressed: () async {
+                            addAttendees();
+                          },
                           shape: StadiumBorder()))
                 ]),
           ),
@@ -198,20 +200,20 @@ class _EditAttendeesState extends State<EditAttendees> {
     });
   }
 
+  void updateAttendees() {
+    name = widget.name;
+    final form = keyAttendee.currentState;
+    if (form.validate()) {
+      form.save();
+      setAttendees().whenComplete(() {
+        Fluttertoast.showToast(msg: "Updated ${widget.name}");
+        Navigator.pop(context);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    name = widget.name;
-    void updateAttendees() {
-      final form = keyAttendee.currentState;
-      if (form.validate()) {
-        form.save();
-        setAttendees().whenComplete(() {
-          Fluttertoast.showToast(msg: "Updated ${widget.name}");
-          Navigator.pop(context);
-        });
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green[400],

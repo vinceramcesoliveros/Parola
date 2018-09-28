@@ -10,7 +10,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_scan_bluetooth/flutter_scan_bluetooth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 class MonitoringTab extends ListTab {
   final String eventTitle, major, minor, beaconID, eventKey;
   final DateTime eventDateStart, eventTimeStart, eventTimeEnd;
