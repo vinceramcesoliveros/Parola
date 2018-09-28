@@ -37,7 +37,6 @@ void main() async {
       .then((_) {
     runApp(ParolaScreen());
   });
-  Firestore.instance.enablePersistence(true);
 }
 
 class ParolaScreen extends StatefulWidget {

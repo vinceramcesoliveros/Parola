@@ -135,12 +135,7 @@ class EventPageState extends State<EventPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
-    List<DropdownMenuItem<String>> orgMenu = [
-      DropdownMenuItem(
-        child: Text("CSD"),
-        value: "csd",
-      ),
-    ];
+    String orgChoice;
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomPadding: false,

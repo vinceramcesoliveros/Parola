@@ -8,7 +8,6 @@ class ParolaFirebase extends Model {
   Future<void> deleteEvents({String eventKey, String eventName}) async {
     StorageReference deleteRef =
         FirebaseStorage.instance.ref().child("eventImages/$eventKey.jpg");
-    Firestore.instance.enablePersistence(true);
     final eventKeyAttendees = Firestore.instance
         .collection('${eventKey.toString()}_attendees')
         .snapshots();
