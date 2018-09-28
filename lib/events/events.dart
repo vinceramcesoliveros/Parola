@@ -91,8 +91,8 @@ class EventPageState extends State<EventPage> {
       "timeEnd": finalEndDate,
       "eventPicURL": path,
       "beaconUUID": beaconUUID.toLowerCase(),
-      "Major": major,
-      "Minor": minor,
+      "Major": hasOptions == false ? null : major,
+      "Minor": hasOptions == false ? null : minor,
       'Admin': admin,
       "userid": prefs.getString('userid'),
       "organization": organization
@@ -157,6 +157,7 @@ class EventPageState extends State<EventPage> {
                 beaconController.text != null
                     ? await uploadFile(_image.path).whenComplete(() async {
                         submitEvent();
+                        Fluttertoast.showToast(msg:"Uploading...");
                       }).then((e) {
                         addEvent();
                         Fluttertoast.showToast(

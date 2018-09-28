@@ -17,29 +17,23 @@ class ParolaFirebase extends Model {
     final eventKeys =
         Firestore.instance.collection('events').document('$eventKey');
 
-    await eventKeyAttendees.isEmpty
-        ? eventKeys.delete().then((e) {
-            print("Deleted events only");
-          })
-        : eventKeyAttendees.listen((data) {
-            data.documents.forEach((documents) {
-              return eventAttendees
-                  .document(documents.documentID)
-                  .delete()
-                  .then((doc) {
-                deleteRef.delete().then((del) {
-                  print("Deleted: $eventKey");
-                }).catchError((e) {
-                  print(e);
-                });
-                print("Deleted $eventKey");
-                eventKeys.delete().then((doc) {
-                  print('Deleted $eventKey from events');
-                });
-              });
-            });
-          });
-
+    eventKeyAttendees.listen((data) {
+      data.documents.forEach((documents) {
+        return eventAttendees
+            .document(documents.documentID)
+            .delete()
+            .then((doc) {
+          print("Deleted $eventKey");
+        });
+      });
+    });
+    eventKeys.delete().then((doc) async {
+      await deleteRef.delete().then((del) {
+        print("Deleted: $eventKey");
+      }).catchError((e) {
+        print(e);
+      });
+    });
     notifyListeners();
   }
 }

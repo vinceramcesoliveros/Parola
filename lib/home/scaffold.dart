@@ -82,7 +82,7 @@ class MyScaffoldState extends State<MyScaffold> {
             FontAwesomeIcons.plus,
             color: Colors.white,
           ),
-          onPressed: () => Navigator.of(context).pushNamed('/event'),
+          onPressed: () => Navigator.of(context).pushNamed('/event_tutorial'),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         drawer: UserDrawer(),

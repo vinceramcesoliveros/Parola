@@ -43,7 +43,7 @@ class MonitoringTab extends ListTab {
       String text;
       if (result.isSuccessful == true) {
         text = result.beacons.isNotEmpty
-            ? "You are ${result.beacons.first.distance < 5.0 ? 'Connected' : 'Too far'} from $eventTitle "
+            ? "You are ${result.beacons.first.distance < 7.0 ? 'Connected' : 'Too far'} from $eventTitle "
             : 'You are Disconnected from $eventTitle';
       } else {
         text = result.beacons.isNotEmpty == false
@@ -53,7 +53,7 @@ class MonitoringTab extends ListTab {
 
       return new ListTabResult(
           text: text,
-          isSuccessful: result.beacons.first.distance < 5.0 ? true : false,
+          isSuccessful: result.beacons.first.distance < 7.0 ? true : false,
           distance: result.beacons.first.distance);
     });
   }
@@ -168,10 +168,7 @@ class _ListTabState extends State<ListTab> {
     setState(() {
       _running = true;
     });
-    _subscription = widget
-        .stream(region)
-        .timeout(Duration(seconds: 10))
-        .listen((result) async {
+    _subscription = widget.stream(region).listen((result) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
         if (result.text != null) {

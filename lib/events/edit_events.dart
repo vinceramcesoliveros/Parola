@@ -37,50 +37,64 @@ class EditEventPage extends StatefulWidget {
 class _EditEventPageState extends State<EditEventPage> {
   TimeOfDay eventTimeStart = const TimeOfDay(minute: 0, hour: 0);
   TimeOfDay eventTimeEnd = const TimeOfDay(minute: 0, hour: 0);
+  String eventName,
+      major,
+      minor,
+      beacon,
+      eventLocation,
+      description,
+      organization;
+
+  DateTime eventDate = DateTime.now(),
+      timeEnd = DateTime.now(),
+      timeStart = DateTime.now();
+  GlobalKey<FormState> eventKey = GlobalKey<FormState>();
+
+  void submitEvent() {
+    final form = eventKey.currentState;
+    if (form.validate() &&
+        eventDate != null &&
+        eventTimeStart != null &&
+        eventTimeEnd != null) {
+      form.save();
+      editEvent();
+    }
+  }
+
+  Future<Null> editEvent() async {
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    DateTime finalStartDate = new DateTime(eventDate.year, eventDate.month,
+        eventDate.day, timeStart.hour, timeStart.minute);
+    DateTime finalEndDate = new DateTime(eventDate.year, eventDate.month,
+        eventDate.day, timeEnd.hour, timeEnd.minute);
+    Map<String, dynamic> eventData = {
+      "eventName": eventName,
+      "eventDesc": description,
+      "eventDate": eventDate,
+      "eventLocation": eventLocation,
+      "timeStart": finalStartDate,
+      "timeEnd": finalEndDate,
+      "beaconUUID": beacon,
+      "Major": major,
+      "Minor": minor,
+      "organization": organization
+    };
+    final DocumentReference ref =
+        Firestore.instance.collection('events').document(widget.eventKey);
+    Firestore.instance.runTransaction((trans) async {
+      await trans.update(ref, eventData);
+    }).then((result) {
+      print(result);
+
+      Navigator.of(context).pop();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    String eventName = widget.eventName,
-        major = widget.major,
-        minor = widget.minor,
-        beacon = widget.beacon,
-        eventLocation = widget.eventLocation,
-        description = widget.description,
-        organization = widget.organization;
-
     MaskedTextController beaconController = MaskedTextController(
-        mask: '@@@@@@@@-@@@@-@@@@-@@@@-@@@@@@@@@@@@', text: beacon);
-
-    DateTime eventDate = widget.eventDate,
-        timeEnd = widget.timeEnd,
-        timeStart = widget.timeStart;
-    Future<Null> editEvent() async {
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      DateTime finalStartDate = new DateTime(eventDate.year, eventDate.month,
-          eventDate.day, timeStart.hour, timeStart.minute);
-      DateTime finalEndDate = new DateTime(eventDate.year, eventDate.month,
-          eventDate.day, timeEnd.hour, timeEnd.minute);
-      Map<String, dynamic> eventData = {
-        "eventName": eventName,
-        "eventDesc": description,
-        "eventDate": eventDate,
-        "eventLocation": eventLocation,
-        "timeStart": finalStartDate,
-        "timeEnd": finalEndDate,
-        "beaconUUID": beacon,
-        "Major": major,
-        "Minor": minor,
-        "organization": organization
-      };
-      final DocumentReference ref =
-          Firestore.instance.collection('events').document(widget.eventKey);
-      Firestore.instance.runTransaction((trans) async {
-        await trans.update(ref, eventData);
-      }).then((result) {
-        print("Update to the Database");
-        Navigator.of(context).pop();
-      });
-    }
+        mask: '@@@@@@@@-@@@@-@@@@-@@@@-@@@@@@@@@@@@', text: widget.beacon);
 
     return Scaffold(
       resizeToAvoidBottomPadding: false,
@@ -93,7 +107,7 @@ class _EditEventPageState extends State<EditEventPage> {
           style: TextStyle(color: Colors.white),
         ),
         onPressed: () async {
-          editEvent();
+          submitEvent();
         },
       ),
       appBar: AppBar(
@@ -104,6 +118,7 @@ class _EditEventPageState extends State<EditEventPage> {
       ),
       body: SingleChildScrollView(
         child: Form(
+          key: eventKey,
           child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +126,7 @@ class _EditEventPageState extends State<EditEventPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: TextFormField(
-                    initialValue: eventName,
+                    initialValue: widget.eventName,
                     decoration: InputDecoration(labelText: "Event Name"),
                     onSaved: (str) {
                       eventName = str;
@@ -126,7 +141,7 @@ class _EditEventPageState extends State<EditEventPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: TextFormField(
-                    initialValue: description,
+                    initialValue: widget.description,
                     decoration: InputDecoration(
                         labelText: "Event Description",
                         border: OutlineInputBorder()),
@@ -138,7 +153,7 @@ class _EditEventPageState extends State<EditEventPage> {
                 ),
                 EventDateTimePicker(
                   labelText: 'Event Date',
-                  selectedDate: widget.eventDate,
+                  selectedDate: eventDate,
                   eventStartTime: eventTimeStart,
                   eventEndTime: eventTimeEnd,
                   selectDate: (DateTime date) {
@@ -164,7 +179,7 @@ class _EditEventPageState extends State<EditEventPage> {
                       Expanded(
                         flex: 1,
                         child: TextFormField(
-                          initialValue: eventLocation,
+                          initialValue: widget.eventLocation,
                           maxLength: 50,
                           decoration: InputDecoration(
                             labelText: "Event Location",
@@ -193,7 +208,7 @@ class _EditEventPageState extends State<EditEventPage> {
                       Expanded(
                         flex: 2,
                         child: TextFormField(
-                          maxLength: 36,
+                          initialValue: widget.organization,
                           decoration: InputDecoration(
                               labelText: "Organization",
                               labelStyle: Theme.of(context).textTheme.body1),
@@ -237,6 +252,7 @@ class _EditEventPageState extends State<EditEventPage> {
                       Expanded(
                         flex: 1,
                         child: TextFormField(
+                            initialValue: widget.major,
                             maxLength: 4,
                             onSaved: (str) => major = str,
                             decoration: InputDecoration(
@@ -249,6 +265,7 @@ class _EditEventPageState extends State<EditEventPage> {
                       Expanded(
                         flex: 1,
                         child: TextFormField(
+                            initialValue: widget.minor,
                             maxLength: 4,
                             onSaved: (str) => minor = str,
                             decoration: InputDecoration(

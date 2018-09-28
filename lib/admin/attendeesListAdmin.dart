@@ -37,7 +37,8 @@ class AttendeesListsState extends State<AttendeesLists> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("No. of Attendees: ${attendeesLists.length}"),
+        title: Text(
+            "No. of Attendees: ${attendeesLists.isEmpty ? 0 : attendeesLists.length + 1}"),
         centerTitle: true,
         backgroundColor: Colors.green[200],
         actions: <Widget>[
