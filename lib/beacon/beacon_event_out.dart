@@ -163,75 +163,63 @@ class _ListTabState extends State<ListTab> {
   }
 
   void _onStart(BeaconRegion region) {
-    setState(() {
-      _running = true;
-    });
-    _subscription = widget.stream(region).listen((result) async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      setState(() {
-        if (result.text != null) {
-          _results.clear();
-          _results.insert(0, result);
-        } else {
-          _results.clear();
-          _results.insert(
-              0,
-              ListTabResult(
-                  text: "Failed to Connect",
-                  isSuccessful: false,
-                  distance: null));
-        }
-        // Map<String, dynamic> status = {
-        //   "Connected": result.isSuccessful,
-        //   "Distance": result.distance,
-        // };
-        // Map<String, dynamic> setAttendees = {
-        //   "status": status,
-        //   "In": widget.eventTimeStart
-        //           .isAfter(widget.eventTimeStart.add(Duration(minutes: 15)))
-        //       ? "Late"
-        //       : "Present",
-        // };
+  setState(() {
+  _running = true;
+  });
+  _subscription = widget.stream(region).listen((result) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  setState(() {
+  if (result.text != null) {
+  _results.clear();
+  _results.insert(0, result);
+  } else {
+  _results.clear();
+  _results.insert(
+  0,
+  ListTabResult(
+  text: "Failed to Connect",
+  isSuccessful: false,
+  distance: null));
+  }
+  Map<String, dynamic> outAttendance = {
+  "eventName": widget.title,
+  "userid": prefs.getString('userid'),
+  "username": prefs.getString('username'),
+  "TimeOut": FieldValue.serverTimestamp(),
+  "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
+  widget.eventTimeEnd
+  .isBefore(widget.eventTimeEnd.add(Duration(minutes: 10)))
+  ? "Present"
+  : "Absent"
+  };
+  result.distance < 7.0
+  ? _showOngoingNotification(
+  successful:
+  result.distance < 7.0 ? 'Connected' : 'Disconnected',
+  status: result.text)
+  : _showStatusNotifcation();
+  DocumentReference attendeesRef = Firestore.instance.document(
+  "${widget.eventKey}_attendees/${prefs.getString('userid')}");
 
-        Map<String, dynamic> outAttendance = {
-          "eventName": widget.title,
-          "userid": prefs.getString('userid'),
-          "username": prefs.getString('username'),
-          "TimeOut": FieldValue.serverTimestamp(),
-          "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
-                  widget.eventTimeEnd
-                      .isBefore(widget.eventTimeEnd.add(Duration(minutes: 10)))
-              ? "Present"
-              : "Absent"
-        };
-        result.distance < 7.0
-            ? _showOngoingNotification(
-                successful:
-                    result.distance < 7.0 ? 'Connected' : 'Disconnected',
-                status: result.text)
-            : _showStatusNotifcation();
-        DocumentReference attendeesRef = Firestore.instance.document(
-            "${widget.eventKey}_attendees/${prefs.getString('userid')}");
+  DocumentReference userRef = Firestore.instance.document(
+  "event_attended_${prefs.getString('userid')}/${widget.eventKey}");
+  userRef.setData(outAttendance).then((e) {
+  print("Attendance Out");
+  });
+  attendeesRef.updateData(outAttendance).then((e) {}).whenComplete(() {
+  Fluttertoast.showToast(msg: "Attendance Out: ${widget.title}!");
 
-        DocumentReference userRef = Firestore.instance.document(
-            "event_attended_${prefs.getString('userid')}/${widget.eventKey}");
-        userRef.setData(outAttendance).then((e) {
-          print("Attendance Out");
-        });
-        attendeesRef.updateData(outAttendance).then((e) {}).whenComplete(() {
-          Fluttertoast.showToast(msg: "Attendance Out: ${widget.title}!");
-
-          FlutterScanBluetooth.stopScan();
-          _onStop();
-          Navigator.pop(context);
-        });
-      });
-    });
-    _subscription.onDone(() async {
-      setState(() {
-        _running = false;
-      });
-    });
+  FlutterScanBluetooth.stopScan();
+  _onStop();
+  Navigator.pop(context);
+  });
+  });
+  });
+  _subscription.onDone(() async {
+  setState(() {
+  _running = false;
+  });
+  });
   }
 
   @override

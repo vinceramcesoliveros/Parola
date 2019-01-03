@@ -61,35 +61,33 @@ class _EditEventPageState extends State<EditEventPage> {
     }
   }
 
-  Future<Null> editEvent() async {
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
+Future<Null> editEvent() async {
+DateTime finalStartDate = new DateTime(eventDate.year, eventDate.month,
+eventDate.day, timeStart.hour, timeStart.minute);
+DateTime finalEndDate = new DateTime(eventDate.year, eventDate.month,
+eventDate.day, timeEnd.hour, timeEnd.minute);
+Map<String, dynamic> eventData = {
+"eventName": eventName,
+"eventDesc": description,
+"eventDate": eventDate,
+"eventLocation": eventLocation,
+"timeStart": finalStartDate,
+"timeEnd": finalEndDate,
+"beaconUUID": beacon,
+"Major": major,
+"Minor": minor,
+"organization": organization
+};
+final DocumentReference ref =
+Firestore.instance.collection('events').document(widget.eventKey);
+Firestore.instance.runTransaction((trans) async {
+await trans.update(ref, eventData);
+}).then((result) {
+print(result);
 
-    DateTime finalStartDate = new DateTime(eventDate.year, eventDate.month,
-        eventDate.day, timeStart.hour, timeStart.minute);
-    DateTime finalEndDate = new DateTime(eventDate.year, eventDate.month,
-        eventDate.day, timeEnd.hour, timeEnd.minute);
-    Map<String, dynamic> eventData = {
-      "eventName": eventName,
-      "eventDesc": description,
-      "eventDate": eventDate,
-      "eventLocation": eventLocation,
-      "timeStart": finalStartDate,
-      "timeEnd": finalEndDate,
-      "beaconUUID": beacon,
-      "Major": major,
-      "Minor": minor,
-      "organization": organization
-    };
-    final DocumentReference ref =
-        Firestore.instance.collection('events').document(widget.eventKey);
-    Firestore.instance.runTransaction((trans) async {
-      await trans.update(ref, eventData);
-    }).then((result) {
-      print(result);
-
-      Navigator.of(context).pop();
-    });
-  }
+Navigator.of(context).pop();
+});
+}
 
   @override
   Widget build(BuildContext context) {
@@ -189,13 +187,6 @@ class _EditEventPageState extends State<EditEventPage> {
                           },
                         ),
                       ),
-                      // Expanded(
-                      //   flex: 1,
-                      //   child: DropdownButton(
-                      //       hint: Text("Select Organization"),
-                      //       items: orgMenu,
-                      //       onChanged: (val) {}),
-                      // )
                     ],
                   ),
                 ),

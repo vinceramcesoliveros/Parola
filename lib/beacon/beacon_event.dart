@@ -11,6 +11,7 @@ import 'package:flutter_scan_bluetooth/flutter_scan_bluetooth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 class MonitoringTab extends ListTab {
   final String eventTitle, major, minor, beaconID, eventKey;
   final DateTime eventDateStart, eventTimeStart, eventTimeEnd;
@@ -194,14 +195,6 @@ class _ListTabState extends State<ListTab> {
               : "Present",
         };
 
-        // outAttendance = {
-        //   "eventID": widget.eventKey,
-        //   "Out": DateTime.now().isAfter(widget.eventTimeEnd) &&
-        //           widget.eventTimeEnd
-        //               .isBefore(widget.eventTimeEnd.add(Duration(minutes: 10)))
-        //       ? "Completed"
-        //       : "Absent"
-        // };
         result.distance < 7.0
             ? _showOngoingNotification(
                 successful:

@@ -89,27 +89,28 @@ class DescPageState extends State<DescPage> {
               StreamBuilder(
                 stream: descQuery,
                 builder: (context, snapshot) {
-                  eventDesc = snapshot.data.documents;
-                  description = eventDesc[0].data['eventDesc'].toString();
-                  eventName = eventDesc[0].data['eventName'].toString();
-
-                  eventLocation = eventDesc[0].data['eventLocation'].toString();
-
-                  timeEnd = eventDesc[0].data['timeEnd'];
-                  timeStart = eventDesc[0].data['timeStart'];
-                  eventDate = eventDesc[0].data['eventDate'];
-
-                  major = eventDesc[0].data['Major'].toString();
-
-                  minor = eventDesc[0].data['Minor'].toString();
-
-                  beaconUUID = eventDesc[0].data['beaconUUID'].toString();
-                  organization = eventDesc[0].data['organization'].toString();
-                  eventKey = eventDesc[0].documentID.toString();
-
                   if (!snapshot.hasData) {
                     return Center(child: Text("Loading..."));
                   } else {
+                    eventDesc = snapshot.data.documents;
+                    description = eventDesc[0].data['eventDesc'].toString();
+                    eventName = eventDesc[0].data['eventName'].toString();
+
+                    eventLocation =
+                        eventDesc[0].data['eventLocation'].toString();
+
+                    timeEnd = eventDesc[0].data['timeEnd'];
+                    timeStart = eventDesc[0].data['timeStart'];
+                    eventDate = eventDesc[0].data['eventDate'];
+
+                    major = eventDesc[0].data['Major'].toString();
+
+                    minor = eventDesc[0].data['Minor'].toString();
+
+                    beaconUUID = eventDesc[0].data['beaconUUID'].toString();
+                    organization = eventDesc[0].data['organization'].toString();
+                    eventKey = eventDesc[0].documentID.toString();
+
                     return eventDesc[0].data['Admin'] == widget.username
                         ? IconButton(
                             icon: Icon(FontAwesomeIcons.solidEdit),
@@ -120,17 +121,18 @@ class DescPageState extends State<DescPage> {
                                   prefs.getString('username')) {
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => EditEventPage(
-                                        eventKey: eventKey,
-                                        eventName: eventName,
-                                        description: description,
-                                        eventLocation: eventLocation,
-                                        eventDate: eventDate,
-                                        timeStart: timeStart,
-                                        timeEnd: timeEnd,
-                                        beacon: beaconUUID,
-                                        major: major,
-                                        minor: minor,
-                                        organization: organization,)));
+                                          eventKey: eventKey,
+                                          eventName: eventName,
+                                          description: description,
+                                          eventLocation: eventLocation,
+                                          eventDate: eventDate,
+                                          timeStart: timeStart,
+                                          timeEnd: timeEnd,
+                                          beacon: beaconUUID,
+                                          major: major,
+                                          minor: minor,
+                                          organization: organization,
+                                        )));
                               } else {
                                 Fluttertoast.showToast(
                                   msg:
@@ -166,8 +168,8 @@ class DescPageState extends State<DescPage> {
                   return DateTime.now()
                           .isAfter(eventTimeEnd.add(Duration(minutes: 5)))
                       ? SizedBox()
-                      : DateTime.now().isAfter(
-                              eventTimeStart.add(Duration(minutes: 30)))
+                      : DateTime.now()
+                              .isAfter(eventTimeStart.add(Duration(minutes: 5)))
                           ? SizedBox()
                           : new AttendanceFAB(
                               eventTimeStart: eventTimeStart,
@@ -347,7 +349,6 @@ class DescListView extends StatelessWidget {
                         username: username,
                         eventTitle: eventTitle,
                         eventKey: eventKey,
-                        
                         eventDate: eventDate),
                     bottom: 0.0,
                     right: 4.0,
@@ -483,7 +484,7 @@ class FavButtonState extends State<FavButton> {
           if (hasAttended.isEmpty) {
             return RaisedButton(
               color: Colors.green[200],
-              child: Row( 
+              child: Row(
                 children: <Widget>[
                   Icon(
                     Icons.favorite_border,
@@ -536,8 +537,6 @@ class FavButtonState extends State<FavButton> {
                     eventAttendance();
                   });
                 }
-
-                // Firestore.instance.runTransaction(transactionHandler)
               },
               shape: StadiumBorder(),
             );

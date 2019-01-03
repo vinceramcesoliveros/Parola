@@ -53,11 +53,13 @@ class ListOfEvents extends StatelessWidget {
     return ListView.builder(
       itemCount: eventRef.length,
       itemBuilder: (context, index) {
-        String eventName = eventRef[index].data['eventName'].toString();
-        String eventKey = eventRef[index].documentID.toString();
+        List<DocumentSnapshot> snapshot = eventRef;
+
+        String eventName = snapshot[index].data['eventName'].toString();
+        String eventKey = snapshot[index].documentID.toString();
         String eventDate =
-            DateFormat.yMMMd().format(eventRef[index].data['eventDate']);
-        DateTime endTime = eventRef[index].data['timeEnd'];
+            DateFormat.yMMMd().format(snapshot[index].data['eventDate']);
+        DateTime endTime = snapshot[index].data['timeEnd'];
         return new EventDetails(
             eventName: eventName,
             eventDate: eventDate,

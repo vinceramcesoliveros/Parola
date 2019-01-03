@@ -6,10 +6,8 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/home/scaffold.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,7 +16,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // String _connectionStatus = 'Unknown';
   final app = FirebaseApp.instance;
   final config = FirebaseApp.configure(
       name: 'Parola',
@@ -44,26 +41,26 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<bool> _onExit() async {
-    return showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: Text("Exit Parola?"),
-              content: Text("Do you want to exit Parola?"),
-              actions: <Widget>[
-                RaisedButton(
-                  child: Text(
-                    "Nope",
-                  ),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                FlatButton(
-                    child: Text(
-                      "Yes",
-                      style: TextStyle(color: Colors.red[200]),
-                    ),
-                    onPressed: () => exit(0)),
-              ],
-            ));
-  }
+Future<bool> _onExit() async {
+return showDialog(
+context: context,
+builder: (context) => AlertDialog(
+title: Text("Exit Parola?"),
+content: Text("Do you want to exit Parola?"),
+actions: <Widget>[
+RaisedButton(
+child: Text(
+"Nope",
+),
+onPressed: () => Navigator.of(context).pop(),
+),
+FlatButton(
+child: Text(
+"Yes",
+style: TextStyle(color: Colors.red[200]),
+),
+onPressed: () => exit(0)),
+],
+));
+}
 }

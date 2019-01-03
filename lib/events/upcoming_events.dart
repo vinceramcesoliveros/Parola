@@ -23,13 +23,14 @@ class UpcomingEventBody extends StatelessWidget {
     return StreamBuilder(
       stream: Firestore.instance.collection('events').snapshots(),
       builder: (context, snapshot) {
-        List<DocumentSnapshot> eventListDocuments = snapshot.data.documents;
         if (!snapshot.hasData) {
           return Center(child: Text("No events Today"));
         } else {
           return ListView.builder(
             itemCount: snapshot.data.documents.length,
             itemBuilder: (context, index) {
+              List<DocumentSnapshot> eventListDocuments =
+                  snapshot.data.documents;
               DateTime eventDate = eventListDocuments[index].data['timeStart'];
               String eventName =
                   eventListDocuments[index].data['eventName'].toString();

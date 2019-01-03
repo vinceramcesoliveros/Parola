@@ -16,19 +16,15 @@ class HomeBodyPage extends StatelessWidget {
             .orderBy('timeStart', descending: true)
             .snapshots(),
         builder: (BuildContext context, snapshot) {
-          if (!snapshot.hasData) {
+          if (!snapshot.hasData)
             return SpinKitThreeBounce(color: Colors.green[200]);
-          } else {
-            return EventListView(
-              eventDocuments: snapshot.data.documents,
-            );
-          }
+          return EventListView(
+            eventDocuments: snapshot.data.documents,
+          );
         });
   }
 }
 
-//FIXME: Trying to make the list of events more look than this. will try to
-// put Firebase Storage too as a storage of calling images.
 class EventListView extends StatelessWidget {
   final List<DocumentSnapshot> eventDocuments;
 
@@ -39,9 +35,10 @@ class EventListView extends StatelessWidget {
     return ListView.builder(
       itemCount: eventDocuments.length,
       itemBuilder: (context, index) {
-        String eventTitle = eventDocuments[index].data['eventName'].toString();
-        DateTime eventDate = eventDocuments[index].data['eventDate'];
-        String eventPic = eventDocuments[index].data['eventPicURL'].toString();
+        List<DocumentSnapshot> snapshot = eventDocuments;
+        String eventTitle = snapshot[index].data['eventName'].toString();
+        DateTime eventDate = snapshot[index].data['eventDate'];
+        String eventPic = snapshot[index].data['eventPicURL'].toString();
         return Card(
           shape: BeveledRectangleBorder(
               borderRadius: BorderRadius.only(
@@ -51,7 +48,7 @@ class EventListView extends StatelessWidget {
           elevation: 16.0,
           child: GestureDetector(
             child: ListTile(
-              title: Text(eventDocuments[index].data['eventName'].toString()),
+              title: Text(snapshot[index].data['eventName'].toString()),
               subtitle: Text(DateFormat.yMMMd().format(eventDate)),
               leading: new EventImage(eventPic: eventPic),
               onTap: () async {
@@ -60,9 +57,8 @@ class EventListView extends StatelessWidget {
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => DescPage(
-                              eventTitle: eventDocuments[index]
-                                  .data['eventName']
-                                  .toString(),
+                              eventTitle:
+                                  snapshot[index].data['eventName'].toString(),
                               username: username,
                             )),
                     (p) => true);

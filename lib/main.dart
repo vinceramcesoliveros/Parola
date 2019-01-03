@@ -46,9 +46,6 @@ class ParolaScreen extends StatefulWidget {
   }
 }
 
-///
-///Checks if the `user` has signed in after closing
-///the application
 class ParolaScreenState extends State<ParolaScreen> {
   Battery battery = new Battery();
   int batteryLevel = 0;
@@ -123,12 +120,6 @@ class ParolaScreenState extends State<ParolaScreen> {
     super.initState();
     initNotification();
     // showNotification();
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
   }
 
   @override

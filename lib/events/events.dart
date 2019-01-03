@@ -51,10 +51,10 @@ class EventPageState extends State<EventPage> {
     final StorageReference storageRef =
         FirebaseStorage.instance.ref().child('eventImages/$fileName');
     final StorageUploadTask task = storageRef.putFile(file);
+    StorageTaskSnapshot storageTaskSnapshot = await task.onComplete;
+    String downloadURL = await storageTaskSnapshot.ref.getDownloadURL();
 
-    final Uri downloadUrl = (await task.future).downloadUrl;
-    path = downloadUrl.toString();
-    print(path);
+    path = downloadURL;
   }
 
   void dispose() {
@@ -80,8 +80,6 @@ class EventPageState extends State<EventPage> {
         eventTimeEnd.minute);
     DateTime eventDate = DateTime(
         eventDateStart.year, eventDateStart.month, eventDateStart.day, 0, 0);
-    // String timeEnd = DateFormat.jm().format(finalEndDate);
-    // String timeStart = DateFormat.jm().format(finalStartDate);
     Map<String, dynamic> eventData = {
       "eventName": eventName,
       "eventDesc": eventDesc,
@@ -135,7 +133,6 @@ class EventPageState extends State<EventPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
-    String orgChoice;
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomPadding: false,
@@ -152,7 +149,7 @@ class EventPageState extends State<EventPage> {
                 beaconController.text != null
                     ? await uploadFile(_image.path).whenComplete(() async {
                         submitEvent();
-                        Fluttertoast.showToast(msg:"Uploading...");
+                        Fluttertoast.showToast(msg: "Uploading...");
                       }).then((e) {
                         addEvent();
                         Fluttertoast.showToast(
@@ -370,5 +367,3 @@ class EventPageState extends State<EventPage> {
     );
   }
 }
-
-//Pagination Page, Alternative to Stepper in Flutter.

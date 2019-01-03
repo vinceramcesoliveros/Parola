@@ -22,43 +22,41 @@ class UserModel extends Model {
   final FacebookLogin facebookSignIn = new FacebookLogin();
   FirebaseUser user;
 
-  ///Automatically Sign in from Splash Screen,
-  Future<FirebaseUser> googleSignIn() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final GoogleSignInAccount googleUser = await _signIn.signIn();
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-    try {
-      user = await _auth
-          .signInWithGoogle(
-              accessToken: googleAuth.accessToken, idToken: googleAuth.idToken)
-          .catchError((e) {});
-      assert(user.email != null);
-      assert(user.displayName != null);
-      assert(await user.getIdToken() != null);
-      final FirebaseUser currentUser = await _auth.currentUser();
+Future<FirebaseUser> googleSignIn() async {
+SharedPreferences prefs = await SharedPreferences.getInstance();
+final GoogleSignInAccount googleUser = await _signIn.signIn();
+final GoogleSignInAuthentication googleAuth =
+await googleUser.authentication;
+try {
+user = await _auth
+.signInWithGoogle(
+accessToken: googleAuth.accessToken, idToken: googleAuth.idToken)
+.catchError((e) {});
+assert(user.email != null);
+assert(user.displayName != null);
+assert(await user.getIdToken() != null);
+final FirebaseUser currentUser = await _auth.currentUser();
 
-      prefs.setString("username", user.displayName);
-      prefs.setString("userid", user.uid);
-      prefs.setString("useremail", user.email);
-      prefs.setString("userphotoURL", user.photoUrl);
-      if (_auth.currentUser() != null) isLoggedIn = true;
-      return currentUser;
-    } catch (e) {
-      print(e);
-    }
-    return null;
-  }
+prefs.setString("username", user.displayName);
+prefs.setString("userid", user.uid);
+prefs.setString("useremail", user.email);
+prefs.setString("userphotoURL", user.photoUrl);
+if (_auth.currentUser() != null) isLoggedIn = true;
+return currentUser;
+} catch (e) {
+print(e);
+}
+return null;
+}
 
-  Future<bool> signOut() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await _signIn.signOut();
-    await _auth.signOut();
-    prefs.clear();
-    // prefs.commit();
-    isLoggedIn = false;
-    return isLoggedIn;
-  }
+Future<bool> signOut() async {
+SharedPreferences prefs = await SharedPreferences.getInstance();
+await _signIn.signOut();
+await _auth.signOut();
+prefs.clear();
+isLoggedIn = false;
+return isLoggedIn;
+}
 
   Future<FirebaseUser> fbSignIn(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

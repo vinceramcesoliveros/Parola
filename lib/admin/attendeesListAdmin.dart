@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_parola/admin/crudAttendees.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class AttendeesLists extends StatefulWidget {
   final String eventName;
@@ -37,8 +36,7 @@ class AttendeesListsState extends State<AttendeesLists> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            "No. of Attendees: ${attendeesLists.isEmpty ? 0 : attendeesLists.length + 1}"),
+        title: Text("List of Attendees"),
         centerTitle: true,
         backgroundColor: Colors.green[200],
         actions: <Widget>[
@@ -57,31 +55,43 @@ class AttendeesListsState extends State<AttendeesLists> {
       floatingActionButton:
           DateTime.now().isAfter(widget.endTime.add(Duration(minutes: 30)))
               ? SizedBox()
-              : FloatingActionButton(
-                  child: Icon(Icons.add),
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => AddAttendees(
-                                  eventKey: widget.eventKey,
-                                )));
-                  },
-                ),
+              : new FABAttendees(widget: widget),
       body: StreamBuilder(
           stream: Firestore.instance
               .collection('${widget.eventKey}_attendees')
               .snapshots(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData || snapshot.data.documents == null) {
-              return Center(child: Text("Loading..."));
-            } else {
-              return AttendeesListsDocuments(
-                  lists: snapshot.data.documents,
-                  eventKey: widget.eventKey,
-                  endTime: widget.endTime);
-            }
+            if (!snapshot.hasData)
+              return Center(child: CircularProgressIndicator());
+            return AttendeesListsDocuments(
+                lists: snapshot.data.documents,
+                eventKey: widget.eventKey,
+                endTime: widget.endTime);
           }),
+    );
+  }
+}
+
+class FABAttendees extends StatelessWidget {
+  const FABAttendees({
+    Key key,
+    @required this.widget,
+  }) : super(key: key);
+
+  final AttendeesLists widget;
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      child: Icon(Icons.add),
+      onPressed: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => AddAttendees(
+                      eventKey: widget.eventKey,
+                    )));
+      },
     );
   }
 }
@@ -96,61 +106,59 @@ class AttendeesListsDocuments extends StatelessWidget {
     return ListView.builder(
       itemCount: lists.length,
       itemBuilder: (context, index) {
-        String id = lists[index].data['eventID'].toString();
-        String distance = lists[index].data['Distance']?.toString();
-        String name = lists[index].data["username"].toString();
-        String attendanceIN = lists[index].data['In']?.toString();
-        String attendanceOut = lists[index].data['Out']?.toString();
-        DateTime timeIn = lists[index].data['TimeIn'];
-        DateTime timeOut = lists[index].data['TimeOut'];
+        List<DocumentSnapshot> listOfAttendees = lists;
+        String id = listOfAttendees[index].data['eventID'].toString();
+        String name = listOfAttendees[index].data["username"].toString();
+        String attendanceIN = listOfAttendees[index].data['In']?.toString();
+        String attendanceOut = listOfAttendees[index].data['Out']?.toString();
         return Card(
-          color: Colors.white,
-          child: Column(children: [
-            ListTile(
+            color: Colors.white,
+            child: ListTile(
               leading: Icon(Icons.person),
               trailing:
                   DateTime.now().isAfter(endTime.add(Duration(minutes: 30)))
                       ? SizedBox()
-                      : IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () =>
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => EditAttendees(
-                                        eventKey: eventKey,
-                                        id: id,
-                                        name: name,
-                                        attendIn: attendanceIN,
-                                        attendOut: attendanceOut,
-                                      )))),
+                      : new EventIcon(
+                          eventKey: eventKey,
+                          id: id,
+                          name: name,
+                          attendanceIN: attendanceIN,
+                          attendanceOut: attendanceOut),
               title: Text("${index + 1}. $name"),
-            ),
-            ButtonTheme.bar(
-              child: ButtonBar(
-                alignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Text(attendanceIN == null
-                      ? DateTime.now().isAfter(timeOut)
-                          ? "Absent"
-                          : attendanceIN == "Pending"
-                      : "$attendanceIN - Time In: ${DateFormat.jm().format(timeIn)}"),
-                  Icon(attendanceIN == "Absent" || attendanceIN == null
-                      ? Icons.close
-                      : Icons.check),
-                  Text(attendanceOut == null
-                      ? DateTime.now().isAfter(timeOut) ? "Absent" : "Pending"
-                      : attendanceOut),
-                  Icon(
-                    attendanceOut == null || attendanceOut == "Absent"
-                        ? Icons.close
-                        : Icons.check,
-                  )
-                ],
-              ),
-            )
-          ]),
-        );
+            ));
       },
     );
+  }
+}
+
+class EventIcon extends StatelessWidget {
+  const EventIcon({
+    Key key,
+    @required this.eventKey,
+    @required this.id,
+    @required this.name,
+    @required this.attendanceIN,
+    @required this.attendanceOut,
+  }) : super(key: key);
+
+  final String eventKey;
+  final String id;
+  final String name;
+  final String attendanceIN;
+  final String attendanceOut;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+        icon: Icon(Icons.edit),
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => EditAttendees(
+                  eventKey: eventKey,
+                  id: id,
+                  name: name,
+                  attendIn: attendanceIN,
+                  attendOut: attendanceOut,
+                ))));
   }
 }
 
@@ -184,15 +192,16 @@ class AttendeeSearchQuery extends SearchDelegate<String> {
     return Center(child: Text(query));
   }
 
+  Widget noResult = ListTile(
+    title: Text("Search Attendee"),
+  );
   @override
   Widget buildSuggestions(BuildContext context) {
     final searchQuery = attendeesLists.isEmpty
         ? attendeesLists
         : attendeesLists.where((p) => p.startsWith(query)).toSet().toList();
     return attendeesLists == null
-        ? ListTile(
-            title: Text("Search Attendee"),
-          )
+        ? noResult
         : ListView.builder(
             itemCount: searchQuery.length,
             itemBuilder: (context, index) {

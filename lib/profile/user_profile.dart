@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:final_parola/home/organization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -91,24 +90,23 @@ class _EditProfileState extends State<EditProfile> {
     super.initState();
   }
 
-  Future<Null> queryAllEvents() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    Firestore.instance
-        .collection('events')
-        .snapshots()
-        .listen((data) => data.documents.forEach((doc) {
-              Firestore.instance
-                  .collection('${doc.documentID}_attendees')
-                  .where('userid', isEqualTo: prefs.getString('userid'))
-                  .snapshots()
-                  .listen((eventData) {
-                eventData.documents.forEach((eventDoc) {
-                  eventListName.add(eventDoc['eventID']);
-                });
-                // eventListName.add(eventData.documents[0].data['eventName']);
-              });
-            }));
-  }
+Future<Null> queryAllEvents() async {
+SharedPreferences prefs = await SharedPreferences.getInstance();
+Firestore.instance
+.collection('events')
+.snapshots()
+.listen((data) => data.documents.forEach((doc) {
+Firestore.instance
+.collection('${doc.documentID}_attendees')
+.where('userid', isEqualTo: prefs.getString('userid'))
+.snapshots()
+.listen((eventData) {
+eventData.documents.forEach((eventDoc) {
+eventListName.add(eventDoc['eventID']);
+});
+});
+}));
+}
 
   @override
   Widget build(BuildContext context) {
@@ -143,39 +141,39 @@ class _EditProfileState extends State<EditProfile> {
                           RaisedButton(
                               child: Text("Update"),
                               onPressed: () async {
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                UserUpdateInfo updateInfo = UserUpdateInfo();
-                                updateInfo.displayName =
-                                    "${firstNameController.text} ${middleNameController.text} ${lastNameController.text}";
-                                prefs.setString('username',
-                                    "${firstNameController.text} ${middleNameController.text} ${lastNameController.text}");
-                                Map<String, dynamic> updateName = {
-                                  "firstName": firstNameController.text,
-                                  "lastName": lastNameController.text,
-                                  "middleName": middleNameController.text
-                                };
-                                await FirebaseAuth.instance
-                                    .updateProfile(updateInfo)
-                                    .then((e) {
-                                  Firestore.instance
-                                      .collection('users')
-                                      .document(prefs.getString('userid'))
-                                      .updateData(updateName);
-                                  Firestore.instance
-                                      .collection(
-                                          'event_attended_${prefs.getString('username')}')
-                                      .document(prefs.getString('userid'))
-                                      .updateData(updateName);
-                                  eventListName.forEach((doc) {
-                                    Firestore.instance
-                                        .collection(doc)
-                                        .document(
-                                            '${prefs.getString('userid')}')
-                                        .updateData(updateName);
-                                  });
-                                }).whenComplete(() => Navigator.pop(context));
-                              })
+SharedPreferences prefs =
+await SharedPreferences.getInstance();
+UserUpdateInfo updateInfo = UserUpdateInfo();
+updateInfo.displayName =
+"${firstNameController.text} ${middleNameController.text} ${lastNameController.text}";
+prefs.setString('username',
+"${firstNameController.text} ${middleNameController.text} ${lastNameController.text}");
+Map<String, dynamic> updateName = {
+"firstName": firstNameController.text,
+"lastName": lastNameController.text,
+"middleName": middleNameController.text
+};
+await FirebaseAuth.instance
+.updateProfile(updateInfo)
+.then((e) {
+Firestore.instance
+.collection('users')
+.document(prefs.getString('userid'))
+.updateData(updateName);
+Firestore.instance
+.collection(
+'event_attended_${prefs.getString('username')}')
+.document(prefs.getString('userid'))
+.updateData(updateName);
+eventListName.forEach((doc) {
+Firestore.instance
+.collection(doc)
+.document(
+  '${prefs.getString('userid')}')
+.updateData(updateName);
+});
+}).whenComplete(() => Navigator.pop(context));
+})
                         ],
                       ))
                     ],
